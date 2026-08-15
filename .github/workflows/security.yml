@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
       - name: Export locked dependencies
-        run: uv export --frozen --no-emit-project -o requirements.txt
+        run: uv export --frozen --no-emit-project --no-hashes -o requirements.txt
       - name: Audit dependencies
         run: uvx pip-audit -r requirements.txt --disable-pip
 
