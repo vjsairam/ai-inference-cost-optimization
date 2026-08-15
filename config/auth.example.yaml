@@ -1,0 +1,6 @@
+# Lab API keys: SHA-256 digests only, never raw keys.
+# Generate a key + digest with:
+#   uv run python -c "from prospera_gateway.security import generate_api_key, hash_api_key; k=generate_api_key(); print(k); print(hash_api_key(k))"
+keys:
+  - sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+    team: platform-lab

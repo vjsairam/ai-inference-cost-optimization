@@ -51,3 +51,5 @@ timeouts:
   stream_idle_timeout: 30
   per_attempt_timeout: 60
   global_request_deadline: 90
+
+workloads: [classification, structured-extraction, generation, generic]

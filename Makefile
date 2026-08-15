@@ -20,11 +20,13 @@ test-contract:
 	uv run pytest tests/contract
 
 test-integration:
-	@echo "M0 compatibility target: running unit and contract tests until integration tests exist in M1."
-	uv run pytest tests/unit tests/contract
+	uv run pytest tests/integration
 
-local-up local-smoke:
-	@echo "$@ not available until M1 (see TECHNICAL_SPEC.md §18)"
+local-up:
+	uv run uvicorn --factory prospera_gateway.main:build_app --host 127.0.0.1 --port 8080
+
+local-smoke:
+	@echo "local-smoke not available until M3 (see TECHNICAL_SPEC.md §18)"
 	@exit 2
 
 benchmark report:

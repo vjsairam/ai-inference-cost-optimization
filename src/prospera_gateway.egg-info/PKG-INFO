@@ -6,8 +6,13 @@ License: MIT
 Requires-Python: <3.14,>=3.13
 Description-Content-Type: text/markdown
 License-File: LICENSE
+Requires-Dist: anthropic<1,>=0.80
+Requires-Dist: fastapi<1,>=0.115
+Requires-Dist: httpx<1,>=0.27
+Requires-Dist: prometheus-client<2,>=0.20
 Requires-Dist: pydantic<3,>=2.10
 Requires-Dist: PyYAML<7,>=6.0.2
+Requires-Dist: uvicorn<1,>=0.30
 Dynamic: license-file
 
 # AI Inference Cost Optimization

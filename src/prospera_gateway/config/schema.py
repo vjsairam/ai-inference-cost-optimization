@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import date
 from decimal import Decimal, InvalidOperation
 from typing import Annotated, Literal, Self
@@ -197,6 +198,25 @@ class RoutingPolicy(BaseModel):
     rules: list[RoutingRule] = Field(min_length=1)
     fallback: FallbackConfig
     timeouts: TimeoutConfig = Field(default_factory=TimeoutConfig)
+    workloads: list[str] = Field(
+        default=["classification", "structured-extraction", "generation", "generic"],
+        min_length=1,
+        description="Allowed workload identifiers; bounds the workload metric label",
+    )
+
+    @model_validator(mode="after")
+    def workload_identifiers_are_bounded(self) -> Self:
+        for workload in self.workloads:
+            if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,31}", workload):
+                raise ValueError(f"invalid workload identifier: {workload!r}")
+        rule_workloads = {
+            w for rule in self.rules if rule.when.workload for w in rule.when.workload
+        }
+        unknown = rule_workloads.difference(self.workloads)
+        if unknown:
+            names = ", ".join(sorted(unknown))
+            raise ValueError(f"rules reference workloads missing from allowlist: {names}")
+        return self
 
     @model_validator(mode="after")
     def routes_are_known_and_restricted_is_private(self) -> Self:

@@ -2,7 +2,21 @@
 
 Authoritative progress tracker. Updated with every change set.
 
-## Current milestone: M0 — Repo + contracts (complete)
+## Current milestone: M1 — Gateway + adapters (complete)
+
+| Item | Status |
+|---|---|
+| FastAPI gateway: /v1/chat/completions (stream + non-stream), /health/live, /health/ready, /health/providers, /metrics | Done |
+| Bearer-key auth: SHA-256 lookup digests, constant-time compare, key-derived team, X-Prospera-Team 403 on mismatch | Done |
+| Deterministic policy router with runtime restricted fail-closed invariant | Done |
+| Bounded fallback: eligible errors only, max_attempts, global deadline, no replay after stream start | Done |
+| Generic OpenAI-compatible adapter (private vLLM path) | Done |
+| Managed adapter: Anthropic Messages API via official SDK (ADR-010) | Done |
+| Per-request managed cost estimation from date-stamped pricing config | Done |
+| Prometheus metrics per spec §13.1 with bounded labels | Done |
+| Routing acceptance tests: all data_class × quality_tier cells, fail-closed, no-replay, sentinel log check | Done |
+
+## Previous milestone: M0 — Repo + contracts (complete)
 
 | Item | Status |
 |---|---|
@@ -22,8 +36,8 @@ Authoritative progress tracker. Updated with every change set.
 
 ## Next milestone
 
-- M1 — Gateway + adapters. The HTTP gateway, authentication, routing engine, fallback engine,
-  private-compatible adapter, and selected managed adapter remain pending by design.
+- M2 — Benchmark + eval: harness, synthetic datasets, deterministic evaluators, run manifest,
+  raw result schema, cost engine.
 
 ## Commands run
 
@@ -48,3 +62,5 @@ Authoritative progress tracker. Updated with every change set.
   the locked export, setuptools moved to 83 to clear PYSEC-2026-3447. `make lint`, `make test`
   (29 passed), `make test-contract` (14 passed) verified locally; CI and Security workflows green
   on main.
+- M1 verification: `make lint` clean (ruff + mypy strict), `make test` / `make test-contract` /
+  `make test-integration` — 123 tests passed locally.
