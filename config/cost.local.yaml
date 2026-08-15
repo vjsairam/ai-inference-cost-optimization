@@ -1,0 +1,42 @@
+version: "local-mock-v1"
+currency: USD
+effective_date: "2026-08-15"
+private:
+  gpu_node_hourly_usd: "1.00"
+  cpu_node_hourly_usd: "0.10"
+  model_storage_hourly_usd: "0.01"
+  model_transfer_per_gb_usd: "0.00"
+  node_lifecycle_hourly_usd: "0.00"
+  minimum_billing_seconds: 1
+shared:
+  gateway_hourly_usd: "0.05"
+  network_nat_hourly_usd: "0.02"
+  control_plane_hourly_usd: "0.10"
+  shared_storage_hourly_usd: "0.01"
+  observability_hourly_usd: "0.03"
+operations:
+  low:
+    hours_per_month: "4"
+    hourly_rate_usd: "50"
+    allocation_fraction: "0.10"
+    basis: "Local scenario assumption; replace before publication."
+  typical:
+    hours_per_month: "12"
+    hourly_rate_usd: "75"
+    allocation_fraction: "0.25"
+    basis: "Local scenario assumption; replace before publication."
+  high:
+    hours_per_month: "30"
+    hourly_rate_usd: "100"
+    allocation_fraction: "0.50"
+    basis: "Local scenario assumption; replace before publication."
+scenario_grid:
+  monthly_requests: [10000, 50000, 100000, 500000, 1000000]
+  token_profiles:
+    short: {input_tokens: 256, output_tokens: 64}
+    medium: {input_tokens: 1024, output_tokens: 256}
+  utilization_tiers:
+    low: {requests_per_replica_month: 100000, replica_hours_per_month: "720"}
+    typical: {requests_per_replica_month: 500000, replica_hours_per_month: "720"}
+    high: {requests_per_replica_month: 1000000, replica_hours_per_month: "720"}
+  quality_sensitivity_points: [-5, 0, 5]

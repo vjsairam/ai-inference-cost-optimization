@@ -1,0 +1,8 @@
+{
+  "count": 320,
+  "name": "extraction-v1",
+  "seed": 20260815,
+  "target_schema": "extraction-v1.schema.json",
+  "version": "1.0.0",
+  "workload": "structured-extraction"
+}

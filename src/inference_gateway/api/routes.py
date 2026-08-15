@@ -65,9 +65,19 @@ def _error_response(
     )
 
 
-def _provider_error_response(error: ProviderError, request_id: str) -> JSONResponse:
+def _provider_error_response(
+    error: ProviderError,
+    request_id: str,
+    provider: str,
+    route: str,
+) -> JSONResponse:
     status = _ERROR_STATUS[error.error.error_class]
-    headers = {"X-Gateway-Request-Id": request_id}
+    headers = {
+        "X-Gateway-Request-Id": request_id,
+        "X-Gateway-Provider": provider,
+        "X-Gateway-Route": route,
+        "X-Gateway-Fallback-Count": str(max(0, len(error.attempts) - 1)),
+    }
     if error.error.retry_after_seconds is not None:
         headers["Retry-After"] = str(int(error.error.retry_after_seconds))
     return JSONResponse(
@@ -366,10 +376,10 @@ async def _non_streamed(
     try:
         outcome = await state.executor.chat(canonical, ctx, decision)
     except ProviderError as error:
-        _record_terminal_error(
+        provider = _record_terminal_error(
             state, error, decision, metric_model, team, workload, request_id, started
         )
-        return _provider_error_response(error, request_id)
+        return _provider_error_response(error, request_id, provider, decision.rule_name)
 
     _record_attempt_history(state, outcome.attempts)
     latency = time.monotonic() - started
@@ -401,6 +411,7 @@ async def _non_streamed(
             "X-Gateway-Request-Id": request_id,
             "X-Gateway-Route": decision.rule_name,
             "X-Gateway-Provider": outcome.provider,
+            "X-Gateway-Fallback-Count": str(outcome.fallback_count),
         },
     )
 
@@ -428,10 +439,10 @@ async def _streamed(
     except StopAsyncIteration:
         first_item = None
     except ProviderError as error:
-        _record_terminal_error(
+        provider = _record_terminal_error(
             state, error, decision, metric_model, team, workload, request_id, started
         )
-        return _provider_error_response(error, request_id)
+        return _provider_error_response(error, request_id, provider, decision.rule_name)
 
     async def event_stream() -> AsyncIterator[str]:
         first_content = True
@@ -512,12 +523,16 @@ async def _streamed(
                 latency,
             )
 
+    first_provider = first_item[0] if first_item is not None else decision.primary
+    first_fallback_index = first_item[1] if first_item is not None else 0
     return StreamingResponse(
         event_stream(),
         media_type="text/event-stream",
         headers={
             "X-Gateway-Request-Id": request_id,
             "X-Gateway-Route": decision.rule_name,
+            "X-Gateway-Provider": first_provider,
+            "X-Gateway-Fallback-Count": str(first_fallback_index),
             "Cache-Control": "no-cache",
         },
     )

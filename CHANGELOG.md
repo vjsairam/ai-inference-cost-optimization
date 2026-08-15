@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+- M2: seeded synthetic workloads, deterministic evaluators, SLO and manifest gates, async
+  benchmark harness, two-view cost and scenario-grid calculations, bootstrap report statistics,
+  local mock report path, result schema, operator targets, and layered tests for issues #11-#16.
 - M1: OpenAI-compatible gateway with bearer-key auth, deterministic policy routing,
   bounded fallback with streaming no-replay, generic OpenAI-compatible and Anthropic
   managed adapters (ADR-010), per-request cost estimation, Prometheus telemetry,

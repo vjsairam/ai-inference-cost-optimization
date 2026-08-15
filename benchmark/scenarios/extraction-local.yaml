@@ -1,0 +1,30 @@
+id: extraction-balanced-local
+treatment: t1-local-mock
+workload: structured-extraction
+provider_mode: local-mock
+stream: false
+concurrency: 4
+requests: 24
+temperature: 0
+max_tokens: 256
+data_class: internal
+quality_tier: balanced
+structured_output_mode: baseline-portable
+warmup_requests: 3
+repeats: 3
+dataset: benchmark/datasets/synthetic/extraction-v1
+slo_config: config/slo.example.yaml
+slo_cell: WL-02/balanced
+pricing_config: config/providers.example.yaml
+timeout_config: policy/routing.yaml
+cost_config: config/cost.local.yaml
+model: lab-default
+publishable: false
+economic_views: [view_a, view_b]
+pricing_version: "2026-08-15"
+bootstrap_iterations: 1000
+seed: 20260815
+request_rate_schedule: closed-loop
+sampling_parameters:
+  token_profile: medium
+notes: "Local plumbing check; not performance evidence."

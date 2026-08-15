@@ -1,0 +1,17 @@
+{
+  "categories": [
+    "access",
+    "billing",
+    "delivery",
+    "hardware",
+    "network",
+    "security",
+    "software",
+    "storage"
+  ],
+  "count": 320,
+  "name": "classification-v1",
+  "seed": 20260815,
+  "version": "1.0.0",
+  "workload": "classification"
+}

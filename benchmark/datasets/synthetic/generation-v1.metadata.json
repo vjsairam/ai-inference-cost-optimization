@@ -1,0 +1,8 @@
+{
+  "count": 120,
+  "name": "generation-v1",
+  "seed": 20260815,
+  "token_target_note": "whitespace-token approximation for controlled local load",
+  "version": "1.0.0",
+  "workload": "generation"
+}

@@ -1,0 +1,42 @@
+version: "lab-cost-v1"
+currency: USD
+effective_date: "2026-08-15"
+private:
+  gpu_node_hourly_usd: "PLACEHOLDER"
+  cpu_node_hourly_usd: "PLACEHOLDER"
+  model_storage_hourly_usd: "PLACEHOLDER"
+  model_transfer_per_gb_usd: "PLACEHOLDER"
+  node_lifecycle_hourly_usd: "PLACEHOLDER"
+  minimum_billing_seconds: 60
+shared:
+  gateway_hourly_usd: "PLACEHOLDER"
+  network_nat_hourly_usd: "PLACEHOLDER"
+  control_plane_hourly_usd: "PLACEHOLDER"
+  shared_storage_hourly_usd: "PLACEHOLDER"
+  observability_hourly_usd: "PLACEHOLDER"
+operations:
+  low:
+    hours_per_month: "PLACEHOLDER"
+    hourly_rate_usd: "PLACEHOLDER"
+    allocation_fraction: "PLACEHOLDER"
+    basis: "Document the team and allocation basis."
+  typical:
+    hours_per_month: "PLACEHOLDER"
+    hourly_rate_usd: "PLACEHOLDER"
+    allocation_fraction: "PLACEHOLDER"
+    basis: "Document the team and allocation basis."
+  high:
+    hours_per_month: "PLACEHOLDER"
+    hourly_rate_usd: "PLACEHOLDER"
+    allocation_fraction: "PLACEHOLDER"
+    basis: "Document the team and allocation basis."
+scenario_grid:
+  monthly_requests: [10000, 50000, 100000, 500000, 1000000]
+  token_profiles:
+    short: {input_tokens: 256, output_tokens: 64}
+    medium: {input_tokens: 1024, output_tokens: 256}
+  utilization_tiers:
+    low: {requests_per_replica_month: 100000, replica_hours_per_month: "720"}
+    typical: {requests_per_replica_month: 500000, replica_hours_per_month: "720"}
+    high: {requests_per_replica_month: 1000000, replica_hours_per_month: "720"}
+  quality_sensitivity_points: [-5, 0, 5]
