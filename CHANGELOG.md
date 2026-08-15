@@ -1,5 +1,16 @@
 # Changelog
 
+## Container build and benchmark runner
+
+- Added a locked, non-root gateway image that also contains the benchmark harness, frozen inputs,
+  configuration, policy, and result schemas under `/workspace`.
+- Added the `benchmark-jobs` Namespace and CPU/system-node Job with immutable image substitution,
+  deploy-manifest mounting, sleeper/exec operation, and an args-driven one-shot mode.
+- Replaced the abstract runner prerequisite with exact image push, digest capture, ConfigMap,
+  Secret, apply, placement, exec, and one-shot commands. Registry push and cloud execution remain
+  pending operator inputs.
+- Added static unit coverage for the image and Kubernetes assets.
+
 ## Post-audit hardening
 
 - Preserved measured zero quality, labeled unmeasured quality and scenario-grid assumptions, and

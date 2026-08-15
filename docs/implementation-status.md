@@ -7,10 +7,26 @@ Authoritative progress tracker. Updated with every change set.
 | Item | Status |
 |---|---|
 | M6 T0 managed and T1 private frozen cloud scenarios | Definitions ready; execution pending operator inputs |
-| M6 in-cluster benchmark procedure, manifest inputs, publication gate, and SC-11 capture | Definitions ready; execution pending operator inputs |
+| M6 runner image, in-cluster Job, manifest inputs, publication gate, and SC-11 capture | Image and Job defined; registry push and execution pending operator inputs |
 | M7 T3 hybrid and T4 provider-fault/vLLM Pod-delete scenarios and procedure | Definitions ready; execution pending operator inputs |
 | Published-results layout and fail-closed claimability contract | Complete; no cloud result is published |
 | M9 case-study front page, limitations, reproduce links, and four-minute local demo | Docs complete; release tag withheld pending M6 evidence |
+
+## Container build and runner assets (2026-08-15)
+
+1. The multi-stage Python 3.13 image installs the locked production environment and runs the
+   gateway as a non-root user by default.
+2. The same `/workspace` layout contains the packaged benchmark command, scenarios, frozen
+   datasets, configuration, policy, and result schemas.
+3. The `benchmark-jobs` Namespace and benchmark Job select the CPU/system node group, mount the
+   immutable deploy manifest, and support both sleeper/exec and args-driven execution.
+4. The cloud benchmark runbook defines the exact image build, push, digest substitution,
+   ConfigMap, Secret, apply, placement, and execution commands.
+5. Static unit tests validate the image and Kubernetes asset contracts without invoking a
+   container runtime.
+
+The runner image push, digest capture, in-cluster execution, and cloud evidence remain pending
+operator registry access, credentials, budget approval, and cluster creation.
 
 ## Post-audit hardening (2026-08-15)
 
@@ -141,6 +157,10 @@ filesystem is read-only in this environment.
 
 ## Commands run
 
+- Container-assets final gate: `export PATH="$HOME/.local/bin:$PATH" && make lint && make test &&
+  make test-contract && make test-integration` passed. Ruff check passed, Ruff format reported 77
+  files already formatted, mypy found no issues in 47 source files, and pytest reported 106 unit,
+  76 contract, and 7 integration tests passed. No container-runtime command was run.
 - M6-M9 full repository gate: `export PATH="$HOME/.local/bin:$PATH" && make lint && make test &&
   make test-contract && make test-integration` passed. Ruff check passed, Ruff format reported 74
   files already formatted, mypy found no issues in 47 source files, and pytest reported 90 unit,

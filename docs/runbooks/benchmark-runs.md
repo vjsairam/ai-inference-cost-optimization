@@ -6,10 +6,41 @@
 > `scripts/deploy.sh` are available. `results/published/` remains empty except for its contract.
 
 This procedure covers the M6 managed/private baselines and the M7 hybrid/failure treatments. A
-publishable runner is a dedicated Pod or Job in `benchmark-jobs`, selected onto `workload=system`,
-using one immutable harness image/build for the full comparison. It calls
+publishable runner is the Job defined in `infra/k8s/benchmark-runner.yaml`, selected onto
+`workload=system`, using one immutable harness image/build for the full comparison. It calls
 `http://gateway.gateway-system.svc.cluster.local:8080`; laptop and port-forward timings are smoke
 evidence only.
+
+## Build the immutable runner image
+
+From a verified clean repository root, build and push one source-specific tag. The owner name must
+be lowercase and the tag must identify the source revision used for the run; do not use `latest`.
+
+```bash
+export IMAGE_OWNER='<lowercase-ghcr-owner>'
+export IMAGE_TAG='<immutable-source-revision>'
+export IMAGE_REPOSITORY="ghcr.io/${IMAGE_OWNER}/inference-gateway"
+
+docker build --tag "${IMAGE_REPOSITORY}:${IMAGE_TAG}" .
+docker push "${IMAGE_REPOSITORY}:${IMAGE_TAG}"
+export RUNNER_IMAGE="$(docker image inspect "${IMAGE_REPOSITORY}:${IMAGE_TAG}" \
+  --format '{{index .RepoDigests 0}}')"
+case "$RUNNER_IMAGE" in
+  *@sha256:*) ;;
+  *) echo 'pushed image did not resolve to a sha256 digest' >&2; exit 2 ;;
+esac
+printf 'runner image: %s\n' "$RUNNER_IMAGE"
+```
+
+`BENCHMARK_RUNNER_IMAGE` is the only image placeholder in the Job. Substitute the captured digest
+into a temporary manifest with this exact command, preserving the tracked template:
+
+```bash
+export RUNNER_MANIFEST=/tmp/benchmark-runner.yaml
+sed "s|BENCHMARK_RUNNER_IMAGE|${RUNNER_IMAGE}|g" \
+  infra/k8s/benchmark-runner.yaml > "$RUNNER_MANIFEST"
+grep -F "image: \"${RUNNER_IMAGE}\"" "$RUNNER_MANIFEST"
+```
 
 ## Pre-run checklist
 
@@ -61,6 +92,25 @@ operator notes before sending load:
   repository at `/workspace`, including the scenarios, frozen datasets, configurations, and
   `DEPLOY_MANIFEST` mounted at `/evidence/deploy-manifest.yaml`.
 
+Create the namespace, deploy-manifest ConfigMap, and run-scoped gateway Secret without putting
+secret values in shell history or the manifest. The ConfigMap command preserves the deploy
+manifest filename expected by the Job:
+
+```bash
+kubectl create namespace benchmark-jobs --dry-run=client -o yaml | kubectl apply -f -
+kubectl create configmap benchmark-deploy-manifest --namespace benchmark-jobs \
+  --from-file=deploy-manifest.yaml="$DEPLOY_MANIFEST" \
+  --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic benchmark-runner-secrets --namespace benchmark-jobs \
+  --from-literal=GATEWAY_API_KEY="$GATEWAY_API_KEY" \
+  --dry-run=client -o yaml | kubectl apply -f -
+kubectl apply -f "$RUNNER_MANIFEST"
+kubectl wait --namespace benchmark-jobs --for=condition=Ready pod \
+  --selector=job-name=benchmark-runner --timeout=5m
+export RUNNER_POD="$(kubectl get pod --namespace benchmark-jobs \
+  --selector=job-name=benchmark-runner -o jsonpath='{.items[0].metadata.name}')"
+```
+
 The following checks enforce the required placement:
 
 ```bash
@@ -76,6 +126,25 @@ The last command must print `system`. Reuse this runner image/build and placemen
 treatments. Alternate or randomize treatment order across repeats and record the order; do not
 change the frozen scenario files between treatments.
 
+The tracked Job uses `BENCHMARK_RUN_MODE=exec`, so its default command is `sleep infinity` and the
+operator runs each treatment with `kubectl exec`. This is the preferred pattern for reusing one
+Pod and placement. For an args-driven one-shot Job instead, do not start the sleeper Job. Change
+`BENCHMARK_RUN_MODE` from `exec` to `run` in the rendered manifest and select the frozen scenario
+already passed in the container `args`. For example, this prepares T3:
+
+```bash
+sed -e '/- name: BENCHMARK_RUN_MODE/{n;s/value: "exec"/value: "run"/;}' \
+  -e 's|benchmark/scenarios/cloud/t0-managed-baseline.yaml|benchmark/scenarios/cloud/t3-hybrid.yaml|' \
+  "$RUNNER_MANIFEST" > /tmp/benchmark-runner-t3.yaml
+kubectl apply -f /tmp/benchmark-runner-t3.yaml
+kubectl wait --namespace benchmark-jobs --for=condition=Complete \
+  job/benchmark-runner --timeout=2h
+```
+
+Use either execution pattern for a comparison, not a mixture. With the args-driven pattern,
+create a fresh Job for each treatment/repeat and keep the same rendered image digest and node
+selector.
+
 ## Treatment execution
 
 Run these commands inside the prepared in-cluster runner. The Pod must receive
@@ -88,7 +157,7 @@ T0 uses the real Anthropic API and no fallback:
 
 ```bash
 kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- sh -lc '
-  cd /workspace && uv run python -m inference_gateway.benchmark run \
+  cd /workspace && python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t0-managed-baseline.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
 '
@@ -104,7 +173,7 @@ the request-span estimate in `cost.json` as the comparison value.
 
 ```bash
 kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- sh -lc '
-  cd /workspace && uv run python -m inference_gateway.benchmark run \
+  cd /workspace && python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t1-private-baseline.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
 '
@@ -115,7 +184,7 @@ routes must call the real Anthropic API:
 
 ```bash
 kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- sh -lc '
-  cd /workspace && uv run python -m inference_gateway.benchmark run \
+  cd /workspace && python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t3-hybrid.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
 '
@@ -141,7 +210,7 @@ Start each T4 phase with this exact benchmark command in the runner:
 
 ```bash
 kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- sh -lc '
-  cd /workspace && uv run python -m inference_gateway.benchmark run \
+  cd /workspace && python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t4-failure.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
 '
