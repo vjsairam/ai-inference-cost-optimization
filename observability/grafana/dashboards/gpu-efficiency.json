@@ -1,0 +1,57 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "GPU utilization",
+      "gridPos": {"h": 9, "w": 8, "x": 0, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "percent"}, "overrides": []},
+      "targets": [{"refId": "A", "expr": "avg by (gpu) (DCGM_FI_DEV_GPU_UTIL)", "legendFormat": "GPU {{gpu}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Framebuffer memory used and free",
+      "gridPos": {"h": 9, "w": 8, "x": 8, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "decmbytes"}, "overrides": []},
+      "targets": [
+        {"refId": "A", "expr": "DCGM_FI_DEV_FB_USED", "legendFormat": "used GPU {{gpu}}"},
+        {"refId": "B", "expr": "DCGM_FI_DEV_FB_FREE", "legendFormat": "free GPU {{gpu}}"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Power draw",
+      "gridPos": {"h": 9, "w": 8, "x": 16, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "watt"}, "overrides": []},
+      "targets": [{"refId": "A", "expr": "DCGM_FI_DEV_POWER_USAGE", "legendFormat": "GPU {{gpu}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Gateway output tokens per second",
+      "gridPos": {"h": 9, "w": 8, "x": 0, "y": 9},
+      "targets": [{"refId": "A", "expr": "sum by (provider) (rate(gateway_output_tokens_total[5m]))", "legendFormat": "{{provider}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Private requests per second",
+      "gridPos": {"h": 9, "w": 8, "x": 8, "y": 9},
+      "targets": [{"refId": "A", "expr": "sum(rate(gateway_requests_total{provider=\"private-vllm\"}[5m]))"}]
+    },
+    {
+      "type": "text",
+      "title": "Private queue",
+      "gridPos": {"h": 9, "w": 8, "x": 16, "y": 9},
+      "options": {"mode": "markdown", "content": "The private-serving queue panel is wired after the M5 runtime version is pinned. DCGM panels are ready for the exporter scrape."}
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 39,
+  "tags": ["local-lab", "gpu", "m5-placeholder"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "timezone": "browser",
+  "title": "GPU efficiency",
+  "uid": "gateway-gpu-efficiency",
+  "version": 1
+}

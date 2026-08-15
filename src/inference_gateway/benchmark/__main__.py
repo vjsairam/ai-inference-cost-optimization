@@ -64,13 +64,17 @@ async def _run(args: argparse.Namespace) -> None:
         if client is not None:
             await client.aclose()
     view_a = summary["cost"]["views"]["view_a"]
-    selected = "managed" if scenario.provider_mode == "managed" else "private"
-    selected_cost = view_a[selected]
+    if scenario.provider_mode == "hybrid":
+        selected_cost = summary["cost"]["hybrid_combined_view_a"]
+    else:
+        selected = "managed" if scenario.provider_mode == "managed" else "private"
+        selected_cost = view_a[selected]
     headline = {
         "run_id": summary["run_id"],
         "run_dir": str(run_dir),
         "requests": summary["requests"],
         "correct_rate": summary["quality"]["quality_rate"],
+        "routing_mix": summary["routing_mix"],
         "view_a_cost_per_correct_task_usd": selected_cost.cost_per_correct_task_usd,
     }
     print(json.dumps(headline, default=str, sort_keys=True))

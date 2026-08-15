@@ -1,0 +1,51 @@
+providers:
+  private-vllm:
+    kind: openai_compatible
+    base_url_env: PRIVATE_VLLM_BASE_URL
+    api_key_env: PRIVATE_VLLM_API_KEY
+    external: false
+    models:
+      lab-private:
+        upstream_model: "faultmock-private"
+        supports_sampling: true
+
+  managed-primary:
+    kind: managed
+    adapter: "anthropic"
+    base_url_env: MANAGED_PRIMARY_BASE_URL
+    api_key_env: MANAGED_PRIMARY_API_KEY
+    external: true
+    models:
+      lab-economy:
+        upstream_model: "faultmock-economy"
+        supports_sampling: true
+      lab-premium:
+        upstream_model: "faultmock-premium"
+
+route_aliases:
+  lab-default:
+    provider: private-vllm
+    model: lab-private
+  managed-economy:
+    provider: managed-primary
+    model: lab-economy
+  managed-premium:
+    provider: managed-primary
+    model: lab-premium
+
+pricing:
+  managed-primary:
+    lab-economy:
+      currency: USD
+      effective_date: "2026-08-15"
+      input_per_1m: "0.150"
+      output_per_1m: "0.600"
+      cached_input_per_1m: null
+      source_url: "https://example.invalid/local-mock-pricing"
+    lab-premium:
+      currency: USD
+      effective_date: "2026-08-15"
+      input_per_1m: "1.250"
+      output_per_1m: "10.000"
+      cached_input_per_1m: null
+      source_url: "https://example.invalid/local-mock-pricing"

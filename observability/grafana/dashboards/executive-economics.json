@@ -1,0 +1,60 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Requests",
+      "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0},
+      "targets": [{"refId": "A", "expr": "sum(increase(gateway_requests_total[$__range]))"}]
+    },
+    {
+      "type": "text",
+      "title": "Correct tasks and cost per correct task",
+      "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0},
+      "options": {"mode": "markdown", "content": "Correctness is produced by the benchmark evaluator. Read summary.json for task-correct counts and View A/View B cost per correct task; the serving gateway cannot determine correctness."}
+    },
+    {
+      "type": "stat",
+      "title": "Estimated managed spend",
+      "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "currencyUSD"}, "overrides": []},
+      "targets": [{"refId": "A", "expr": "sum(increase(gateway_estimated_managed_cost_usd_total[$__range]))"}]
+    },
+    {
+      "type": "stat",
+      "title": "Estimated managed cost per request",
+      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "currencyUSD"}, "overrides": []},
+      "targets": [{"refId": "A", "expr": "sum(increase(gateway_estimated_managed_cost_usd_total[$__range])) / clamp_min(sum(increase(gateway_requests_total[$__range])), 1)"}]
+    },
+    {
+      "type": "piechart",
+      "title": "Route mix by provider",
+      "gridPos": {"h": 10, "w": 12, "x": 0, "y": 8},
+      "targets": [{"refId": "A", "expr": "sum by (provider) (increase(gateway_requests_total[$__range]))", "legendFormat": "{{provider}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Managed spend rate",
+      "gridPos": {"h": 10, "w": 12, "x": 12, "y": 8},
+      "fieldConfig": {"defaults": {"unit": "currencyUSD"}, "overrides": []},
+      "targets": [{"refId": "A", "expr": "sum by (provider) (rate(gateway_estimated_managed_cost_usd_total[5m]))", "legendFormat": "{{provider}}"}]
+    },
+    {
+      "type": "text",
+      "title": "View A and View B",
+      "gridPos": {"h": 6, "w": 24, "x": 0, "y": 18},
+      "options": {"mode": "markdown", "content": "Gateway counters show estimated managed request spend. Full View A and View B totals, private billed time, operations sensitivity, and cost per correct task are calculated in each benchmark report."}
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["local-lab", "economics"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "timezone": "browser",
+  "title": "Executive economics",
+  "uid": "gateway-executive-economics",
+  "version": 1
+}

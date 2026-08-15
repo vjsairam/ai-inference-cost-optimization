@@ -1,5 +1,5 @@
 .PHONY: bootstrap lint test test-contract test-integration \
-	local-up local-smoke benchmark-local tf-plan cloud-up deploy smoke benchmark report \
+	local-up local-smoke fault-evidence benchmark-local tf-plan cloud-up deploy smoke benchmark report \
 	cloud-down verify-destroy
 
 export UV_CACHE_DIR ?= /tmp/gateway-uv-cache
@@ -23,11 +23,13 @@ test-integration:
 	uv run pytest tests/integration
 
 local-up:
-	uv run uvicorn --factory inference_gateway.main:build_app --host 127.0.0.1 --port 8080
+	./scripts/local-up.sh
 
 local-smoke:
-	@echo "local-smoke not available until M3 (see TECHNICAL_SPEC.md §18)"
-	@exit 2
+	./scripts/local-smoke.sh
+
+fault-evidence:
+	uv run python -m inference_gateway.fault_evidence
 
 benchmark-local:
 	@test -n "$(SCENARIO)" || (echo "SCENARIO is required" && exit 2)

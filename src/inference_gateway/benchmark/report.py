@@ -214,6 +214,38 @@ def _write_grid(path: Path, rows: list[GridRow]) -> None:
         writer.writerows(rows)
 
 
+def _provider_breakdown(
+    records: list[BenchmarkRecord], private_total: Decimal
+) -> dict[str, dict[str, object]]:
+    providers = sorted({record.provider or "unknown" for record in records})
+    rows: dict[str, dict[str, object]] = {}
+    for provider in providers:
+        group = [record for record in records if (record.provider or "unknown") == provider]
+        correct = sum(record.task_correct is True for record in group)
+        if provider.startswith("managed"):
+            total = sum(
+                (record.managed_inference_cost_usd or Decimal(0) for record in group),
+                Decimal(0),
+            )
+            cost_basis = "provider-reported usage and date-stamped local mock pricing"
+        elif provider.startswith("private"):
+            total = private_total
+            cost_basis = "local billed private service time allocated to the private route"
+        else:
+            total = Decimal(0)
+            cost_basis = "no priced route"
+        rows[provider] = {
+            "requests": len(group),
+            "correct_tasks": correct,
+            "quality_rate": correct / len(group) if group[0].task_correct is not None else None,
+            "view_a_cost_usd": total,
+            "view_a_cost_per_request_usd": total / len(group) if group else None,
+            "view_a_cost_per_correct_task_usd": total / correct if correct else None,
+            "cost_basis": cost_basis,
+        }
+    return rows
+
+
 def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
     manifest = yaml.safe_load((run_dir / "manifest.yaml").read_text(encoding="utf-8"))
     scenario = BenchmarkScenario.model_validate(manifest["scenario"])
@@ -292,6 +324,10 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
     managed = engine.aggregate_managed(records)
     correct_count = int(quality["task_correct"]) if quality["applicable"] else None
     views = engine.run_views(managed.total_usd, private_inputs, len(records), correct_count)
+    private_total = engine.private_view_a(private_inputs)
+    provider_breakdown = _provider_breakdown(records, private_total)
+    hybrid_total = private_total + managed.total_usd
+    hybrid_view_a = engine.view(hybrid_total, len(records), correct_count)
     private_applicable = any((record.provider or "").startswith("private") for record in records)
     managed_applicable = any((record.provider or "").startswith("managed") for record in records)
     private_numerators = {
@@ -372,6 +408,8 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
         },
         "private_billed_inputs": private_inputs.model_dump(mode="json"),
         "views": views,
+        "hybrid_combined_view_a": hybrid_view_a,
+        "provider_breakdown": provider_breakdown,
         "scenario_grid": {
             "label": "Break-even region table by economic view",
             "rows": grid,
@@ -401,9 +439,25 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
                 "private": private_applicable,
             },
             "views": views,
+            "hybrid_combined_view_a": hybrid_view_a,
+            "provider_breakdown": provider_breakdown,
         },
         "slo": slo,
         "routing_mix": dict(Counter(record.provider or "unknown" for record in records)),
+        "policy_input_mix": {
+            "data_class": dict(
+                Counter(
+                    record.data_class.value if record.data_class is not None else "unknown"
+                    for record in records
+                )
+            ),
+            "quality_tier": dict(
+                Counter(
+                    record.quality_tier.value if record.quality_tier is not None else "unknown"
+                    for record in records
+                )
+            ),
+        },
         "fallback_count": sum(record.fallback_count for record in records),
         "repeats": {
             "group_id": manifest["statistics"]["repeat_group_id"],

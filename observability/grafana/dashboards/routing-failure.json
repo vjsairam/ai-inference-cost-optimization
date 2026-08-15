@@ -1,0 +1,51 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Routing decisions",
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 0},
+      "targets": [{"refId": "A", "expr": "sum by (route, reason) (rate(gateway_routing_decisions_total[5m]))", "legendFormat": "{{route}} {{reason}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Fallback transitions",
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 0},
+      "targets": [{"refId": "A", "expr": "sum by (from_provider, to_provider, reason) (rate(gateway_fallback_total[5m]))", "legendFormat": "{{from_provider}} to {{to_provider}}: {{reason}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Provider errors",
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 9},
+      "targets": [{"refId": "A", "expr": "sum by (provider, error_class) (rate(gateway_provider_errors_total[5m]))", "legendFormat": "{{provider}} {{error_class}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Policy denials",
+      "gridPos": {"h": 9, "w": 6, "x": 12, "y": 9},
+      "targets": [{"refId": "A", "expr": "sum by (reason) (rate(gateway_policy_denied_total[5m]))", "legendFormat": "{{reason}}"}]
+    },
+    {
+      "type": "stat",
+      "title": "Provider success traffic",
+      "gridPos": {"h": 9, "w": 6, "x": 18, "y": 9},
+      "targets": [{"refId": "A", "expr": "sum by (provider) (rate(gateway_requests_total{outcome=\"success\"}[5m]))", "legendFormat": "{{provider}}"}]
+    },
+    {
+      "type": "text",
+      "title": "Provider health",
+      "gridPos": {"h": 5, "w": 24, "x": 0, "y": 18},
+      "options": {"mode": "markdown", "content": "Use /health/providers for current diagnostic health. The gateway does not publish an undocumented health metric."}
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 39,
+  "tags": ["local-lab", "routing", "reliability"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "timezone": "browser",
+  "title": "Routing and failure",
+  "uid": "gateway-routing-failure",
+  "version": 1
+}

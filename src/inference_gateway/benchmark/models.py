@@ -16,6 +16,16 @@ Workload = Literal["classification", "structured-extraction", "generation"]
 EconomicView = Literal["view_a", "view_b"]
 
 
+class RequestProfile(BaseModel):
+    """One weighted policy input in a deterministic hybrid request mix."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    data_class: DataClass
+    quality_tier: QualityTier
+    weight: int = Field(default=1, ge=1, le=1000)
+
+
 class BenchmarkScenario(BaseModel):
     """Frozen load shape and evidence inputs for one treatment cell."""
 
@@ -53,6 +63,7 @@ class BenchmarkScenario(BaseModel):
     seed: int = 20260815
     request_rate_schedule: str = "closed-loop"
     sampling_parameters: dict[str, int | float | str | bool | None] = Field(default_factory=dict)
+    request_mix: list[RequestProfile] = Field(default_factory=list)
     notes: str = ""
 
     @model_validator(mode="after")
@@ -66,6 +77,10 @@ class BenchmarkScenario(BaseModel):
         }[self.workload]
         if self.slo_cell != f"{expected}/{self.quality_tier.value}":
             raise ValueError("slo_cell must match workload and quality_tier")
+        if self.provider_mode == "hybrid" and len(self.request_mix) < 2:
+            raise ValueError("hybrid scenarios require at least two request_mix profiles")
+        if self.provider_mode != "hybrid" and self.request_mix:
+            raise ValueError("request_mix is only valid for hybrid scenarios")
         return self
 
 
@@ -103,6 +118,8 @@ class BenchmarkRecord(BaseModel):
     workload: Workload
     dataset_item_id: str = Field(min_length=1)
     difficulty: Literal["easy", "medium", "hard"] | None
+    data_class: DataClass | None = None
+    quality_tier: QualityTier | None = None
     route: str | None
     provider: str | None
     model_alias: str = Field(min_length=1)

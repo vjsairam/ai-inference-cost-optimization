@@ -1,0 +1,11 @@
+groups:
+  - name: gateway-local-placeholder
+    rules:
+      - alert: GatewayLocalProviderErrorsObserved
+        expr: sum(rate(gateway_provider_errors_total[5m])) > 0
+        for: 1m
+        labels:
+          severity: info
+        annotations:
+          summary: Provider errors are present in the local lab
+          description: Inspect the routing and failure dashboard and local fault evidence.

@@ -25,3 +25,19 @@ jobs:
         run: make test
       - name: Contract tests
         run: make test-contract
+      - name: Integration tests
+        run: make test-integration
+
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install pinned Python
+        run: uv python install
+      - name: Sync locked dependencies
+        run: uv sync --frozen
+      - name: Local stack smoke
+        run: make local-smoke

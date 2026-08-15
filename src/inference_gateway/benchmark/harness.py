@@ -29,7 +29,13 @@ from inference_gateway.benchmark.models import (
 from inference_gateway.benchmark.slo import load_slo
 from inference_gateway.config import load_gateway_config
 from inference_gateway.config.pricing import PricingEngine
-from inference_gateway.models import ErrorClass, NormalizedUsage, UsageSource
+from inference_gateway.models import (
+    DataClass,
+    ErrorClass,
+    NormalizedUsage,
+    QualityTier,
+    UsageSource,
+)
 
 
 class BenchmarkRunError(RuntimeError):
@@ -150,16 +156,28 @@ class BenchmarkHarness:
                 for warmup_index in range(scenario.warmup_requests):
                     item = selected[warmup_index % len(selected)]
                     await self._request(
-                        client, scenario, item, repeat_index, run_id, measured=False
+                        client,
+                        scenario,
+                        item,
+                        repeat_index,
+                        run_id,
+                        request_index=warmup_index,
+                        measured=False,
                     )
                 semaphore = asyncio.Semaphore(scenario.concurrency)
                 records.extend(
                     await asyncio.gather(
                         *(
                             self._bounded_request(
-                                semaphore, client, scenario, item, repeat_index, run_id
+                                semaphore,
+                                client,
+                                scenario,
+                                item,
+                                repeat_index,
+                                run_id,
+                                request_index,
                             )
-                            for item in selected
+                            for request_index, item in enumerate(selected)
                         )
                     )
                 )
@@ -193,10 +211,17 @@ class BenchmarkHarness:
         item: DatasetItem,
         repeat_index: int,
         run_id: str,
+        request_index: int,
     ) -> BenchmarkRecord:
         async with semaphore:
             record = await self._request(
-                client, scenario, item, repeat_index, run_id, measured=True
+                client,
+                scenario,
+                item,
+                repeat_index,
+                run_id,
+                request_index=request_index,
+                measured=True,
             )
         if record is None:
             raise BenchmarkRunError("measured request did not produce a record")
@@ -209,6 +234,7 @@ class BenchmarkHarness:
         item: DatasetItem,
         repeat_index: int,
         run_id: str,
+        request_index: int,
         *,
         measured: bool,
     ) -> BenchmarkRecord | None:
@@ -216,12 +242,13 @@ class BenchmarkHarness:
             uuid.NAMESPACE_URL,
             f"{scenario.id}:{repeat_index}:{item.item_id}:{'measured' if measured else 'warmup'}",
         ).hex
+        data_class, quality_tier = self._request_profile(scenario, request_index)
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "X-Gateway-Request-Id": request_id,
             "X-Gateway-Workload": scenario.workload,
-            "X-Gateway-Data-Class": scenario.data_class.value,
-            "X-Gateway-Quality-Tier": scenario.quality_tier.value,
+            "X-Gateway-Data-Class": data_class.value,
+            "X-Gateway-Quality-Tier": quality_tier.value,
         }
         body = {
             "model": scenario.model,
@@ -295,6 +322,8 @@ class BenchmarkHarness:
             workload=scenario.workload,
             dataset_item_id=item.item_id,
             difficulty=item.difficulty,
+            data_class=data_class,
+            quality_tier=quality_tier,
             route=response_headers.get("X-Gateway-Route"),
             provider=provider,
             model_alias=model_alias,
@@ -310,6 +339,19 @@ class BenchmarkHarness:
             quality_score=score,
             managed_inference_cost_usd=cost,
         )
+
+    @staticmethod
+    def _request_profile(
+        scenario: BenchmarkScenario, request_index: int
+    ) -> tuple[DataClass, QualityTier]:
+        if not scenario.request_mix:
+            return scenario.data_class, scenario.quality_tier
+        slot = request_index % sum(profile.weight for profile in scenario.request_mix)
+        for profile in scenario.request_mix:
+            if slot < profile.weight:
+                return profile.data_class, profile.quality_tier
+            slot -= profile.weight
+        raise AssertionError("weighted request profile selection exhausted")
 
     @staticmethod
     def _usage_record(usage: dict[str, int]) -> TokenUsageRecord:

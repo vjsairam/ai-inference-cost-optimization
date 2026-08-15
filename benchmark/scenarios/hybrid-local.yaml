@@ -1,0 +1,40 @@
+id: classification-hybrid-local
+treatment: t3-hybrid-local-mock
+workload: classification
+provider_mode: hybrid
+stream: true
+concurrency: 4
+requests: 24
+temperature: 0
+max_tokens: 64
+data_class: internal
+quality_tier: balanced
+request_mix:
+  - data_class: restricted
+    quality_tier: balanced
+    weight: 1
+  - data_class: internal
+    quality_tier: economy
+    weight: 1
+  - data_class: public
+    quality_tier: premium
+    weight: 1
+structured_output_mode: baseline-portable
+warmup_requests: 3
+repeats: 3
+dataset: benchmark/datasets/synthetic/classification-v1
+slo_config: config/slo.example.yaml
+slo_cell: WL-01/balanced
+pricing_config: config/providers.example.yaml
+timeout_config: policy/routing.yaml
+cost_config: config/cost.local.yaml
+model: lab-default
+publishable: false
+economic_views: [view_a, view_b]
+pricing_version: "2026-08-15"
+bootstrap_iterations: 1000
+seed: 20260815
+request_rate_schedule: closed-loop
+sampling_parameters:
+  token_profile: short
+notes: "Local hybrid policy and report plumbing check; not performance evidence."

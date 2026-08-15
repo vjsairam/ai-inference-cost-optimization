@@ -1,0 +1,4 @@
+sequence: [ok, stream_ok, ok]
+retry_after_seconds: 1
+timeout_seconds: 2
+delayed_ms: 100

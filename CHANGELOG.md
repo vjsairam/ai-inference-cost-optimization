@@ -1,5 +1,16 @@
 # Changelog
 
+## M3 - Local/mock end-to-end evidence
+
+- Added a standalone dual-format fault service with deterministic status, timing, payload, and
+  streaming failures.
+- Added the local gateway/fault stack, an ephemeral smoke check, and local configuration.
+- Added real-adapter HTTP fault scenarios and timestamped metric-delta evidence generation.
+- Added a mixed-policy hybrid scenario with combined route mix and provider-level cost per correct
+  task.
+- Added four validated Grafana dashboards, local Prometheus and alert configuration, a CI smoke
+  job, and the local-lab runbook.
+
 ## [Unreleased]
 - M2: seeded synthetic workloads, deterministic evaluators, SLO and manifest gates, async
   benchmark harness, two-view cost and scenario-grid calculations, bootstrap report statistics,

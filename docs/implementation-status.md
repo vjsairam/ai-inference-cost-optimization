@@ -2,7 +2,21 @@
 
 Authoritative progress tracker. Updated with every change set.
 
-## Current milestone: M2 — Benchmark + eval (complete)
+## Current milestone: M3 — Local/mock end-to-end evidence (complete)
+
+| Item | Status |
+|---|---|
+| Dual-format wire fault service with deterministic status, delay, malformed, streaming, and in-band failures | Done |
+| `make local-up` gateway/fault stack and throwaway-key `make local-smoke` | Done |
+| Real-adapter HTTP fault scenarios with fallback, deadline, malformed-response, and no-replay assertions | Done |
+| Timestamped `make fault-evidence` output with per-scenario gateway metric deltas | Done |
+| Mixed data-class/tier hybrid local scenario and provider cost-per-correct-task breakdown | Done |
+| Four Grafana dashboards validated against the gateway metric registry | Done |
+| Local Prometheus scrape and alert configuration | Done |
+| CI integration and separate smoke jobs | Done |
+| Local-lab runbook | Done |
+
+## Previous milestone: M2 — Benchmark + eval (complete)
 
 | Item | Status |
 |---|---|
@@ -51,7 +65,7 @@ Authoritative progress tracker. Updated with every change set.
 
 ## Next milestone
 
-- M3 — Local/mock fault evidence and dashboard validation.
+- M4 — AWS EKS and GPU infrastructure, subject to the milestone budget and destroy-path gates.
 
 ## Commands run
 
@@ -98,3 +112,27 @@ Authoritative progress tracker. Updated with every change set.
   evidence.
 - `make report RUN_ID=20260815T073158Z-3a830e4d-t1-local-mock` passed and regenerated the report;
   the cell was SLO-eligible and the scenario grid contained 600 labeled rows.
+- M3 targeted verification: the fault wire contract and e2e evidence tests reported 4 passed; the
+  dashboard, hybrid report, and benchmark contract selection reported 7 passed.
+- `export PATH="$HOME/.local/bin:$PATH" && make lint` passed. Ruff check and format check were
+  clean; mypy found no issues in 47 source files.
+- `make test && make test-contract && make test-integration` passed with 86 unit, 72 contract, and
+  7 integration tests.
+- `make local-smoke` passed: auth 401, non-stream 200, stream 200, restricted 200 through
+  `private-vllm`, and `gateway_requests_total` present. This execution environment prohibited
+  loopback sockets, so the smoke command reported its HTTP ASGI transport fallback; the command
+  attempts the two-uvicorn loopback stack first.
+- `make fault-evidence` passed 6 of 6 injected-fault expectations. Final gate run
+  `20260815T083636Z-374fde76-fault` recorded fallback for 429, 500, timeout, and in-band overload;
+  normalized malformed output; and one non-replayed post-first-chunk failure. The timeout path
+  completed in 205 ms against a 600 ms global deadline. This run used the reported HTTP ASGI
+  fallback because loopback sockets were unavailable.
+- `make benchmark-local SCENARIO=benchmark/scenarios/hybrid-local.yaml` passed. Run
+  `20260815T083200Z-4550337d-t3-hybrid-local-mock` recorded 72 requests, 72 correct tasks, a
+  48 private / 24 managed route mix, and combined View A cost per correct task of
+  `$0.00003300347222222222222222222222`. Provider breakdowns were
+  `$0.00001927083333333333333333333333` private and `$0.00006046875` managed. This is local mock
+  plumbing evidence, not performance evidence.
+- Local provider/routing/fault, Prometheus/alert, and hybrid scenario YAML files all parsed as
+  mappings. `make report RUN_ID=20260815T083200Z-4550337d-t3-hybrid-local-mock` passed with 72
+  requests and `slo_eligible=true`.

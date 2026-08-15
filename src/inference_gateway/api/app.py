@@ -82,6 +82,9 @@ def build_adapters(
             )
         elif provider.adapter in _MANAGED_ADAPTERS:
             api_key = _require_env(provider.api_key_env or "")
+            managed_base_url = (
+                _require_env(provider.base_url_env) if provider.base_url_env is not None else None
+            )
             adapters[route_name] = AnthropicManagedAdapter(
                 name=route_name,
                 upstream_model=upstream_model,
@@ -90,6 +93,7 @@ def build_adapters(
                 # attempt bound is real; timeouts mirror the gateway config.
                 client=anthropic.AsyncAnthropic(
                     api_key=api_key,
+                    base_url=managed_base_url,
                     max_retries=0,
                     timeout=httpx.Timeout(response_header_timeout, connect=connect_timeout),
                 ),

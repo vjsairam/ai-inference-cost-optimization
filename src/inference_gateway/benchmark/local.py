@@ -29,14 +29,14 @@ _ITEM_PATTERN = re.compile(r"\[dataset_item_id=([^\]]+)\]")
 class DatasetMockAdapter:
     """Returns frozen targets by item ID; intended only for local plumbing checks."""
 
-    name = "private-vllm"
     capabilities = ProviderCapabilities(
         streaming=True,
         reports_usage=True,
         reports_streaming_usage=True,
     )
 
-    def __init__(self, dataset: DatasetBundle) -> None:
+    def __init__(self, dataset: DatasetBundle, name: str = "private-vllm") -> None:
+        self.name = name
         self._answers = {item.item_id: item.target for item in dataset.items}
 
     def _answer(self, request: CanonicalChatRequest) -> str:
@@ -117,9 +117,7 @@ class DatasetMockAdapter:
 
 
 def local_adapters(dataset: DatasetBundle) -> dict[str, ProviderAdapter]:
-    adapter = DatasetMockAdapter(dataset)
     return {
-        "private-vllm": adapter,
-        "managed-economy": adapter,
-        "managed-premium": adapter,
+        name: DatasetMockAdapter(dataset, name)
+        for name in ("private-vllm", "managed-economy", "managed-premium")
     }

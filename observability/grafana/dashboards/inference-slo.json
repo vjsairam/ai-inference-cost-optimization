@@ -1,0 +1,63 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "End-to-end latency p50/p95/p99",
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "targets": [
+        {"refId": "A", "expr": "histogram_quantile(0.50, sum by (le, provider) (rate(gateway_request_latency_seconds_bucket[5m])))", "legendFormat": "p50 {{provider}}"},
+        {"refId": "B", "expr": "histogram_quantile(0.95, sum by (le, provider) (rate(gateway_request_latency_seconds_bucket[5m])))", "legendFormat": "p95 {{provider}}"},
+        {"refId": "C", "expr": "histogram_quantile(0.99, sum by (le, provider) (rate(gateway_request_latency_seconds_bucket[5m])))", "legendFormat": "p99 {{provider}}"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Time to first token p50/p95/p99",
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "targets": [
+        {"refId": "A", "expr": "histogram_quantile(0.50, sum by (le, provider) (rate(gateway_ttft_seconds_bucket[5m])))", "legendFormat": "p50 {{provider}}"},
+        {"refId": "B", "expr": "histogram_quantile(0.95, sum by (le, provider) (rate(gateway_ttft_seconds_bucket[5m])))", "legendFormat": "p95 {{provider}}"},
+        {"refId": "C", "expr": "histogram_quantile(0.99, sum by (le, provider) (rate(gateway_ttft_seconds_bucket[5m])))", "legendFormat": "p99 {{provider}}"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Throughput",
+      "gridPos": {"h": 9, "w": 8, "x": 0, "y": 9},
+      "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []},
+      "targets": [{"refId": "A", "expr": "sum by (provider) (rate(gateway_requests_total[5m]))", "legendFormat": "{{provider}}"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Errors by class",
+      "gridPos": {"h": 9, "w": 8, "x": 8, "y": 9},
+      "targets": [{"refId": "A", "expr": "sum by (provider, error_class) (rate(gateway_provider_errors_total[5m]))", "legendFormat": "{{provider}} {{error_class}}"}]
+    },
+    {
+      "type": "stat",
+      "title": "Request error ratio",
+      "gridPos": {"h": 9, "w": 8, "x": 16, "y": 9},
+      "fieldConfig": {"defaults": {"unit": "percentunit"}, "overrides": []},
+      "targets": [{"refId": "A", "expr": "sum(rate(gateway_requests_total{outcome!=\"success\"}[5m])) / clamp_min(sum(rate(gateway_requests_total[5m])), 1)"}]
+    },
+    {
+      "type": "text",
+      "title": "Queue depth and running/waiting requests",
+      "gridPos": {"h": 6, "w": 24, "x": 0, "y": 18},
+      "options": {"mode": "markdown", "content": "Queue and running/waiting panels are enabled with the pinned private-serving metric names in M5. No unverified series is queried here."}
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 39,
+  "tags": ["local-lab", "slo"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "timezone": "browser",
+  "title": "Inference SLO",
+  "uid": "gateway-inference-slo",
+  "version": 1
+}
