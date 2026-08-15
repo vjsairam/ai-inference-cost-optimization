@@ -44,3 +44,7 @@ Authoritative progress tracker. Updated with every change set.
   --check --offline && uv sync --frozen && make test-integration` — passed. The lock resolved 22
   packages, the frozen environment check covered 21 installed packages, and the M0 compatibility
   integration target reported 43 passed.
+- Post-review hardening: mypy stub-agnostic YAML resolver registration, dependency audit wired to
+  the locked export, setuptools moved to 83 to clear PYSEC-2026-3447. `make lint`, `make test`
+  (29 passed), `make test-contract` (14 passed) verified locally; CI and Security workflows green
+  on main.
