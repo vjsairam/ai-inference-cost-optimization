@@ -1,4 +1,4 @@
-.PHONY: bootstrap lint test test-contract test-integration \
+.PHONY: bootstrap tools-check lint test test-contract test-integration \
 	local-up local-smoke fault-evidence benchmark-local tf-plan cloud-up deploy smoke benchmark report \
 	cloud-down verify-destroy
 
@@ -7,6 +7,9 @@ export UV_CACHE_DIR ?= /tmp/gateway-uv-cache
 bootstrap:
 	uv sync --no-install-project
 	uv sync --no-build-isolation
+
+tools-check:
+	./scripts/bootstrap.sh
 
 lint:
 	uv run ruff check .
@@ -43,6 +46,26 @@ benchmark:
 	@echo "benchmark is gated until M4 (see TECHNICAL_SPEC.md §18)"
 	@exit 2
 
-tf-plan cloud-up deploy smoke cloud-down verify-destroy:
-	@echo "$@ not available until M4 (see TECHNICAL_SPEC.md §18)"
-	@exit 2
+tf-plan:
+	@test "$(ENV)" = "aws-lab" || (echo "ENV=aws-lab is required" && exit 2)
+	./scripts/cloud-up.sh --plan-only
+
+cloud-up:
+	@test "$(ENV)" = "aws-lab" || (echo "ENV=aws-lab is required" && exit 2)
+	./scripts/cloud-up.sh $(CONFIRM)
+
+deploy:
+	@test "$(ENV)" = "aws-lab" || (echo "ENV=aws-lab is required" && exit 2)
+	./scripts/deploy.sh
+
+smoke:
+	@test "$(ENV)" = "aws-lab" || (echo "ENV=aws-lab is required" && exit 2)
+	./scripts/smoke.sh
+
+cloud-down:
+	@test "$(ENV)" = "aws-lab" || (echo "ENV=aws-lab is required" && exit 2)
+	./scripts/cloud-down.sh
+
+verify-destroy:
+	@test "$(ENV)" = "aws-lab" || (echo "ENV=aws-lab is required" && exit 2)
+	./scripts/verify-destroy.sh

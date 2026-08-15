@@ -1,5 +1,16 @@
 # Changelog
 
+## M4 - AWS EKS + GPU infrastructure
+
+- Added a two-AZ AWS VPC and EKS root module with private worker subnets, one cost-conscious NAT
+  gateway, a free S3 gateway endpoint, restricted control-plane access, and required ownership and
+  expiry tags.
+- Added fixed system and GPU managed node groups, a one-GPU safety ceiling, accelerated AL2023,
+  explicit manifest-based NVIDIA device-plugin installation, and EC2/EBS tag propagation.
+- Added guarded plan/create, idempotent destroy, independent tag-based destroy verification, tool
+  checks, and M5 deploy/smoke stubs.
+- Added path-filtered IaC validation/config scanning and the pending-credentials cloud-lab runbook.
+
 ## M3 - Local/mock end-to-end evidence
 
 - Added a standalone dual-format fault service with deterministic status, timing, payload, and

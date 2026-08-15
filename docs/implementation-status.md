@@ -2,7 +2,21 @@
 
 Authoritative progress tracker. Updated with every change set.
 
-## Current milestone: M3 — Local/mock end-to-end evidence (complete)
+## Current milestone: M4 — AWS EKS + GPU infrastructure (offline implementation complete)
+
+| Item | Status |
+|---|---|
+| Two-AZ VPC with public/private subnets, one NAT gateway, and S3 gateway endpoint | Implemented; terraform validate passed |
+| EKS cluster, restricted public API CIDRs, and minimal control-plane logging | Implemented; terraform validate passed |
+| System and one-node-ceiling GPU managed node groups with accelerated AL2023 | Implemented; terraform validate passed |
+| NVIDIA device plugin installed separately with a pinned Kubernetes manifest | Implemented; YAML parse passed |
+| Required tags, least-privilege service roles, provider constraints, and validated variables | Implemented; terraform validate passed, provider lock committed |
+| Budget/expiry/confirmation guards and idempotent destroy path | Implemented; shell parse and refusal paths passed |
+| Independent tagged EC2/EKS/NAT/EBS destroy verification | Implemented; shell parse and invalid-identity refusal passed |
+| Path-filtered Terraform/Helm/config-scan CI | Implemented |
+| Fresh create, M5 smoke, destroy, and verify-destroy cycle | Pending operator inputs and M5 workload deployment |
+
+## Previous milestone: M3 — Local/mock end-to-end evidence (complete)
 
 | Item | Status |
 |---|---|
@@ -61,11 +75,13 @@ Authoritative progress tracker. Updated with every change set.
 
 ## Blockers
 
-- None.
+- The first AWS cycle is intentionally pending valid operator credentials, selected region,
+  approved `RUN_BUDGET_USD`, `EXPIRES_AT`, and confirmed regional G-instance quota above zero.
+- Cloud GPU and serving smoke evidence depends on the M5 workload deployment.
 
 ## Next milestone
 
-- M4 — AWS EKS and GPU infrastructure, subject to the milestone budget and destroy-path gates.
+- M5 — Kubernetes/vLLM serving and GPU smoke, after the operator clears the M4 cloud safety gate.
 
 ## Commands run
 
@@ -136,3 +152,16 @@ Authoritative progress tracker. Updated with every change set.
 - Local provider/routing/fault, Prometheus/alert, and hybrid scenario YAML files all parsed as
   mappings. `make report RUN_ID=20260815T083200Z-4550337d-t3-hybrid-local-mock` passed with 72
   requests and `slo_eligible=true`.
+- M4 final repository gate: `export PATH="$HOME/.local/bin:$PATH" && make lint && make test &&
+  make test-contract && make test-integration` passed. Ruff check and format were clean, mypy found
+  no issues in 47 source files, and 86 unit, 72 contract, and 7 integration tests passed.
+- `terraform fmt -check -recursive` passed. `terraform init -backend=false -input=false` selected
+  `hashicorp/aws` v5.100.0 under the `~> 5.90` constraint and wrote the provider lock file.
+  `terraform validate` reported the configuration valid. No AWS plan or apply was attempted.
+- `bash -n` passed for every script. The NVIDIA plugin template and IaC workflow parsed as YAML
+  mappings. The tool check reported Terraform 1.7.5, AWS CLI 1.44.53, kubectl 1.35.3, Helm 3.21.4,
+  and uv 0.12.5.
+- Guard checks passed: missing budget and missing `--yes` both exited 2; the latter printed region
+  `us-east-1`, GPU type `g6.xlarge`, count 1, and the USD 0.9914/hour planning estimate first.
+  `make tf-plan`, `cloud-up`, `cloud-down`, and `verify-destroy` each exited 2 with the documented
+  invalid-credentials message at the STS identity gate.
