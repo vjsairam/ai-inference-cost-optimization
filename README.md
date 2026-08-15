@@ -1,37 +1,51 @@
 # AI Inference Cost Optimization
 
-**What is the lowest-cost production AI inference architecture that still meets defined quality, latency, reliability, security and availability requirements?**
+**Managed API vs Private vLLM vs Hybrid Routing**
 
-This repository answers that question with reproducible evidence — not a list of technologies. It compares three delivery patterns under one workload and one measurement discipline:
+> What is the lowest-cost architecture that still meets quality, latency,
+> security and reliability requirements?
 
-- **Managed API** — a commercial LLM provider behind a gateway
-- **Private serving** — vLLM on Amazon EKS with a single-GPU baseline
-- **Hybrid** — policy-driven routing that can use either path, with data-class guarantees
+This repository answers that question with reproducible evidence — not a list of technologies. One gateway contract, one workload harness, one measurement discipline, three delivery patterns.
+
+![v1 logical architecture](media/figure1_architecture.png)
+
+## Latest measured result
+
+```text
+Benchmark implementation in progress.
+
+No production savings claim is made until
+reproducible measurements are available.
+```
+
+Results will be published here as `cost / correct task` per architecture, with the environment, date, workload, sample sizes, and limitations disclosed alongside every number.
 
 ## The business decision
 
-A cheaper model that fails more tasks is not cheaper. The primary metric here is **cost per correct task**, measured against declared SLOs, with break-even presented as scenario curves — never a universal requests/month threshold.
+A cheaper model that fails more tasks is not cheaper. The primary metric is **cost per correct task**, evaluated only for treatments that pass declared SLOs, with break-even presented as scenario curves — never a universal requests/month threshold.
 
 Two economic views are reported:
 
 1. **Inference service economics** — marginal: tokens vs GPU runtime
 2. **Full-platform TCO** — gateway, network, control plane, observability, and operations included
 
-## Status
+## How it works
 
-🚧 **Milestone M0 — repository and contracts.** See [docs/implementation-status.md](docs/implementation-status.md). The full engineering specification is in [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md) (v1.2, approved for implementation).
+- **Managed API** — a commercial LLM provider behind a thin gateway
+- **Private serving** — vLLM on Amazon EKS, single-GPU baseline, ClusterIP-only
+- **Hybrid** — deterministic policy routing by data class, workload, and quality tier; restricted data fails closed and never leaves the cluster
 
-## Architecture
+Every published run traces to an immutable manifest: Git SHA, model revision, image digests, pricing effective dates, hardware, traffic shape, and raw request records.
 
-![v1 logical architecture](media/figure1_architecture.png)
-
-The gateway is intentionally thin: provider abstraction, deterministic policy routing, bounded fallback, telemetry. Runtimes are replaceable; evidence contracts are not.
+**→ [Benchmark methodology](TECHNICAL_SPEC.md#9-benchmark-and-quality-evaluation-specification)**
+**→ [Full technical specification](TECHNICAL_SPEC.md)** (v1.2, approved for implementation)
+**→ [Implementation status](docs/implementation-status.md)**
 
 ## Principles
 
 - Evidence before optimization — baseline first, one change at a time
 - Quality-adjusted economics — cost per correct task, SLO-eligible treatments only
-- Reproducibility — every published result traces to an immutable run manifest
+- Reproducibility — machine-readable manifests and raw data for every published result
 - Fail closed — restricted data never routes to an external provider
 - Safe cloud lifecycle — GPU resources are ephemeral, tagged, budgeted, destroyable by one command
 
