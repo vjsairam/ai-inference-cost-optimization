@@ -1,4 +1,3 @@
-**PROSPERA ENTERPRISES**
 
 **AI Inference Cost Optimization**
 
@@ -21,7 +20,7 @@ Agent handoff for Claude / Codex | Version 1.2 | 15 August 2026
 | Date               | 15 August 2026                                                                         |
 | Primary repository | ai-inference-cost-optimization                                                         |
 | Primary audience   | Claude/Codex implementation agents, repository reviewers, prospective technical buyers |
-| Business owner     | Prospera Enterprises / Founder-led technical authority                                 |
+| Business owner     | Founder-led technical authority                                 |
 | Strategic source   | Prospera Founder Playbook v2.0 (deep-research edition)                                 |
 | Status             | Approved for implementation; v1 scope frozen unless an ADR changes it                  |
 | Canonical source   | TECHNICAL_SPEC.md (GitHub-Flavored Markdown); the DOCX is a generated presentation artifact. |
@@ -100,7 +99,7 @@ Appendix D - Primary technical source notes
 
 ## 1.1 Purpose
 
-This repository is a commercial proof asset for Prospera Enterprises. It is not a tutorial, a framework showcase or a generic “MLOps project.” It must demonstrate the senior architectural judgement required to choose and operate an inference path based on economics and production constraints.
+This repository is a commercial proof asset. It is not a tutorial, a framework showcase or a generic “MLOps project.” It must demonstrate the senior architectural judgement required to choose and operate an inference path based on economics and production constraints.
 
 The v1 implementation compares three delivery patterns under a common workload and measurement discipline: (a) a managed model API, (b) a private/self-hosted model served by vLLM on Kubernetes, and (c) a policy-driven hybrid route that can use either path. The system must produce reproducible evidence about quality-adjusted cost, latency, throughput, GPU utilization and failure behavior.
 
