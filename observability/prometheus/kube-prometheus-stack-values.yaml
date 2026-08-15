@@ -1,0 +1,50 @@
+namespaceOverride: monitoring
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    nodeSelector:
+      workload: system
+
+grafana:
+  enabled: true
+  service:
+    type: ClusterIP
+  nodeSelector:
+    workload: system
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      searchNamespace: monitoring
+
+prometheusOperator:
+  nodeSelector:
+    workload: system
+
+prometheus:
+  prometheusSpec:
+    nodeSelector:
+      workload: system
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorNamespaceSelector: {}
+    ruleSelectorNilUsesHelmValues: false
+    ruleNamespaceSelector: {}
+    retention: 3d
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 2Gi
+
+kube-state-metrics:
+  nodeSelector:
+    workload: system
+
+prometheus-node-exporter:
+  tolerations:
+    - operator: Exists
+

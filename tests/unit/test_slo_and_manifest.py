@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
+import yaml
 
 from inference_gateway.benchmark.datasets import load_dataset
 from inference_gateway.benchmark.manifest import (
@@ -91,3 +92,51 @@ def test_publishable_manifest_refuses_missing_slo_cell() -> None:
             slo_hash=slo_hash,
             repository=RepositoryState("a" * 40, False, "test"),
         )
+
+
+def test_manifest_consumes_immutable_deploy_manifest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    deploy_path = tmp_path / "deploy-manifest.yaml"
+    deploy_path.write_text(
+        yaml.safe_dump(
+            {
+                "schema_version": "m5-v1",
+                "environment": {"cloud": "aws", "region": "us-east-1"},
+                "compute": {"gpu_count": 1},
+                "runtime": {
+                    "server_version": "0.27.1",
+                    "image_digest": f"sha256:{'b' * 64}",
+                },
+                "model": {
+                    "id": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+                    "revision": "c" * 40,
+                    "license_note": "Apache-2.0",
+                    "quantization": "awq",
+                },
+                "charts": {"vllm": "0.1.0"},
+                "gateway": {"image": "ghcr.io/example/inference-gateway:0.1.0"},
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("DEPLOY_MANIFEST", str(deploy_path))
+    scenario_path = ROOT / "benchmark/scenarios/classification-local.yaml"
+    scenario = load_scenario(scenario_path)
+    dataset = load_dataset(scenario.dataset, root=ROOT)
+    slo, slo_hash = load_slo(ROOT / scenario.slo_config)
+    manifest = build_manifest(
+        repository_root=ROOT,
+        scenario_path=scenario_path,
+        scenario=scenario,
+        dataset=dataset,
+        slo_document=slo,
+        slo_hash=slo_hash,
+        repository=RepositoryState("a" * 40, False, "test"),
+    )
+
+    assert manifest["model"]["revision"] == "c" * 40
+    assert manifest["runtime"]["image_digest"] == f"sha256:{'b' * 64}"
+    assert manifest["environment"]["cloud"] == "aws"
+    assert len(manifest["deployment_manifest"]["sha256"]) == 64

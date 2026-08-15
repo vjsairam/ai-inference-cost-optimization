@@ -1,0 +1,70 @@
+namespace: model-serving
+createNamespace: true
+
+replicaCount: 1
+
+image:
+  repository: vllm/vllm-openai
+  tag: v0.27.1
+  # Supply an immutable sha256 digest to deploy.sh. Tag-only rendering supports offline linting.
+  digest: ""
+  pullPolicy: IfNotPresent
+
+model:
+  repository: Qwen/Qwen2.5-7B-Instruct-AWQ
+  # An immutable Hugging Face commit SHA is mandatory at deploy time.
+  revision: resolved-at-first-deploy
+  servedName: lab-private
+  dtype: half
+  quantization: awq
+  maxModelLen: 8192
+  gpuMemoryUtilization: "0.90"
+  tensorParallelSize: 1
+  maxNumSeqs: 32
+  enablePrefixCaching: true
+  generationConfig: vllm
+
+# Quality comparisons send temperature=0 and fixed max_tokens per request. generationConfig=vllm
+# prevents repository generation defaults from silently changing those deterministic settings.
+server:
+  port: 8000
+
+secret:
+  name: vllm-secrets
+  apiKeyKey: VLLM_API_KEY
+
+service:
+  type: ClusterIP
+  port: 8000
+
+resources:
+  requests:
+    cpu: "2"
+    memory: 12Gi
+    nvidia.com/gpu: 1
+  limits:
+    cpu: "4"
+    memory: 20Gi
+    nvidia.com/gpu: 1
+
+nodeSelector:
+  workload: gpu
+  accelerator: nvidia
+
+tolerations:
+  - key: nvidia.com/gpu
+    operator: Equal
+    value: "true"
+    effect: NoSchedule
+
+modelCache:
+  enabled: false
+  mountPath: /root/.cache/huggingface
+  size: 80Gi
+  storageClassName: ""
+  accessModes: [ReadWriteOnce]
+
+serviceMonitor:
+  enabled: true
+  namespace: monitoring
+  interval: 15s

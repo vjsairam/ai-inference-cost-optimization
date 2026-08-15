@@ -1,0 +1,25 @@
+image:
+  repository: vllm/vllm-openai
+  tag: v0.27.1
+  digest: ""
+
+model:
+  repository: Qwen/Qwen2.5-7B-Instruct-AWQ
+  revision: resolved-at-first-deploy
+  servedName: lab-private
+  dtype: half
+  quantization: awq
+  maxModelLen: 8192
+  gpuMemoryUtilization: "0.90"
+  tensorParallelSize: 1
+  maxNumSeqs: 32
+  enablePrefixCaching: true
+  generationConfig: vllm
+
+modelCache:
+  enabled: false
+
+serviceMonitor:
+  enabled: true
+  interval: 15s
+

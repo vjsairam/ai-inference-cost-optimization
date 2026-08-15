@@ -2,7 +2,19 @@
 
 Authoritative progress tracker. Updated with every change set.
 
-## Current milestone: M4 — AWS EKS + GPU infrastructure (offline implementation complete)
+## Current milestone: M5 — vLLM serving and observability (offline implementation complete)
+
+| Item | Status |
+|---|---|
+| ADR-009 selects Qwen2.5-7B-Instruct with an AWQ L4 artifact and gated fallback | Implemented; revision resolved at first deploy |
+| Private vLLM Helm chart with one GPU, taint tolerance, load-aware probes, and optional cache PVC | Implemented; Helm lint/template validation passed offline |
+| Gateway Helm chart with mounted configuration, Secret references, health probes, and ClusterIP service | Implemented; Helm lint/template validation passed offline |
+| kube-prometheus-stack and DCGM exporter pinned values, ServiceMonitors, dashboards, and cloud alerts | Implemented; YAML and Prometheus rule structure validated offline |
+| Guarded ordered deployment, rollout waits, immutable deploy-manifest capture, and private smoke | Implemented; unreachable-cluster refusal passed |
+| Benchmark manifest consumption of model revision, image digest, runtime, GPU, and chart pins | Implemented; unit tested |
+| Live gateway-to-vLLM completion and vLLM/GPU metric visibility | Pending operator credentials, budget, model/image resolution, and cluster creation |
+
+## Previous milestone: M4 — AWS EKS + GPU infrastructure (offline implementation complete)
 
 | Item | Status |
 |---|---|
@@ -78,10 +90,13 @@ Authoritative progress tracker. Updated with every change set.
 - The first AWS cycle is intentionally pending valid operator credentials, selected region,
   approved `RUN_BUDGET_USD`, `EXPIRES_AT`, and confirmed regional G-instance quota above zero.
 - Cloud GPU and serving smoke evidence depends on the M5 workload deployment.
+- ADR-009 intentionally marks the model revision and vLLM registry digest as resolved at first
+  deploy; offline validation cannot truthfully capture either immutable artifact.
 
 ## Next milestone
 
-- M5 — Kubernetes/vLLM serving and GPU smoke, after the operator clears the M4 cloud safety gate.
+- M6 — publishable managed and private baseline evidence, after an operator clears the M4/M5 cloud
+  safety gates and records a successful create/deploy/smoke cycle.
 
 ## Commands run
 
@@ -165,3 +180,14 @@ Authoritative progress tracker. Updated with every change set.
   `us-east-1`, GPU type `g6.xlarge`, count 1, and the USD 0.9914/hour planning estimate first.
   `make tf-plan`, `cloud-up`, `cloud-down`, and `verify-destroy` each exited 2 with the documented
   invalid-credentials message at the STS identity gate.
+- M5 full repository gate: `make lint && make test && make test-contract && make
+  test-integration` passed. Ruff and formatting were clean, mypy found no issues in 47 source
+  files, and 89 unit, 72 contract, and 7 integration tests passed.
+- Helm `3.21.4` linted both charts with zero failures. Lab-value template rendering produced five
+  gateway and four vLLM documents; every document parsed, the vLLM service was ClusterIP, and the
+  one-GPU request/limit and GPU taint tolerance were present. Five standalone M5 YAML files parsed
+  as mappings. `kubeconform` and `promtool` were unavailable, so the documented YAML sanity path
+  was used.
+- M5 deploy and smoke guards both exited 2 against the absent cluster and printed that deployment
+  or checks remain PENDING. `terraform fmt -check -recursive infra/terraform` and
+  `terraform validate` both passed; the Terraform source is unchanged from M4.

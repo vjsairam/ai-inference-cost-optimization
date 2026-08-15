@@ -1,0 +1,19 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: vllm
+  namespace: {{ .Values.serviceMonitor.namespace }}
+  labels:
+    app.kubernetes.io/part-of: inference-lab
+spec:
+  namespaceSelector:
+    matchNames: [{{ .Values.namespace }}]
+  selector:
+    matchLabels:
+      {{- include "vllm.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: {{ .Values.serviceMonitor.interval }}
+{{- end }}

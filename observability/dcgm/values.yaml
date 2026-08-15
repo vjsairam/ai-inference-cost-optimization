@@ -1,0 +1,23 @@
+nodeSelector:
+  accelerator: nvidia
+
+tolerations:
+  - key: nvidia.com/gpu
+    operator: Equal
+    value: "true"
+    effect: NoSchedule
+
+serviceMonitor:
+  enabled: true
+  interval: 15s
+  additionalLabels:
+    app.kubernetes.io/part-of: inference-lab
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+

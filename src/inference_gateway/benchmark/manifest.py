@@ -8,7 +8,7 @@ import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import yaml
 
@@ -63,6 +63,34 @@ def _read_head(git_dir: Path) -> str:
 
 def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def load_deploy_manifest(repository_root: Path) -> tuple[Path, dict[str, Any]] | None:
+    """Load the immutable runtime selection captured by scripts/deploy.sh."""
+    configured_path = os.environ.get("DEPLOY_MANIFEST")
+    if not configured_path:
+        return None
+    path = Path(configured_path)
+    if not path.is_absolute():
+        path = repository_root / path
+    try:
+        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        raise PublishabilityError(f"cannot load deploy manifest {path}: {exc}") from exc
+    if not isinstance(raw, dict):
+        raise PublishabilityError(f"deploy manifest {path} must contain a YAML mapping")
+    manifest = cast(dict[str, Any], raw)
+    model = manifest.get("model")
+    runtime = manifest.get("runtime")
+    if not isinstance(model, dict) or not re.fullmatch(
+        r"[0-9a-f]{40}", str(model.get("revision", ""))
+    ):
+        raise PublishabilityError("deploy manifest model revision must be an immutable commit SHA")
+    if not isinstance(runtime, dict) or not re.fullmatch(
+        r"sha256:[0-9a-f]{64}", str(runtime.get("image_digest", ""))
+    ):
+        raise PublishabilityError("deploy manifest runtime image_digest must be immutable")
+    return path, manifest
 
 
 def utc_text(value: datetime) -> str:
@@ -128,7 +156,7 @@ def build_manifest(
             for model in provider.values()
         }
     )
-    return {
+    manifest: dict[str, Any] = {
         "run_id": run_id,
         "started_at": utc_text(started),
         "completed_at": None,
@@ -241,6 +269,21 @@ def build_manifest(
         "policy": {"config_sha256": sha256_file(timeout_path)},
         "operator_notes": operator_notes or ([scenario.notes] if scenario.notes else []),
     }
+    captured_deployment = load_deploy_manifest(repository_root)
+    if captured_deployment is not None:
+        deploy_path, deployment = captured_deployment
+        for section in ("environment", "compute", "runtime", "model"):
+            values = deployment.get(section)
+            if isinstance(values, dict):
+                manifest[section].update(values)
+        manifest["deployment_manifest"] = {
+            "path": str(deploy_path),
+            "sha256": sha256_file(deploy_path),
+            "schema_version": deployment.get("schema_version"),
+        }
+        manifest["charts"] = deployment.get("charts", {})
+        manifest["gateway"] = deployment.get("gateway", {})
+    return manifest
 
 
 def write_manifest(path: Path, manifest: dict[str, Any]) -> None:

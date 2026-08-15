@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "vllm.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "vllm.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "vllm.selectorLabels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      containers:
+        - name: vllm
+          image: {{ include "vllm.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --model
+            - {{ .Values.model.repository | quote }}
+            - --revision
+            - {{ .Values.model.revision | quote }}
+            - --served-model-name
+            - {{ .Values.model.servedName | quote }}
+            - --host
+            - 0.0.0.0
+            - --port
+            - {{ .Values.server.port | quote }}
+            - --dtype
+            - {{ .Values.model.dtype | quote }}
+            - --quantization
+            - {{ .Values.model.quantization | quote }}
+            - --max-model-len
+            - {{ .Values.model.maxModelLen | quote }}
+            - --gpu-memory-utilization
+            - {{ .Values.model.gpuMemoryUtilization | quote }}
+            - --tensor-parallel-size
+            - {{ .Values.model.tensorParallelSize | quote }}
+            - --max-num-seqs
+            - {{ .Values.model.maxNumSeqs | quote }}
+            - --generation-config
+            - {{ .Values.model.generationConfig | quote }}
+            {{- if .Values.model.enablePrefixCaching }}
+            - --enable-prefix-caching
+            {{- end }}
+            - --api-key
+            - $(VLLM_API_KEY)
+          env:
+            - name: VLLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret.name }}
+                  key: {{ .Values.secret.apiKeyKey }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.server.port }}
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 90
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: model-cache
+              mountPath: {{ .Values.modelCache.mountPath }}
+      volumes:
+        - name: model-cache
+          {{- if .Values.modelCache.enabled }}
+          persistentVolumeClaim:
+            claimName: vllm-model-cache
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+

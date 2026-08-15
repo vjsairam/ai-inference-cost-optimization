@@ -1,0 +1,7 @@
+apiVersion: v2
+name: vllm
+description: Single-GPU private model server for the cloud lab
+type: application
+version: 0.1.0
+appVersion: "0.27.1"
+

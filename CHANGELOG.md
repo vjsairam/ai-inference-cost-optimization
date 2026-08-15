@@ -1,5 +1,19 @@
 # Changelog
 
+## M5 - vLLM serving and observability
+
+- Selected Qwen2.5-7B-Instruct in ADR-009, with the AWQ L4 artifact, Apache-2.0 license note,
+  immutable first-deploy revision capture, and a license-gated Llama fallback.
+- Added private gateway and single-GPU vLLM Helm charts with ClusterIP services, guarded probes,
+  mounted configuration, Secret references, GPU scheduling, pinned runtime values, and optional
+  model-cache persistence.
+- Added pinned kube-prometheus-stack and DCGM exporter configuration, ServiceMonitors, cloud alert
+  rules, and Grafana dashboard provisioning.
+- Replaced the M4 deploy/smoke stubs with reachable-cluster guards, ordered installs, rollout waits,
+  immutable deploy-manifest capture, private completion checks, and Prometheus scrape validation.
+- Added offline Helm rendering invariants to unit and IaC CI, and documented the pending operator
+  deployment, evidence capture, and teardown procedure.
+
 ## M4 - AWS EKS + GPU infrastructure
 
 - Added a two-AZ AWS VPC and EKS root module with private worker subnets, one cost-conscious NAT

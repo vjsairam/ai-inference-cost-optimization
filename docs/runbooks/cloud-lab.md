@@ -1,7 +1,8 @@
 # AWS cloud-lab runbook
 
-> **PENDING — no AWS create/smoke/destroy cycle has been executed.** Operator credentials and an
-> approved run budget have not been supplied. M4 validation is offline only.
+> **PENDING — no AWS create/deploy/smoke/destroy cycle has been executed.** Operator credentials,
+> an approved run budget, immutable model revision, and image digests have not been supplied. M4
+> and M5 validation is offline only.
 
 The operator must provide exactly:
 
@@ -9,7 +10,10 @@ The operator must provide exactly:
 - an AWS region;
 - `RUN_BUDGET_USD` greater than zero;
 - `EXPIRES_AT` as an ISO date (`YYYY-MM-DD`);
-- confirmation that the regional Running On-Demand G and VT instance vCPU quota is greater than zero.
+- confirmation that the regional Running On-Demand G and VT instance vCPU quota is greater than zero;
+- an immutable commit SHA for `Qwen/Qwen2.5-7B-Instruct-AWQ`;
+- an immutable registry digest for `vllm/vllm-openai:v0.27.1`;
+- a deployable gateway image and the required gateway, private-vLLM, and managed-provider keys.
 
 This is an ephemeral lab, not a production topology. It uses two Availability Zones and private
 worker subnets, but deliberately uses one NAT gateway to avoid paying for one gateway per AZ. The
@@ -68,7 +72,28 @@ gateway endpoint.
   export OWNER=platform-owner
   ```
 
-- Record the model revision and license before M5 deployment.
+- Resolve and record the model revision and license before M5 deployment. The selected artifact is
+  Apache-2.0 and ungated, but the commit must still be frozen. Resolve `main`, inspect the returned
+  repository ID and SHA, and retain the response with the operator notes:
+
+  ```bash
+  curl --fail --silent --show-error \
+    https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct-AWQ/revision/main \
+    > /tmp/qwen-awq-revision.json
+  export MODEL_REVISION="$(python3 -c \
+    'import json; print(json.load(open("/tmp/qwen-awq-revision.json"))["sha"])')"
+  test "${#MODEL_REVISION}" -eq 40
+  ```
+
+- Resolve the registry digest for the pinned vLLM image. The deploy guard accepts only a
+  `sha256:` digest and renders a digest-qualified image reference:
+
+  ```bash
+  export VLLM_IMAGE_DIGEST="$(docker buildx imagetools inspect \
+    vllm/vllm-openai:v0.27.1 --format '{{.Manifest.Digest}}')"
+  test "${VLLM_IMAGE_DIGEST#sha256:}" != "$VLLM_IMAGE_DIGEST"
+  ```
+
 - Keep these recovery commands visible before creation:
 
   ```bash
@@ -96,13 +121,70 @@ make cloud-up ENV=aws-lab AWS_REGION="$AWS_REGION" \
   RUN_BUDGET_USD="$RUN_BUDGET_USD" EXPIRES_AT="$EXPIRES_AT" CONFIRM=--yes
 ```
 
-Configure kubectl using the Terraform output, then run the cloud smoke target. `make smoke` is an
-intentional M5 stub during M4 and will exit non-zero until the vLLM deployment exists:
+Configure kubectl using the Terraform output:
 
 ```bash
 aws eks update-kubeconfig --region "$AWS_REGION" \
   --name "$(terraform -chdir=infra/terraform/aws output -raw cluster_name)"
+```
+
+## M5 deployment and model revision capture
+
+Keep raw keys only in the operator environment. The gateway key authenticates port-forwarded and
+benchmark requests; the private key authenticates the gateway-to-vLLM hop. `deploy.sh` creates or
+updates Kubernetes Secrets without placing raw values in Helm values or deploy manifests.
+
+```bash
+export GATEWAY_API_KEY='replace-with-random-lab-key'
+export PRIVATE_VLLM_API_KEY='replace-with-random-internal-key'
+export MANAGED_PRIMARY_API_KEY='replace-with-provider-key'
+export GATEWAY_IMAGE_REPOSITORY='ghcr.io/owner/inference-gateway'
+export GATEWAY_IMAGE_TAG='immutable-build-tag'
+export DEPLOY_MANIFEST_PATH="$PWD/benchmark/manifests/deploy-${RUN_ID}.yaml"
+```
+
+Run the guarded deployment. It refuses an unreachable cluster, missing secrets, a mutable model
+revision, or a non-digest vLLM image. The install order is deliberate:
+
+1. kube-prometheus-stack `87.21.0` in `monitoring`;
+2. DCGM exporter `4.8.3` on the tainted GPU node;
+3. vLLM `v0.27.1` in `model-serving`, addressed only by ClusterIP;
+4. gateway in `gateway-system`;
+5. Prometheus rules and the four dashboard ConfigMaps.
+
+Chart and image pins are authoritative in `infra/helm/versions.yaml`. The command waits for each
+rollout, then captures Kubernetes, GPU driver, CUDA, vLLM, model, image, and chart details:
+
+```bash
+make deploy ENV=aws-lab
+export DEPLOY_MANIFEST="$DEPLOY_MANIFEST_PATH"
 make smoke ENV=aws-lab
+```
+
+`smoke.sh` verifies allocatable GPU capacity, ready vLLM and gateway pods, the gateway readiness
+endpoint, one restricted-data completion through `lab-private`, and healthy Prometheus scrape
+targets for both application namespaces. Benchmark manifest construction reads `DEPLOY_MANIFEST`,
+validates the revision and image digest, and embeds the captured values plus the file checksum.
+Keep each timestamped deploy manifest with its matching evidence; never reuse its path for a later
+deployment.
+
+Prometheus, Grafana, vLLM, and the gateway are ClusterIP-only. Operator access uses Kubernetes API
+port-forwarding. Publishable benchmark traffic must use the later in-cluster benchmark Job, not a
+port-forward path.
+
+## Teardown
+
+Export raw results, the deploy manifest, and the Prometheus/GPU snapshot before teardown. If model
+cache persistence was enabled, delete its PVC before infrastructure destruction and confirm that
+the backing EBS volume is gone. Helm cleanup is optional before destroying the ephemeral cluster,
+but useful when retaining the cluster for another treatment:
+
+```bash
+helm uninstall gateway --namespace gateway-system
+helm uninstall vllm --namespace model-serving
+helm uninstall dcgm-exporter --namespace monitoring
+helm uninstall kube-prometheus-stack --namespace monitoring
+kubectl delete namespace gateway-system model-serving monitoring --wait=true
 ```
 
 Destroy immediately after the smoke or benchmark window. Destruction does not require the budget

@@ -1,0 +1,19 @@
+{{- if .Values.modelCache.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vllm-model-cache
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "vllm.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.modelCache.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.modelCache.size }}
+  {{- with .Values.modelCache.storageClassName }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+{{- end }}
+

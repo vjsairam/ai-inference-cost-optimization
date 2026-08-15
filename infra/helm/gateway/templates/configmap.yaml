@@ -1,0 +1,131 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "gateway.labels" . | nindent 4 }}
+data:
+  GATEWAY_PROVIDERS_CONFIG: {{ printf "%s/providers.yaml" .Values.config.mountPath | quote }}
+  GATEWAY_ROUTING_CONFIG: {{ printf "%s/routing.yaml" .Values.config.mountPath | quote }}
+  GATEWAY_AUTH_CONFIG: {{ printf "%s/auth.yaml" .Values.config.mountPath | quote }}
+  GATEWAY_SLO_CONFIG: {{ printf "%s/slo.yaml" .Values.config.mountPath | quote }}
+  PRIVATE_VLLM_BASE_URL: {{ .Values.config.privateVllmBaseUrl | quote }}
+  providers.yaml: |
+    providers:
+      private-vllm:
+        kind: openai_compatible
+        base_url_env: PRIVATE_VLLM_BASE_URL
+        api_key_env: PRIVATE_VLLM_API_KEY
+        external: false
+        models:
+          lab-private:
+            upstream_model: lab-private
+            supports_sampling: true
+      managed-primary:
+        kind: managed
+        adapter: anthropic
+        api_key_env: MANAGED_PRIMARY_API_KEY
+        external: true
+        models:
+          lab-economy:
+            upstream_model: claude-haiku-4-5
+            supports_sampling: true
+          lab-premium:
+            upstream_model: claude-opus-5
+    route_aliases:
+      lab-default:
+        provider: private-vllm
+        model: lab-private
+      managed-economy:
+        provider: managed-primary
+        model: lab-economy
+      managed-premium:
+        provider: managed-primary
+        model: lab-premium
+    pricing:
+      managed-primary:
+        lab-economy:
+          currency: USD
+          effective_date: "2026-08-15"
+          input_per_1m: "1.00"
+          output_per_1m: "5.00"
+          cached_input_per_1m: null
+          source_url: https://platform.claude.com/docs/en/pricing.md
+        lab-premium:
+          currency: USD
+          effective_date: "2026-08-15"
+          input_per_1m: "5.00"
+          output_per_1m: "25.00"
+          cached_input_per_1m: null
+          source_url: https://platform.claude.com/docs/en/pricing.md
+  routing.yaml: |
+    version: 1
+    providers:
+      private-vllm:
+        type: openai-compatible
+        external: false
+      managed-economy:
+        type: managed
+        provider: managed-primary
+        model_alias: lab-economy
+        external: true
+      managed-premium:
+        type: managed
+        provider: managed-primary
+        model_alias: lab-premium
+        external: true
+    rules:
+      - name: restricted-private-only
+        when:
+          data_class: [restricted]
+        route: [private-vllm]
+      - name: economy-default
+        when:
+          data_class: [public, internal]
+          quality_tier: [economy]
+        route: [private-vllm, managed-economy]
+      - name: confidential-default
+        when:
+          data_class: [confidential]
+          quality_tier: [economy, balanced]
+        route: [private-vllm]
+      - name: premium-default
+        when:
+          data_class: [public, internal, confidential]
+          quality_tier: [premium]
+        route: [managed-premium, private-vllm]
+      - name: balanced-default
+        when:
+          data_class: [public, internal]
+          quality_tier: [balanced]
+        route: [private-vllm, managed-premium]
+    fallback:
+      "on": [timeout, rate_limited, provider_5xx]
+      max_attempts: 2
+      never_cross_data_policy: true
+    timeouts:
+      connect_timeout: 5
+      response_header_timeout: 30
+      stream_idle_timeout: 30
+      per_attempt_timeout: 60
+      global_request_deadline: 90
+    workloads: [classification, structured-extraction, generation, generic]
+  auth.yaml: |
+    keys:
+      - sha256: {{ .Values.auth.keySha256 | quote }}
+        team: {{ .Values.auth.team | quote }}
+  slo.yaml: |
+    version: "lab-v1"
+    effective_date: "2026-08-15"
+    cells:
+      WL-01/economy: {p95_ttft_ms: 1500, p95_e2e_ms: 5000, max_error_rate: "0.02", min_quality_rate: "0.85"}
+      WL-01/balanced: {p95_ttft_ms: 1500, p95_e2e_ms: 5000, max_error_rate: "0.01", min_quality_rate: "0.90"}
+      WL-01/premium: {p95_ttft_ms: 2000, p95_e2e_ms: 6000, max_error_rate: "0.01", min_quality_rate: "0.95"}
+      WL-02/economy: {p95_ttft_ms: 2000, p95_e2e_ms: 8000, max_error_rate: "0.02", min_quality_rate: "0.75"}
+      WL-02/balanced: {p95_ttft_ms: 2000, p95_e2e_ms: 8000, max_error_rate: "0.01", min_quality_rate: "0.85"}
+      WL-02/premium: {p95_ttft_ms: 2500, p95_e2e_ms: 10000, max_error_rate: "0.01", min_quality_rate: "0.92"}
+      WL-03/economy: {p95_ttft_ms: 1500, p95_e2e_ms: 5000, max_error_rate: "0.02"}
+      WL-03/balanced: {p95_ttft_ms: 1500, p95_e2e_ms: 5000, max_error_rate: "0.01"}
+      WL-03/premium: {p95_ttft_ms: 2000, p95_e2e_ms: 6000, max_error_rate: "0.01"}
+

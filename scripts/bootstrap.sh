@@ -23,4 +23,4 @@ if ((missing != 0)); then
   exit 1
 fi
 
-printf 'All required M4 tools are available.\n'
+printf 'All required cloud-lab tools are available.\n'

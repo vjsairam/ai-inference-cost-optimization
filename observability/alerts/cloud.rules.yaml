@@ -1,0 +1,31 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: inference-lab-alerts
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/part-of: inference-lab
+spec:
+  groups:
+    - name: inference-lab.availability
+      rules:
+        - alert: GatewayHighErrorRate
+          expr: |
+            sum(rate(gateway_requests_total{outcome!="success"}[5m]))
+              /
+            sum(rate(gateway_requests_total[5m]))
+              > 0.05
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Gateway error rate exceeds five percent
+            description: More than five percent of gateway requests failed for ten minutes.
+        - alert: VllmMetricsAbsent
+          expr: absent(vllm:num_requests_running)
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: vLLM metrics are absent
+            description: Prometheus has not received the vLLM running-request series for ten minutes.

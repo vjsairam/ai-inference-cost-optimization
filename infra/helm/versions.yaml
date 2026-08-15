@@ -1,0 +1,8 @@
+charts:
+  kubePrometheusStack: "87.21.0"
+  dcgmExporter: "4.8.3"
+  vllm: "0.1.0"
+  gateway: "0.1.0"
+images:
+  vllm: "v0.27.1"
+
