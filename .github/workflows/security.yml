@@ -26,6 +26,6 @@ jobs:
       - name: Export locked dependencies
         run: uv export --frozen --no-emit-project --no-hashes -o requirements.txt
       - name: Audit dependencies
-        run: uvx pip-audit -r requirements.txt --disable-pip
+        run: uvx pip-audit -r requirements.txt --disable-pip --no-deps
 
       # Container scanning starts with the M3+ container artifact.
