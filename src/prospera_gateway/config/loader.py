@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 import yaml
 from pydantic import ValidationError
@@ -29,7 +29,7 @@ for initial in "OoYyNnTtFf":
         for resolver in _ConfigSafeLoader.yaml_implicit_resolvers.get(initial, [])
         if resolver[0] != "tag:yaml.org,2002:bool"
     ]
-_ConfigSafeLoader.add_implicit_resolver(  # type: ignore[no-untyped-call]
+cast(Any, _ConfigSafeLoader.add_implicit_resolver)(
     "tag:yaml.org,2002:bool",
     re.compile(r"^(?:true|True|TRUE|false|False|FALSE)$"),
     list("tTfF"),
