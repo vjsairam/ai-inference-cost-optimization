@@ -1,0 +1,45 @@
+providers:
+  private-vllm:
+    kind: openai_compatible
+    base_url_env: PRIVATE_VLLM_BASE_URL
+    api_key_env: PRIVATE_VLLM_API_KEY
+    external: false
+    models:
+      prospera-private:
+        upstream_model: "PLACEHOLDER_PINNED_MODEL_ID"
+
+  managed-primary:
+    kind: managed
+    adapter: "PLACEHOLDER_MANAGED_ADAPTER"
+    api_key_env: MANAGED_PRIMARY_API_KEY
+    external: true
+    models:
+      prospera-economy:
+        upstream_model: "PLACEHOLDER_ECONOMY_MODEL_ID"
+      prospera-premium:
+        upstream_model: "PLACEHOLDER_PREMIUM_MODEL_ID"
+
+route_aliases:
+  managed-economy:
+    provider: managed-primary
+    model: prospera-economy
+  managed-premium:
+    provider: managed-primary
+    model: prospera-premium
+
+pricing:
+  managed-primary:
+    prospera-economy:
+      currency: USD
+      effective_date: "2026-08-15"
+      input_per_1m: "0.150"
+      output_per_1m: "0.600"
+      cached_input_per_1m: null
+      source_url: "https://example.invalid/official-pricing"
+    prospera-premium:
+      currency: USD
+      effective_date: "2026-08-15"
+      input_per_1m: "1.250"
+      output_per_1m: "10.000"
+      cached_input_per_1m: null
+      source_url: "https://example.invalid/official-pricing"

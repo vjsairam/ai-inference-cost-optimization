@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install pinned Python
+        run: uv python install
+      - name: Sync locked dependencies
+        run: uv sync --frozen
+      - name: Lint and type-check
+        run: make lint
+      - name: Unit tests
+        run: make test
+      - name: Contract tests
+        run: make test-contract

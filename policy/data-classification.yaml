@@ -1,0 +1,11 @@
+version: 1
+classes:
+  public:
+    external_allowed: true
+  internal:
+    external_allowed: true
+  confidential:
+    external_allowed: true
+  restricted:
+    external_allowed: false
+    required_route: private-vllm
