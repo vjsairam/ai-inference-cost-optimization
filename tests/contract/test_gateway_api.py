@@ -8,10 +8,10 @@ import logging
 import httpx
 import pytest
 
-from prospera_gateway.adapters import MockBehaviorKind, MockProviderAdapter
-from prospera_gateway.api import create_app
-from prospera_gateway.config import GatewayConfig
-from prospera_gateway.security import AuthConfig
+from inference_gateway.adapters import MockBehaviorKind, MockProviderAdapter
+from inference_gateway.api import create_app
+from inference_gateway.config import GatewayConfig
+from inference_gateway.security import AuthConfig
 
 SENTINEL_PROMPT = "SENTINEL-PROMPT-BODY-9f31c2"
 
@@ -48,9 +48,9 @@ def _headers(
 ) -> dict[str, str]:
     headers = {
         "Authorization": f"Bearer {lab_api_key}",
-        "X-Prospera-Data-Class": data_class,
-        "X-Prospera-Quality-Tier": quality_tier,
-        "X-Prospera-Workload": "generic",
+        "X-Gateway-Data-Class": data_class,
+        "X-Gateway-Quality-Tier": quality_tier,
+        "X-Gateway-Workload": "generic",
     }
     headers.update(extra)
     return headers
@@ -58,7 +58,7 @@ def _headers(
 
 def _body(stream: bool = False) -> dict[str, object]:
     return {
-        "model": "prospera-default",
+        "model": "lab-default",
         "messages": [{"role": "user", "content": SENTINEL_PROMPT}],
         "max_tokens": 64,
         "stream": stream,
@@ -84,7 +84,7 @@ async def test_team_assertion_mismatch_is_403(gateway_config, auth_config, lab_a
         response = await client.post(
             "/v1/chat/completions",
             json=_body(),
-            headers=_headers(lab_api_key, **{"X-Prospera-Team": "another-team"}),
+            headers=_headers(lab_api_key, **{"X-Gateway-Team": "another-team"}),
         )
     assert response.status_code == 403
     assert response.json()["error"]["code"] == "team_mismatch"
@@ -116,7 +116,7 @@ async def test_unknown_workload_is_422(gateway_config, auth_config, lab_api_key)
         response = await client.post(
             "/v1/chat/completions",
             json=_body(),
-            headers=_headers(lab_api_key, **{"X-Prospera-Workload": "not-allowed"}),
+            headers=_headers(lab_api_key, **{"X-Gateway-Workload": "not-allowed"}),
         )
     assert response.status_code == 422
 
@@ -133,9 +133,9 @@ async def test_happy_path_returns_openai_shape_and_route_headers(
     assert payload["object"] == "chat.completion"
     assert payload["choices"][0]["message"]["content"] == "mock response"
     assert payload["usage"]["prompt_tokens"] == 4
-    assert response.headers["X-Prospera-Provider"] == "private-vllm"
-    assert response.headers["X-Prospera-Route"] == "economy-default"
-    assert response.headers["X-Prospera-Request-Id"]
+    assert response.headers["X-Gateway-Provider"] == "private-vllm"
+    assert response.headers["X-Gateway-Route"] == "economy-default"
+    assert response.headers["X-Gateway-Request-Id"]
 
 
 async def test_client_request_id_is_echoed(gateway_config, auth_config, lab_api_key) -> None:
@@ -143,9 +143,9 @@ async def test_client_request_id_is_echoed(gateway_config, auth_config, lab_api_
         response = await client.post(
             "/v1/chat/completions",
             json=_body(),
-            headers=_headers(lab_api_key, **{"X-Prospera-Request-Id": "client-id-1"}),
+            headers=_headers(lab_api_key, **{"X-Gateway-Request-Id": "client-id-1"}),
         )
-    assert response.headers["X-Prospera-Request-Id"] == "client-id-1"
+    assert response.headers["X-Gateway-Request-Id"] == "client-id-1"
 
 
 async def test_restricted_with_private_down_fails_closed(
@@ -176,7 +176,7 @@ async def test_fallback_on_429_uses_next_provider(gateway_config, auth_config, l
             "/v1/chat/completions", json=_body(), headers=_headers(lab_api_key)
         )
     assert response.status_code == 200
-    assert response.headers["X-Prospera-Provider"] == "managed-economy"
+    assert response.headers["X-Gateway-Provider"] == "managed-economy"
 
 
 async def test_provider_429_maps_to_429_with_retry_after(
@@ -252,9 +252,9 @@ async def test_metrics_endpoint_exposes_gateway_series(
         await client.post("/v1/chat/completions", json=_body(), headers=_headers(lab_api_key))
         metrics = await client.get("/metrics")
     text = metrics.text
-    assert "prospera_requests_total" in text
+    assert "gateway_requests_total" in text
     assert 'outcome="success"' in text
-    assert "prospera_routing_decisions_total" in text
+    assert "gateway_routing_decisions_total" in text
     assert SENTINEL_PROMPT not in text
 
 
@@ -284,6 +284,6 @@ async def test_prompt_bodies_never_reach_logs(
     for record in caplog.records:
         assert SENTINEL_PROMPT not in record.getMessage()
         assert SENTINEL_PROMPT not in str(getattr(record, "args", ""))
-    request_logs = [r for r in caplog.records if r.name == "prospera_gateway.access"]
+    request_logs = [r for r in caplog.records if r.name == "inference_gateway.access"]
     assert request_logs, "expected a structured access log record"
     assert getattr(request_logs[0], "outcome", None) == "success"

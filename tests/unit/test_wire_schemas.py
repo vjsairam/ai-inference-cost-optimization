@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from prospera_gateway.api import schemas
-from prospera_gateway.models import (
+from inference_gateway.api import schemas
+from inference_gateway.models import (
     CanonicalContentPart,
     DataClass,
     MessageRole,
@@ -18,7 +18,7 @@ from prospera_gateway.models import (
 
 def _wire(**overrides: object) -> schemas.ChatCompletionRequest:
     payload: dict[str, object] = {
-        "model": "prospera-default",
+        "model": "lab-default",
         "messages": [
             {"role": "system", "content": "be terse"},
             {"role": "user", "content": "hello"},
@@ -58,7 +58,7 @@ def test_extra_body_fields_are_rejected() -> None:
 def _result(usage: NormalizedUsage) -> ProviderResult:
     return ProviderResult(
         provider="p",
-        model="prospera-default",
+        model="lab-default",
         output=[CanonicalContentPart(type="text", text="answer")],
         finish_reason="stop",
         usage=usage,
@@ -72,7 +72,7 @@ def test_completion_response_includes_reported_usage() -> None:
         billed_output_tokens=3,
         billed_output_tokens_source=UsageSource.PROVIDER_REPORTED,
     )
-    payload = schemas.completion_response("rid", 1, "prospera-default", _result(usage))
+    payload = schemas.completion_response("rid", 1, "lab-default", _result(usage))
     assert payload["usage"] == {
         "prompt_tokens": 7,
         "completion_tokens": 3,
@@ -83,6 +83,6 @@ def test_completion_response_includes_reported_usage() -> None:
 def test_completion_response_omits_unavailable_usage() -> None:
     """Never invent billing tokens (spec §8.2)."""
     payload = schemas.completion_response(
-        "rid", 1, "prospera-default", _result(NormalizedUsage.unavailable())
+        "rid", 1, "lab-default", _result(NormalizedUsage.unavailable())
     )
     assert "usage" not in payload

@@ -10,10 +10,10 @@ import anthropic
 import httpx
 import pytest
 
-from prospera_gateway.adapters import AnthropicManagedAdapter
-from prospera_gateway.config import GatewayConfig
-from prospera_gateway.config.pricing import PricingEngine
-from prospera_gateway.models import (
+from inference_gateway.adapters import AnthropicManagedAdapter
+from inference_gateway.config import GatewayConfig
+from inference_gateway.config.pricing import PricingEngine
+from inference_gateway.models import (
     CanonicalChatRequest,
     CanonicalContentPart,
     CanonicalMessage,
@@ -47,7 +47,7 @@ def _request() -> CanonicalChatRequest:
                 content=[CanonicalContentPart(type="text", text="hello claude")],
             ),
         ],
-        model="prospera-premium",
+        model="lab-premium",
         metadata=RequestMetadata(
             workload="generic",
             data_class=DataClass.INTERNAL,
@@ -63,7 +63,7 @@ def _adapter(handler, gateway_config: GatewayConfig) -> AnthropicManagedAdapter:
     return AnthropicManagedAdapter(
         name="managed-premium",
         upstream_model="claude-opus-5",
-        model_alias="prospera-premium",
+        model_alias="lab-premium",
         client=client,
         pricing=PricingEngine(gateway_config.providers),
         provider_config_name="managed-primary",
@@ -230,7 +230,7 @@ async def test_price_uses_dated_pricing_config(gateway_config: GatewayConfig) ->
         billed_output_tokens=0,
         billed_output_tokens_source=UsageSource.PROVIDER_REPORTED,
     )
-    money = adapter.price(usage, "prospera-premium")
+    money = adapter.price(usage, "lab-premium")
     assert money is not None
-    pricing = gateway_config.providers.pricing["managed-primary"]["prospera-premium"]
+    pricing = gateway_config.providers.pricing["managed-primary"]["lab-premium"]
     assert money.amount == Decimal(pricing.input_per_1m)

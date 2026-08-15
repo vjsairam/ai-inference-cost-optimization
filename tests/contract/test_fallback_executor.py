@@ -6,9 +6,9 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from prospera_gateway.adapters import MockBehavior, MockBehaviorKind, MockProviderAdapter
-from prospera_gateway.config import RoutingPolicy, TimeoutConfig
-from prospera_gateway.models import (
+from inference_gateway.adapters import MockBehavior, MockBehaviorKind, MockProviderAdapter
+from inference_gateway.config import RoutingPolicy, TimeoutConfig
+from inference_gateway.models import (
     CanonicalChatRequest,
     CanonicalContentPart,
     CanonicalMessage,
@@ -20,7 +20,7 @@ from prospera_gateway.models import (
     RequestContext,
     RequestMetadata,
 )
-from prospera_gateway.routing import FallbackExecutor, RouteDecision
+from inference_gateway.routing import FallbackExecutor, RouteDecision
 
 
 def _request(data_class: DataClass = DataClass.INTERNAL) -> CanonicalChatRequest:
@@ -31,7 +31,7 @@ def _request(data_class: DataClass = DataClass.INTERNAL) -> CanonicalChatRequest
                 content=[CanonicalContentPart(type="text", text="hello")],
             )
         ],
-        model="prospera-default",
+        model="lab-default",
         metadata=RequestMetadata(
             workload="generic",
             data_class=data_class,

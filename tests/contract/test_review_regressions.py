@@ -11,17 +11,17 @@ import anthropic
 import httpx
 import pytest
 
-from prospera_gateway.adapters import (
+from inference_gateway.adapters import (
     AnthropicManagedAdapter,
     MockBehaviorKind,
     MockProviderAdapter,
     OpenAICompatAdapter,
 )
-from prospera_gateway.api import create_app
-from prospera_gateway.api.app import build_adapters
-from prospera_gateway.config import GatewayConfig, RoutingPolicy, TimeoutConfig
-from prospera_gateway.config.pricing import PricingEngine
-from prospera_gateway.models import (
+from inference_gateway.api import create_app
+from inference_gateway.api.app import build_adapters
+from inference_gateway.config import GatewayConfig, RoutingPolicy, TimeoutConfig
+from inference_gateway.config.pricing import PricingEngine
+from inference_gateway.models import (
     CanonicalChatRequest,
     CanonicalContentPart,
     CanonicalMessage,
@@ -38,7 +38,7 @@ from prospera_gateway.models import (
     RequestContext,
     RequestMetadata,
 )
-from prospera_gateway.routing import FallbackExecutor, RouteDecision
+from inference_gateway.routing import FallbackExecutor, RouteDecision
 
 _CTX = RequestContext(
     request_id="req-regress",
@@ -55,7 +55,7 @@ def _request(stream: bool = False) -> CanonicalChatRequest:
                 content=[CanonicalContentPart(type="text", text="hi")],
             )
         ],
-        model="prospera-default",
+        model="lab-default",
         temperature=1.7,
         stream=stream,
         metadata=RequestMetadata(
@@ -86,9 +86,9 @@ def _client(gateway_config, auth_config, adapters) -> httpx.AsyncClient:
 def _headers(lab_api_key: str, **extra: str) -> dict[str, str]:
     headers = {
         "Authorization": f"Bearer {lab_api_key}",
-        "X-Prospera-Data-Class": "internal",
-        "X-Prospera-Quality-Tier": "economy",
-        "X-Prospera-Workload": "generic",
+        "X-Gateway-Data-Class": "internal",
+        "X-Gateway-Quality-Tier": "economy",
+        "X-Gateway-Workload": "generic",
     }
     headers.update(extra)
     return headers
@@ -121,13 +121,13 @@ async def test_configured_alias_keeps_its_metric_label(
         await client.post(
             "/v1/chat/completions",
             json={
-                "model": "prospera-default",
+                "model": "lab-default",
                 "messages": [{"role": "user", "content": "x"}],
             },
             headers=_headers(lab_api_key),
         )
         metrics = await client.get("/metrics")
-    assert 'model_alias="prospera-default"' in metrics.text
+    assert 'model_alias="lab-default"' in metrics.text
 
 
 # Findings 2 and 3: production Anthropic client must not retry and must
@@ -220,7 +220,7 @@ async def test_anthropic_in_band_stream_error_normalizes(
     adapter = AnthropicManagedAdapter(
         name="managed-premium",
         upstream_model="model-x",
-        model_alias="prospera-premium",
+        model_alias="lab-premium",
         client=anthropic.AsyncAnthropic(
             api_key="k",
             http_client=httpx.AsyncClient(transport=httpx.MockTransport(handler)),
@@ -269,7 +269,7 @@ async def test_streaming_pre_stream_failure_returns_http_error(
         response = await client.post(
             "/v1/chat/completions",
             json={
-                "model": "prospera-default",
+                "model": "lab-default",
                 "messages": [{"role": "user", "content": "x"}],
                 "stream": True,
             },
@@ -305,7 +305,7 @@ async def test_temperature_forwarded_and_clamped_when_supported(
         return AnthropicManagedAdapter(
             name="managed-economy",
             upstream_model="m",
-            model_alias="prospera-economy",
+            model_alias="lab-economy",
             client=anthropic.AsyncAnthropic(
                 api_key="k",
                 http_client=httpx.AsyncClient(transport=httpx.MockTransport(handler)),
@@ -361,7 +361,7 @@ async def test_tool_role_is_rejected(gateway_config, auth_config, lab_api_key) -
         response = await client.post(
             "/v1/chat/completions",
             json={
-                "model": "prospera-default",
+                "model": "lab-default",
                 "messages": [
                     {"role": "user", "content": "x"},
                     {"role": "tool", "content": "result"},
@@ -385,7 +385,7 @@ async def test_terminal_fallback_failure_attributes_all_attempts(
         response = await client.post(
             "/v1/chat/completions",
             json={
-                "model": "prospera-default",
+                "model": "lab-default",
                 "messages": [{"role": "user", "content": "x"}],
             },
             headers=_headers(lab_api_key),
@@ -394,10 +394,10 @@ async def test_terminal_fallback_failure_attributes_all_attempts(
     assert response.status_code == 502
     text = metrics.text
     assert (
-        'prospera_provider_errors_total{error_class="rate_limited",provider="private-vllm"}' in text
+        'gateway_provider_errors_total{error_class="rate_limited",provider="private-vllm"}' in text
     )
     assert (
-        'prospera_provider_errors_total{error_class="provider_5xx",provider="managed-economy"}'
+        'gateway_provider_errors_total{error_class="provider_5xx",provider="managed-economy"}'
         in text
     )
     assert 'from_provider="private-vllm"' in text

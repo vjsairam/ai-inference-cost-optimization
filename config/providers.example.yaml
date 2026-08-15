@@ -5,7 +5,7 @@ providers:
     api_key_env: PRIVATE_VLLM_API_KEY
     external: false
     models:
-      prospera-private:
+      lab-private:
         upstream_model: "PLACEHOLDER_PINNED_MODEL_ID"
         supports_sampling: true
 
@@ -15,33 +15,33 @@ providers:
     api_key_env: MANAGED_PRIMARY_API_KEY
     external: true
     models:
-      prospera-economy:
+      lab-economy:
         upstream_model: "PLACEHOLDER_ECONOMY_MODEL_ID"
         supports_sampling: true
-      prospera-premium:
+      lab-premium:
         upstream_model: "PLACEHOLDER_PREMIUM_MODEL_ID"
 
 route_aliases:
-  prospera-default:
+  lab-default:
     provider: private-vllm
-    model: prospera-private
+    model: lab-private
   managed-economy:
     provider: managed-primary
-    model: prospera-economy
+    model: lab-economy
   managed-premium:
     provider: managed-primary
-    model: prospera-premium
+    model: lab-premium
 
 pricing:
   managed-primary:
-    prospera-economy:
+    lab-economy:
       currency: USD
       effective_date: "2026-08-15"
       input_per_1m: "0.150"
       output_per_1m: "0.600"
       cached_input_per_1m: null
       source_url: "https://example.invalid/official-pricing"
-    prospera-premium:
+    lab-premium:
       currency: USD
       effective_date: "2026-08-15"
       input_per_1m: "1.250"

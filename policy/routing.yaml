@@ -6,12 +6,12 @@ providers:
   managed-economy:
     type: managed
     provider: managed-primary
-    model_alias: prospera-economy
+    model_alias: lab-economy
     external: true
   managed-premium:
     type: managed
     provider: managed-primary
-    model_alias: prospera-premium
+    model_alias: lab-premium
     external: true
 
 rules:

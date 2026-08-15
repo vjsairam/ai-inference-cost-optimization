@@ -1,7 +1,0 @@
-anthropic<1,>=0.80
-fastapi<1,>=0.115
-httpx<1,>=0.27
-prometheus-client<2,>=0.20
-pydantic<3,>=2.10
-PyYAML<7,>=6.0.2
-uvicorn<1,>=0.30

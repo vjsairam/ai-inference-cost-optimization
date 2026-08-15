@@ -8,8 +8,8 @@ from datetime import UTC, datetime, timedelta
 import httpx
 import pytest
 
-from prospera_gateway.adapters import OpenAICompatAdapter
-from prospera_gateway.models import (
+from inference_gateway.adapters import OpenAICompatAdapter
+from inference_gateway.models import (
     CanonicalChatRequest,
     CanonicalContentPart,
     CanonicalMessage,
@@ -37,7 +37,7 @@ def _request(stream: bool = False) -> CanonicalChatRequest:
                 content=[CanonicalContentPart(type="text", text="hello upstream")],
             )
         ],
-        model="prospera-default",
+        model="lab-default",
         stream=stream,
         metadata=RequestMetadata(
             workload="generic",

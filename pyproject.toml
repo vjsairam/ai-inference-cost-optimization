@@ -3,7 +3,7 @@ requires = ["setuptools>=83,<84"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "prospera-gateway"
+name = "inference-gateway"
 version = "0.1.0"
 description = "Provider-neutral inference cost optimization contracts"
 readme = "README.md"
@@ -45,7 +45,7 @@ quote-style = "double"
 [tool.mypy]
 python_version = "3.13"
 strict = true
-packages = ["prospera_gateway"]
+packages = ["inference_gateway"]
 mypy_path = "src"
 
 [tool.pytest.ini_options]

@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from prospera_gateway.config import RoutingPolicy
-from prospera_gateway.models import DataClass, QualityTier
-from prospera_gateway.routing import PolicyDenied, select_route
+from inference_gateway.config import RoutingPolicy
+from inference_gateway.models import DataClass, QualityTier
+from inference_gateway.routing import PolicyDenied, select_route
 
 # Expected (primary, fallbacks) for every cell of the lab policy, per §8.6.
 EXPECTED: dict[tuple[DataClass, QualityTier], tuple[str, tuple[str, ...]]] = {

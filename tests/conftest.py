@@ -3,13 +3,28 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
+import anthropic._base_client
 import pytest
 
-from prospera_gateway.config import GatewayConfig, RoutingPolicy, load_gateway_config
-from prospera_gateway.security import ApiKeyEntry, AuthConfig, generate_api_key, hash_api_key
+from inference_gateway.config import GatewayConfig, RoutingPolicy, load_gateway_config
+from inference_gateway.security import ApiKeyEntry, AuthConfig, generate_api_key, hash_api_key
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture(autouse=True)
+def _inline_anthropic_platform_probe(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Avoid a Python 3.13 executor-shutdown deadlock in sandboxed test runs."""
+
+    def inline_asyncify(function: Any) -> Any:
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
+            return function(*args, **kwargs)
+
+        return wrapper
+
+    monkeypatch.setattr(anthropic._base_client, "asyncify", inline_asyncify)
 
 
 @pytest.fixture(scope="session")

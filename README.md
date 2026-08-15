@@ -37,9 +37,9 @@ Two economic views are reported:
 
 Every published run traces to an immutable manifest: Git SHA, model revision, image digests, pricing effective dates, hardware, traffic shape, and raw request records.
 
-**→ [Benchmark methodology](TECHNICAL_SPEC.md#9-benchmark-and-quality-evaluation-specification)**
-**→ [Full technical specification](TECHNICAL_SPEC.md)** (v1.2, approved for implementation)
-**→ [Implementation status](docs/implementation-status.md)**
+The benchmark methodology lives in [TECHNICAL_SPEC.md §9](TECHNICAL_SPEC.md#9-benchmark-and-quality-evaluation-specification),
+the full specification (v1.2, approved for implementation) in [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md),
+and progress in [docs/implementation-status.md](docs/implementation-status.md).
 
 ## Principles
 

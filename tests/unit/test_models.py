@@ -4,7 +4,7 @@ from decimal import Decimal
 import pytest
 from pydantic import ValidationError
 
-from prospera_gateway.models import (
+from inference_gateway.models import (
     Money,
     NormalizedUsage,
     ProviderHealth,

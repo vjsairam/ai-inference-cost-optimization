@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from prospera_gateway.config import ConfigurationError, load_gateway_config
+from inference_gateway.config import ConfigurationError, load_gateway_config
 
 ROOT = Path(__file__).parents[2]
 PROVIDERS_EXAMPLE = ROOT / "config" / "providers.example.yaml"
@@ -35,7 +35,7 @@ def write_yaml(path: Path, data: dict[str, object]) -> Path:
 def test_loads_example_config_with_decimal_prices_and_timeout_defaults() -> None:
     config = load_gateway_config(PROVIDERS_EXAMPLE, ROUTING_EXAMPLE)
 
-    price = config.providers.pricing["managed-primary"]["prospera-economy"]
+    price = config.providers.pricing["managed-primary"]["lab-economy"]
     assert price.input_per_1m == Decimal("0.150")
     assert isinstance(price.input_per_1m, Decimal)
     assert price.effective_date == date(2026, 8, 15)
@@ -90,7 +90,7 @@ def test_missing_pricing_field_fails_fast(
     provider_data: dict[str, object],
 ) -> None:
     mutated = deepcopy(provider_data)
-    del mutated["pricing"]["managed-primary"]["prospera-economy"]["output_per_1m"]  # type: ignore[index]
+    del mutated["pricing"]["managed-primary"]["lab-economy"]["output_per_1m"]  # type: ignore[index]
     providers_path = write_yaml(tmp_path / "providers.yaml", mutated)
 
     with pytest.raises(ConfigurationError, match="output_per_1m"):
@@ -102,7 +102,7 @@ def test_malformed_effective_date_fails_fast(
     provider_data: dict[str, object],
 ) -> None:
     mutated = deepcopy(provider_data)
-    mutated["pricing"]["managed-primary"]["prospera-economy"]["effective_date"] = (  # type: ignore[index]
+    mutated["pricing"]["managed-primary"]["lab-economy"]["effective_date"] = (  # type: ignore[index]
         "15-08-2026"
     )
     providers_path = write_yaml(tmp_path / "providers.yaml", mutated)
@@ -116,7 +116,7 @@ def test_negative_price_fails_fast(
     provider_data: dict[str, object],
 ) -> None:
     mutated = deepcopy(provider_data)
-    mutated["pricing"]["managed-primary"]["prospera-economy"]["input_per_1m"] = (  # type: ignore[index]
+    mutated["pricing"]["managed-primary"]["lab-economy"]["input_per_1m"] = (  # type: ignore[index]
         "-0.01"
     )
     providers_path = write_yaml(tmp_path / "providers.yaml", mutated)
@@ -130,7 +130,7 @@ def test_native_float_price_is_rejected(
     provider_data: dict[str, object],
 ) -> None:
     mutated = deepcopy(provider_data)
-    mutated["pricing"]["managed-primary"]["prospera-economy"]["input_per_1m"] = 0.1  # type: ignore[index]
+    mutated["pricing"]["managed-primary"]["lab-economy"]["input_per_1m"] = 0.1  # type: ignore[index]
     providers_path = write_yaml(tmp_path / "providers.yaml", mutated)
 
     with pytest.raises(ConfigurationError, match="quoted decimals"):

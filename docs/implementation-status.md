@@ -7,7 +7,7 @@ Authoritative progress tracker. Updated with every change set.
 | Item | Status |
 |---|---|
 | FastAPI gateway: /v1/chat/completions (stream + non-stream), /health/live, /health/ready, /health/providers, /metrics | Done |
-| Bearer-key auth: SHA-256 lookup digests, constant-time compare, key-derived team, X-Prospera-Team 403 on mismatch | Done |
+| Bearer-key auth: SHA-256 lookup digests, constant-time compare, key-derived team, X-Gateway-Team 403 on mismatch | Done |
 | Deterministic policy router with runtime restricted fail-closed invariant | Done |
 | Bounded fallback: eligible errors only, max_attempts, global deadline, no replay after stream start | Done |
 | Generic OpenAI-compatible adapter (private vLLM path) | Done |
@@ -43,18 +43,18 @@ Authoritative progress tracker. Updated with every change set.
 
 - `export PATH="$HOME/.local/bin:$PATH" && uv --version && uv lock` — failed before
   resolution because the default cache path was read-only. The Makefile now exports
-  `UV_CACHE_DIR=/tmp/prospera-uv-cache` by default.
-- `export PATH="$HOME/.local/bin:$PATH" && export UV_CACHE_DIR=/tmp/prospera-uv-cache && uv lock`
+  `UV_CACHE_DIR=/tmp/gateway-uv-cache` by default.
+- `export PATH="$HOME/.local/bin:$PATH" && export UV_CACHE_DIR=/tmp/gateway-uv-cache && uv lock`
   — failed because DNS access to the package index was unavailable in the execution environment.
-- `export PATH="$HOME/.local/bin:$PATH" && export UV_CACHE_DIR=/tmp/prospera-uv-cache && uv lock
-  --offline --no-index --find-links /tmp/prospera-wheelhouse` — passed; resolved 22 packages from
+- `export PATH="$HOME/.local/bin:$PATH" && export UV_CACHE_DIR=/tmp/gateway-uv-cache && uv lock
+  --offline --no-index --find-links /tmp/gateway-wheelhouse` — passed; resolved 22 packages from
   locally available distributions. The committed lock references the corresponding registry
   artifacts rather than the temporary wheelhouse.
 - `export PATH="$HOME/.local/bin:$PATH" && make bootstrap && make lint && make test && make
   test-contract` — passed. Bootstrap resolved 22 packages; Ruff check and format check passed;
   mypy reported no issues in 11 source files; unit tests reported 29 passed; contract tests
   reported 14 passed.
-- `export PATH="$HOME/.local/bin:$PATH" && export UV_CACHE_DIR=/tmp/prospera-uv-cache && uv lock
+- `export PATH="$HOME/.local/bin:$PATH" && export UV_CACHE_DIR=/tmp/gateway-uv-cache && uv lock
   --check --offline && uv sync --frozen && make test-integration` — passed. The lock resolved 22
   packages, the frozen environment check covered 21 installed packages, and the M0 compatibility
   integration target reported 43 passed.

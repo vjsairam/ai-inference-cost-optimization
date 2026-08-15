@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from prospera_gateway.security import (
+from inference_gateway.security import (
     ApiKeyEntry,
     AuthConfig,
     AuthenticationFailed,

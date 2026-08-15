@@ -13,12 +13,12 @@ import anthropic
 import httpx
 import pytest
 
-from prospera_gateway.adapters import AnthropicManagedAdapter, OpenAICompatAdapter
-from prospera_gateway.adapters.base import ProviderAdapter
-from prospera_gateway.api import create_app
-from prospera_gateway.config import GatewayConfig
-from prospera_gateway.config.pricing import PricingEngine
-from prospera_gateway.security import AuthConfig
+from inference_gateway.adapters import AnthropicManagedAdapter, OpenAICompatAdapter
+from inference_gateway.adapters.base import ProviderAdapter
+from inference_gateway.api import create_app
+from inference_gateway.config import GatewayConfig
+from inference_gateway.config.pricing import PricingEngine
+from inference_gateway.security import AuthConfig
 
 
 class UpstreamCounters:
@@ -107,11 +107,11 @@ def _real_adapters(
     return {
         "private-vllm": OpenAICompatAdapter(
             name="private-vllm",
-            upstream_model=providers["private-vllm"].models["prospera-private"].upstream_model,
+            upstream_model=providers["private-vllm"].models["lab-private"].upstream_model,
             client=vllm_client,
         ),
-        "managed-economy": managed("managed-economy", "prospera-economy"),
-        "managed-premium": managed("managed-premium", "prospera-premium"),
+        "managed-economy": managed("managed-economy", "lab-economy"),
+        "managed-premium": managed("managed-premium", "lab-premium"),
     }
 
 
@@ -122,15 +122,15 @@ def _client(app) -> httpx.AsyncClient:
 def _headers(lab_api_key: str, data_class: str, quality_tier: str) -> dict[str, str]:
     return {
         "Authorization": f"Bearer {lab_api_key}",
-        "X-Prospera-Data-Class": data_class,
-        "X-Prospera-Quality-Tier": quality_tier,
-        "X-Prospera-Workload": "generic",
+        "X-Gateway-Data-Class": data_class,
+        "X-Gateway-Quality-Tier": quality_tier,
+        "X-Gateway-Workload": "generic",
     }
 
 
 def _body() -> dict[str, object]:
     return {
-        "model": "prospera-default",
+        "model": "lab-default",
         "messages": [{"role": "user", "content": "integration hello"}],
         "max_tokens": 64,
     }
@@ -170,11 +170,11 @@ async def test_premium_request_uses_managed_path_and_records_cost(
         )
         metrics = await client.get("/metrics")
     assert response.status_code == 200
-    assert response.headers["X-Prospera-Provider"] == "managed-premium"
+    assert response.headers["X-Gateway-Provider"] == "managed-premium"
     assert response.json()["usage"]["total_tokens"] == 50
     assert counters.anthropic_requests == 1
     text = metrics.text
-    assert "prospera_estimated_managed_cost_usd_total" in text
+    assert "gateway_estimated_managed_cost_usd_total" in text
     assert 'provider="managed-premium"' in text
 
 
@@ -197,7 +197,7 @@ async def test_managed_rate_limit_falls_back_to_private(
     adapters["managed-premium"] = AnthropicManagedAdapter(
         name="managed-premium",
         upstream_model="PLACEHOLDER_PREMIUM_MODEL_ID",
-        model_alias="prospera-premium",
+        model_alias="lab-premium",
         client=anthropic.AsyncAnthropic(
             api_key="integration-test-key",
             http_client=httpx.AsyncClient(transport=rate_limited),
@@ -214,7 +214,7 @@ async def test_managed_rate_limit_falls_back_to_private(
             headers=_headers(lab_api_key, "public", "premium"),
         )
     assert response.status_code == 200
-    assert response.headers["X-Prospera-Provider"] == "private-vllm"
+    assert response.headers["X-Gateway-Provider"] == "private-vllm"
     assert response.json()["choices"][0]["message"]["content"] == "private answer"
 
 
@@ -232,5 +232,5 @@ async def test_restricted_never_reaches_managed_upstreams(
             headers=_headers(lab_api_key, "restricted", "premium"),
         )
     assert response.status_code == 200
-    assert response.headers["X-Prospera-Provider"] == "private-vllm"
+    assert response.headers["X-Gateway-Provider"] == "private-vllm"
     assert counters.anthropic_requests == 0

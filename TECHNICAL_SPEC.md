@@ -5,8 +5,6 @@
 
 Agent handoff for Claude / Codex | Version 1.2 | 15 August 2026
 
-![Cover](media/image1.png)
-
 > **North-star engineering question** — What is the lowest-cost production AI inference architecture that still meets defined quality, latency, reliability, security and availability requirements? The repository must answer this with reproducible evidence—not with a list of technologies.
 
 **This specification is authoritative for v1. If an implementation choice conflicts with this document, either follow the spec or create an ADR explaining the change before coding it.**
@@ -15,13 +13,13 @@ Agent handoff for Claude / Codex | Version 1.2 | 15 August 2026
 
 | **Field**          | **Value**                                                                              |
 |:-------------------|:---------------------------------------------------------------------------------------|
-| Document           | Prospera AI Inference Cost Optimization - Technical Implementation Specification       |
+| Document           | AI Inference Cost Optimization - Technical Implementation Specification       |
 | Version            | 1.2                                                                                    |
 | Date               | 15 August 2026                                                                         |
 | Primary repository | ai-inference-cost-optimization                                                         |
 | Primary audience   | Claude/Codex implementation agents, repository reviewers, prospective technical buyers |
 | Business owner     | Founder-led technical authority                                 |
-| Strategic source   | Prospera Founder Playbook v2.0 (deep-research edition)                                 |
+| Strategic source   | Private founder playbook v2.0                                 |
 | Status             | Approved for implementation; v1 scope frozen unless an ADR changes it                  |
 | Canonical source   | TECHNICAL_SPEC.md (GitHub-Flavored Markdown); the DOCX is a generated presentation artifact. |
 
@@ -196,14 +194,14 @@ The v1 implementation compares three delivery patterns under a common workload a
 
 ![Figure 1 — v1 logical architecture](media/figure1_architecture.png)
 
-Figure 1. v1 logical architecture. The custom Prospera gateway is intentionally thin: provider abstraction, policy, telemetry and failure handling. It must not become a general orchestration framework.
+Figure 1. v1 logical architecture. The custom gateway is intentionally thin: provider abstraction, policy, telemetry and failure handling. It must not become a general orchestration framework.
 
 ## 4.1 Component responsibilities
 
 | **Component**                 | **Responsibility**                                                                                                                                                                            |
 |:------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Client / benchmark harness    | Sends a common request schema, controls workload shape, captures per-request timestamps and evaluates task correctness.                                                                       |
-| Prospera Inference Gateway    | Authenticates caller; classifies request from explicit metadata; applies policy; calls provider adapter; proxies streaming; records bounded-cardinality telemetry; performs allowed fallback. |
+| Inference Gateway    | Authenticates caller; classifies request from explicit metadata; applies policy; calls provider adapter; proxies streaming; records bounded-cardinality telemetry; performs allowed fallback. |
 | Managed provider adapter      | Transforms internal request into provider API; normalizes streaming/non-streaming response, usage and errors; calculates managed API cost from date-stamped pricing config.                   |
 | Private vLLM adapter          | Calls the vLLM OpenAI-compatible endpoint; captures usage and optional per-request metrics; never exposes vLLM directly to the public internet.                                               |
 | Policy engine                 | Config-driven deterministic rules for data class, workload, quality tier, preferred provider and fallback list. No learned router in v1.                                                      |
@@ -282,7 +280,7 @@ ai-inference-cost-optimization/
 ├── .env.example  
 ├── .github/  
 │ └── workflows/  
-├── src/prospera_gateway/  
+├── src/inference_gateway/  
 │ ├── main.py  
 │ ├── api/  
 │ ├── adapters/  
@@ -347,7 +345,7 @@ ai-inference-cost-optimization/
 | **ID** | **Priority** | **Capability**                   | **Requirement**                                                                                                                                                                                                                                                                                                                            |
 |:-------|:-------------|:---------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | FR-001 | P0           | Gateway endpoint                 | Expose POST /v1/chat/completions. Support non-streaming and streaming. Validate request size, model alias, temperature, max tokens and metadata.                                                                                                                                                                                           |
-| FR-002 | P0           | Authentication                   | Require Bearer API key in lab mode. Derive the logical team only from the authenticated key by using a SHA-256 or HMAC-SHA-256 lookup digest and constant-time comparison. Keys are CSPRNG-generated with >=128 bits of entropy; operator-chosen passwords are forbidden. `X-Prospera-Team` is an optional assertion only; reject a mismatch with 403 and never use it for identity or attribution. Never log or persist the raw key. |
+| FR-002 | P0           | Authentication                   | Require Bearer API key in lab mode. Derive the logical team only from the authenticated key by using a SHA-256 or HMAC-SHA-256 lookup digest and constant-time comparison. Keys are CSPRNG-generated with >=128 bits of entropy; operator-chosen passwords are forbidden. `X-Gateway-Team` is an optional assertion only; reject a mismatch with 403 and never use it for identity or attribution. Never log or persist the raw key. |
 | FR-003 | P0           | Provider abstraction             | Implement common ProviderAdapter interface. Required adapters: generic OpenAI-compatible/private vLLM; one managed provider implementation; mocks for all provider contracts.                                                                                                                                                              |
 | FR-004 | P0           | Deterministic policy routing     | Route by explicit data_class, workload, quality_tier and allowed provider list. Rules are declarative YAML, validated at startup.                                                                                                                                                                                                          |
 | FR-005 | P0           | Data policy                      | restricted data must never route to a managed external provider. Policy violations fail closed.                                                                                                                                                                                                                                            |
@@ -368,20 +366,20 @@ ai-inference-cost-optimization/
 
 ## 8.1 Public gateway request contract
 
-The gateway uses an OpenAI-compatible Chat Completions body for broad tool interoperability. Prospera-specific routing metadata is carried in headers so the base body remains portable. Team identity derives only from the authenticated API key. `X-Prospera-Team` is optional and asserts the caller’s expected team; a value that differs from the key-derived team returns 403 and is never used for attribution.
+The gateway uses an OpenAI-compatible Chat Completions body for broad tool interoperability. Gateway-specific routing metadata is carried in headers so the base body remains portable. Team identity derives only from the authenticated API key. `X-Gateway-Team` is optional and asserts the caller’s expected team; a value that differs from the key-derived team returns 403 and is never used for attribution.
 
 ```http
 POST /v1/chat/completions
 Authorization: Bearer <lab-api-key>
 Content-Type: application/json
-X-Prospera-Team: platform-lab
-X-Prospera-Workload: structured-extraction
-X-Prospera-Data-Class: public|internal|confidential|restricted
-X-Prospera-Quality-Tier: economy|balanced|premium
-X-Prospera-Request-Id: <optional client-generated id>
+X-Gateway-Team: platform-lab
+X-Gateway-Workload: structured-extraction
+X-Gateway-Data-Class: public|internal|confidential|restricted
+X-Gateway-Quality-Tier: economy|balanced|premium
+X-Gateway-Request-Id: <optional client-generated id>
 
 {
-  "model": "prospera-default",
+  "model": "lab-default",
   "messages": [
     {"role": "user", "content": "..."}
   ],
@@ -393,7 +391,7 @@ X-Prospera-Request-Id: <optional client-generated id>
 
 ## 8.2 Response behavior
 
-- For non-streaming requests, return an OpenAI-compatible response body plus selected non-sensitive Prospera metadata in response headers (route, provider alias, request ID).
+- For non-streaming requests, return an OpenAI-compatible response body plus selected non-sensitive gateway metadata in response headers (route, provider alias, request ID).
 
 - For streaming, proxy Server-Sent Events and preserve a final usage record when the provider supplies it. The gateway records TTFT at the first content event.
 
@@ -438,12 +436,12 @@ providers:
   managed-economy:
     type: managed
     provider: managed-primary
-    model_alias: prospera-economy
+    model_alias: lab-economy
     external: true
   managed-premium:
     type: managed
     provider: managed-primary
-    model_alias: prospera-premium
+    model_alias: lab-premium
     external: true
 
 rules:
@@ -480,7 +478,7 @@ fallback:
 
 - The same request ID appears in gateway logs/metrics and benchmark raw record, but the prompt body does not appear in default logs.
 
-- A request whose `X-Prospera-Team` assertion differs from the authenticated key-derived team returns 403. Metrics and cost attribution always use the key-derived team, including when the header is absent.
+- A request whose `X-Gateway-Team` assertion differs from the authenticated key-derived team returns 403. Metrics and cost attribution always use the key-derived team, including when the header is absent.
 
 ## 8.7 Timeout and deadline configuration
 
@@ -650,7 +648,7 @@ The report evaluates each treatment against its cell targets and lists every fai
 
 ## 9.9 Measurement placement and network control
 
-All treatments in a comparison use the same harness image/build, runner placement and gateway access path. The P0 publishable harness runs as a dedicated Kubernetes Job/Pod in the `prospera-benchmark` namespace, pinned by nodeSelector/affinity to the CPU/system node group, and calls the gateway ClusterIP service in-cluster. The manifest records the runner pod, node, node group, availability zone, harness image/build and network path. Provider internet transit remains an inherent managed-treatment property and is disclosed. Changing runner placement or access path starts a new comparison group.
+All treatments in a comparison use the same harness image/build, runner placement and gateway access path. The P0 publishable harness runs as a dedicated Kubernetes Job/Pod in the `benchmark-jobs` namespace, pinned by nodeSelector/affinity to the CPU/system node group, and calls the gateway ClusterIP service in-cluster. The manifest records the runner pod, node, node group, availability zone, harness image/build and network path. Provider internet transit remains an inherent managed-treatment property and is disclosed. Changing runner placement or access path starts a new comparison group.
 
 An out-of-cluster VPC runner requires an internal NLB/ALB or private Gateway, is a separately costed treatment requiring an ADR, and is never mixed into baseline comparisons. Laptop- or port-forward-origin timing is smoke evidence only.
 
@@ -827,10 +825,10 @@ At 80% committed or actual envelope consumption, cloud-up and benchmark stop by 
 
 | **Namespace**      | **Contents**                                                                  |
 |:-------------------|:------------------------------------------------------------------------------|
-| prospera-system    | Gateway, config, optional ingress/gateway service.                            |
-| prospera-inference | vLLM model server and private inference service.                              |
+| gateway-system    | Gateway, config, optional ingress/gateway service.                            |
+| model-serving | vLLM model server and private inference service.                              |
 | monitoring         | Prometheus/Grafana and DCGM scraping resources.                               |
-| prospera-benchmark | Dedicated benchmark Job/Pod and ConfigMaps; publishable P0 runs always execute in-cluster on the CPU/system node group. |
+| benchmark-jobs | Dedicated benchmark Job/Pod and ConfigMaps; publishable P0 runs always execute in-cluster on the CPU/system node group. |
 
 ## 12.2 Private vLLM service
 
@@ -886,31 +884,31 @@ vLLM Production Stack currently documents KEDA autoscaling using vllm:num_reques
 
 P0 creates no public gateway LoadBalancer, ALB or NLB. Operator and smoke access uses authenticated kubectl port-forward over the secured Kubernetes API; the service remains ClusterIP. TLS is provided by the Kubernetes API tunnel, while HTTP inside the port-forward tunnel is acceptable for this ephemeral lab. Plaintext bearer-token access over an untrusted network is forbidden.
 
-Publishable benchmark traffic originates from the dedicated in-cluster Job/Pod in `prospera-benchmark`, pinned to the CPU/system node group, and reaches the gateway over its ClusterIP service. No port-forward timing is mixed into baseline comparisons. An out-of-cluster VPC runner requires an internal NLB/ALB or private Gateway, is a separately costed treatment requiring an ADR, and records endpoint type, TLS mode, runner location and full network path.
+Publishable benchmark traffic originates from the dedicated in-cluster Job/Pod in `benchmark-jobs`, pinned to the CPU/system node group, and reaches the gateway over its ClusterIP service. No port-forward timing is mixed into baseline comparisons. An out-of-cluster VPC runner requires an internal NLB/ALB or private Gateway, is a separately costed treatment requiring an ADR, and records endpoint type, TLS mode, runner location and full network path.
 
 # 13. Observability and dashboards
 
 ## 13.1 Gateway metrics
 
-- prospera_requests_total{provider,model_alias,workload,team,outcome}
+- gateway_requests_total{provider,model_alias,workload,team,outcome}
 
-- prospera_request_latency_seconds{provider,workload}
+- gateway_request_latency_seconds{provider,workload}
 
-- prospera_ttft_seconds{provider,workload}
+- gateway_ttft_seconds{provider,workload}
 
-- prospera_input_tokens_total{provider,model_alias,team}
+- gateway_input_tokens_total{provider,model_alias,team}
 
-- prospera_output_tokens_total{provider,model_alias,team}
+- gateway_output_tokens_total{provider,model_alias,team}
 
-- prospera_estimated_managed_cost_usd_total{provider,model_alias,team}
+- gateway_estimated_managed_cost_usd_total{provider,model_alias,team}
 
-- prospera_routing_decisions_total{route,reason}
+- gateway_routing_decisions_total{route,reason}
 
-- prospera_fallback_total{from_provider,to_provider,reason}
+- gateway_fallback_total{from_provider,to_provider,reason}
 
-- prospera_provider_errors_total{provider,error_class}
+- gateway_provider_errors_total{provider,error_class}
 
-- prospera_policy_denied_total{reason}
+- gateway_policy_denied_total{reason}
 
 Do not label metrics with request ID, raw user ID, prompt hash, arbitrary URL or other unbounded-cardinality values. Request IDs belong in structured logs/traces, not metric labels.
 
@@ -990,7 +988,7 @@ Do not deliberately abuse or rate-limit a real paid provider to prove failure ha
 | **Area**           | **Control**                                                                                                                                                                                                                                                                  |
 |:-------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Secrets            | Never in Git. Local .env excluded. Kubernetes Secret may be created at deploy time from operator environment for v1; managed secret store integration is P1.                                                                                                                 |
-| Auth               | Bearer API keys are hashed in config/secret and mapped to a logical team using SHA-256 or HMAC-SHA-256 lookup digests and constant-time comparison. Identity and all attribution derive only from the authenticated key. Keys have >=128 bits CSPRNG entropy; passwords are not keys. `X-Prospera-Team` is an optional assertion; a mismatch returns 403. Rate limiting is optional P1; unauthenticated access is denied. |
+| Auth               | Bearer API keys are hashed in config/secret and mapped to a logical team using SHA-256 or HMAC-SHA-256 lookup digests and constant-time comparison. Identity and all attribution derive only from the authenticated key. Keys have >=128 bits CSPRNG entropy; passwords are not keys. `X-Gateway-Team` is an optional assertion; a mismatch returns 403. Rate limiting is optional P1; unauthenticated access is denied. |
 | Logging            | No prompt or completion bodies by default. Synthetic-debug mode must be explicit and marked.                                                                                                                                                                                 |
 | Network            | vLLM and P0 gateway services are ClusterIP only. P0 operator access uses authenticated kubectl port-forward; the publishable harness runs in-cluster. No public LB is created. Restrict EKS control-plane access as practical for the operator workflow. |
 | RBAC               | Service accounts have namespace-scoped/least privilege. Benchmark harness cannot modify cluster-wide resources unless the specific fault test requires it.                                                                                                                   |
@@ -1217,7 +1215,7 @@ Do not write “enterprise-grade,” “production-ready,” “40% cheaper,” 
 >
 > 13. Limitations / what this lab does not prove.
 >
-> 14. Consulting relevance / Prospera contact link.
+> 14. Consulting relevance / contact link.
 
 ## 21.2 Required public evidence files
 
@@ -1333,7 +1331,7 @@ providers:
     api_key_env: PRIVATE_VLLM_API_KEY
     external: false
     models:
-      prospera-private:
+      lab-private:
         upstream_model: "<pinned-model-id>"
 
   managed-primary:
@@ -1342,29 +1340,29 @@ providers:
     api_key_env: MANAGED_PRIMARY_API_KEY
     external: true
     models:
-      prospera-economy:
+      lab-economy:
         upstream_model: "<provider-economy-model-id>"
-      prospera-premium:
+      lab-premium:
         upstream_model: "<provider-premium-model-id>"
 
 route_aliases:
   managed-economy:
     provider: managed-primary
-    model: prospera-economy
+    model: lab-economy
   managed-premium:
     provider: managed-primary
-    model: prospera-premium
+    model: lab-premium
 
 pricing:
   managed-primary:
-    prospera-economy:
+    lab-economy:
       currency: USD
       effective_date: "YYYY-MM-DD"
       input_per_1m: "<decimal>"
       output_per_1m: "<decimal>"
       cached_input_per_1m: null
       source_url: "<official-pricing-url>"
-    prospera-premium:
+    lab-premium:
       currency: USD
       effective_date: "YYYY-MM-DD"
       input_per_1m: "<decimal>"
@@ -1409,7 +1407,7 @@ environment:
   kubernetes_version: "<pinned>"
 harness:
   location: in-cluster
-  namespace: prospera-benchmark
+  namespace: benchmark-jobs
   workload_kind: Job
   image: "<harness-image>"
   build: "<harness-build>"
@@ -1644,7 +1642,7 @@ These sources are included so implementation agents use current primary document
 
 - P-07: Clarified that KServe LLMInferenceService is alpha-versioned with currently published v1alpha1 and v1alpha2 schemas and requires release-specific verification.
 
-- P-08: Made authenticated API keys the sole team identity source; `X-Prospera-Team` is an optional assertion and mismatches return 403.
+- P-08: Made authenticated API keys the sole team identity source; `X-Gateway-Team` is an optional assertion and mismatches return 403.
 
 - P-09: Required portable baseline structured-output behavior and isolated provider-native enforcement as a labeled optimized treatment.
 

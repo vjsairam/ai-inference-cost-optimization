@@ -1,6 +1,6 @@
 import pytest
 
-from prospera_gateway.models import ErrorClass, normalize_http_error, normalized_error
+from inference_gateway.models import ErrorClass, normalize_http_error, normalized_error
 
 
 @pytest.mark.parametrize(

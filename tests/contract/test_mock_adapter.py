@@ -5,13 +5,13 @@ from decimal import Decimal
 
 import pytest
 
-from prospera_gateway.adapters import (
+from inference_gateway.adapters import (
     MockBehavior,
     MockBehaviorKind,
     MockProviderAdapter,
     ProviderAdapter,
 )
-from prospera_gateway.models import (
+from inference_gateway.models import (
     CanonicalChatRequest,
     CanonicalContentPart,
     CanonicalMessage,
@@ -36,7 +36,7 @@ def chat_request() -> CanonicalChatRequest:
                 content=[CanonicalContentPart(type="text", text="fixture prompt")],
             )
         ],
-        model="prospera-test",
+        model="lab-test",
         temperature=0,
         max_tokens=32,
         metadata=RequestMetadata(
