@@ -1,0 +1,42 @@
+id: t4-failure-classification-v1
+treatment: t4-failure
+workload: classification
+provider_mode: hybrid
+stream: true
+concurrency: 4
+requests: 300
+temperature: 0
+max_tokens: 64
+data_class: internal
+quality_tier: balanced
+request_mix:
+  - data_class: restricted
+    quality_tier: balanced
+    weight: 1
+  - data_class: public
+    quality_tier: premium
+    weight: 1
+structured_output_mode: baseline-portable
+warmup_requests: 10
+repeats: 3
+dataset: benchmark/datasets/synthetic/classification-v1
+slo_config: config/slo.example.yaml
+slo_cell: WL-01/balanced
+pricing_config: config/providers.example.yaml
+timeout_config: policy/routing.yaml
+cost_config: config/cost.example.yaml
+model: lab-default
+publishable: true
+economic_views: [view_a, view_b]
+pricing_version: "2026-08-15"
+bootstrap_iterations: 2000
+seed: 20260815
+request_rate_schedule: closed-loop
+sampling_parameters:
+  token_profile: short
+notes: >-
+  T4 failure treatment; follow docs/runbooks/benchmark-runs.md for the provider-fault sequence and
+  the issue #27 vLLM pod-delete procedure. Run the harness in-cluster in benchmark-jobs on the
+  CPU/system node group through the gateway ClusterIP. Managed traffic uses the real Anthropic
+  API outside an injected provider-fault window; private traffic uses vLLM lab-private. Exclude
+  ten warm-up requests before each measured repeat and use the frozen classification-v1 dataset.

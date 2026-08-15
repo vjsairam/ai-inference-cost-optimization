@@ -2,7 +2,17 @@
 
 Authoritative progress tracker. Updated with every change set.
 
-## Current milestone: M5 — vLLM serving and observability (offline implementation complete)
+## Current milestone: M6-M9 offline definitions and case-study documentation
+
+| Item | Status |
+|---|---|
+| M6 T0 managed and T1 private frozen cloud scenarios | Definitions ready; execution pending operator inputs |
+| M6 in-cluster benchmark procedure, manifest inputs, publication gate, and SC-11 capture | Definitions ready; execution pending operator inputs |
+| M7 T3 hybrid and T4 provider-fault/vLLM Pod-delete scenarios and procedure | Definitions ready; execution pending operator inputs |
+| Published-results layout and fail-closed claimability contract | Complete; no cloud result is published |
+| M9 case-study front page, limitations, reproduce links, and four-minute local demo | Docs complete; release tag withheld pending M6 evidence |
+
+## Previous milestone: M5 — vLLM serving and observability (offline implementation complete)
 
 | Item | Status |
 |---|---|
@@ -89,16 +99,35 @@ Authoritative progress tracker. Updated with every change set.
 
 - The first AWS cycle is intentionally pending valid operator credentials, selected region,
   approved `RUN_BUDGET_USD`, `EXPIRES_AT`, and confirmed regional G-instance quota above zero.
+- T0, T3, and the managed-provider phase of T4 require `ANTHROPIC_API_KEY`; no valid key is
+  available in the current environment.
 - Cloud GPU and serving smoke evidence depends on the M5 workload deployment.
 - ADR-009 intentionally marks the model revision and vLLM registry digest as resolved at first
   deploy; offline validation cannot truthfully capture either immutable artifact.
+- SC-11 measured USD reproduce cost and wall-clock duration are pending first M6 run. The release
+  tag is withheld until publishable M6 evidence and the remaining release gates exist.
 
-## Next milestone
+## Next operator milestone
 
-- M6 — publishable managed and private baseline evidence, after an operator clears the M4/M5 cloud
-  safety gates and records a successful create/deploy/smoke cycle.
+- Execute M4/M5 create, deploy, and smoke after clearing every cloud safety input. Then follow
+  `docs/runbooks/benchmark-runs.md` for the publishable M6 T0/T1 comparison and measured SC-11
+  cost/duration capture. M7 T3/T4 execution follows accepted M6 evidence.
 
 ## Commands run
+
+- M6-M9 full repository gate: `export PATH="$HOME/.local/bin:$PATH" && make lint && make test &&
+  make test-contract && make test-integration` passed. Ruff check passed, Ruff format reported 74
+  files already formatted, mypy found no issues in 47 source files, and pytest reported 90 unit,
+  72 contract, and 7 integration tests passed.
+- M6-M9 local smoke: `export PATH="$HOME/.local/bin:$PATH" && make local-smoke` passed. It observed
+  auth 401, non-stream 200, stream 200, restricted 200 through `private-vllm`, and metrics present.
+  The command used its in-process HTTP fallback because the TCP stack did not become ready in this
+  execution environment.
+- M6-M9 targeted scenario validation: `export PATH="$HOME/.local/bin:$PATH" && export
+  UV_CACHE_DIR=/tmp/gateway-uv-cache && uv run pytest tests/unit/test_slo_and_manifest.py` passed;
+  7 tests passed, including typed loading of all four cloud scenarios, their frozen datasets, and
+  referenced SLO cells. An initial direct invocation without the writable cache override failed
+  before test collection because the default uv cache filesystem is read-only.
 
 - `export PATH="$HOME/.local/bin:$PATH" && uv --version && uv lock` — failed before
   resolution because the default cache path was read-only. The Makefile now exports

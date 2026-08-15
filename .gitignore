@@ -29,6 +29,7 @@ crash.log
 
 # Results (raw local runs; published results are committed deliberately)
 results/local/
+results/raw/
 
 # Build artifacts
 *.egg-info/

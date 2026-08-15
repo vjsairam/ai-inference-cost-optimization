@@ -1,5 +1,19 @@
 # Changelog
 
+## M6-M9 offline definitions and documentation
+
+- Added publishable-shape T0 managed, T1 private, T3 hybrid, and T4 failure scenarios over the
+  frozen v1 classification dataset, with in-cluster placement, provider, warm-up, repeat, SLO, and
+  fault-procedure requirements.
+- Added unit coverage that loads every cloud scenario and verifies its frozen dataset and SLO cell.
+- Added the pending cloud benchmark runbook with pre-run hashes and budget inputs, exact treatment
+  and report commands, T4 provider/Pod fault procedure, publication gates, evidence locations, and
+  destroy verification.
+- Defined the fail-closed published-results layout and claimability rules while leaving the
+  directory empty of cloud evidence.
+- Reworked the front page as an evidence-status case study and added a four-minute local demo,
+  limitations, reproduction paths, and explicit release-tag withholding until M6 evidence exists.
+
 ## M5 - vLLM serving and observability
 
 - Selected Qwen2.5-7B-Instruct in ADR-009, with the AWQ L4 artifact, Apache-2.0 license note,

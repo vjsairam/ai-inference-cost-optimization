@@ -18,6 +18,29 @@ from inference_gateway.benchmark.slo import SLODocument, load_slo
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def test_cloud_treatment_scenarios_load_frozen_inputs_and_slo_cells() -> None:
+    scenario_paths = sorted((ROOT / "benchmark/scenarios/cloud").glob("*.yaml"))
+
+    assert [path.name for path in scenario_paths] == [
+        "t0-managed-baseline.yaml",
+        "t1-private-baseline.yaml",
+        "t3-hybrid.yaml",
+        "t4-failure.yaml",
+    ]
+    for scenario_path in scenario_paths:
+        scenario = load_scenario(scenario_path)
+        dataset = load_dataset(scenario.dataset, root=ROOT)
+        slo, _ = load_slo(ROOT / scenario.slo_config)
+
+        assert scenario.publishable is True
+        assert scenario.repeats >= 3
+        assert scenario.requests >= 200
+        assert scenario.warmup_requests > 0
+        assert dataset.version == "1.0.0"
+        assert dataset.checksum
+        assert slo.require_cell(scenario.slo_cell)
+
+
 def test_slo_loader_has_spec_defaults_and_wl03_omits_quality() -> None:
     slo, checksum = load_slo(ROOT / "config/slo.example.yaml")
     assert len(checksum) == 64

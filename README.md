@@ -1,58 +1,164 @@
-# AI Inference Cost Optimization
+# Inference Cost Optimization
 
-**Managed API vs Private vLLM vs Hybrid Routing**
+This repository is a reproducible case study for deciding when a managed model API, a private
+vLLM service, or a policy-routed hybrid is the lower-cost choice after quality, latency, security,
+and reliability constraints are applied. It does not claim a winner yet: local mock behavior is
+verified, while the first cloud measurements are pending operator credentials and deployment.
 
-> What is the lowest-cost architecture that still meets quality, latency,
-> security and reliability requirements?
+The central question is not which token or GPU rate looks smaller. Managed inference has
+usage-linked charges and external-provider constraints; private inference carries provisioned GPU
+and platform costs even when demand is low. The useful comparison is the cost of correct work from
+architectures that meet the same declared SLOs.
 
-This repository answers that question with reproducible evidence — not a list of technologies. One gateway contract, one workload harness, one measurement discipline, three delivery patterns.
+## Fictional composite scenario
 
-![v1 logical architecture](media/figure1_architecture.png)
+The business setting in this case study is fictional and composite. A platform team serves
+classification, structured extraction, and generation workloads with public through restricted
+data. It must choose among managed, private, and hybrid delivery without treating confidential
+operational data or synthetic benchmark inputs as customer records.
 
-## Latest measured result
+The decision has four parts:
 
-```text
-Benchmark implementation in progress.
+- Does each treatment meet its workload and quality-tier SLO cell?
+- What does one correct task cost under marginal inference economics?
+- What does the same treatment cost after shared platform and operations allocations?
+- Does routing or fallback preserve the data-class policy during provider and Pod failures?
 
-No production savings claim is made until
-reproducible measurements are available.
+## Architecture
+
+![Managed, private, and hybrid inference architecture](media/figure1_architecture.png)
+
+One authenticated OpenAI-compatible gateway normalizes the public request surface. Deterministic
+policy selects either the real Anthropic managed path or the private `lab-private` model served by
+vLLM on one GPU. Restricted data is filtered to private providers at runtime and fails closed if
+no private route is available. The benchmark runner shares one build and placement across
+treatments, runs in the cluster on the CPU/system node group, and reaches the gateway through its
+ClusterIP service. Prometheus, Grafana, and DCGM provide request, routing, latency, and GPU series.
+
+The editable diagram is [docs/architecture/figure1_architecture.svg](docs/architecture/figure1_architecture.svg).
+
+## What is measured
+
+The primary business metric is `cost_per_correct_task`, not raw model price. A task is correct only
+when its deterministic workload evaluator passes. A treatment/cell is `slo_eligible` only when its
+p95 TTFT, p95 end-to-end latency, error rate, and objective quality rate all pass the referenced
+versioned SLO cell. Ineligible treatments still report cost but cannot be recommended.
+
+Every report keeps two economic views separate:
+
+- **View A — inference service economics:** managed token/provider charges versus private GPU and
+  serving-specific costs.
+- **View B — full-platform TCO:** View A plus gateway, network/NAT, control plane, storage,
+  observability, and an explicit operations allocation.
+
+Break-even output is a sensitivity table or curve over workload, token profile, utilization,
+replica floor, quality rate, managed price, and operations allocation. It is not a universal
+requests-per-month threshold.
+
+## Methodology
+
+The [benchmark specification](TECHNICAL_SPEC.md#9-benchmark-and-quality-evaluation-specification)
+defines frozen manifests, workload correctness, measurement placement, SLO evaluation, repeated
+trials, confidence intervals, and claimability. Publishable comparisons use the same frozen
+dataset items as paired blocks, at least three independent repeats, and at least 200 non-error
+responses per treatment cell per repeat. Treatment order is alternated or randomized, and
+run-level clustering is preserved during resampling.
+
+Each run manifest records source state, immutable model and image identifiers, dataset and
+configuration hashes, pricing dates, timeouts, traffic shape, runner placement, network path, and
+repeat metadata before load begins. Publication then follows the
+[results contract](results/published/README.md) and fails closed when required evidence is missing.
+
+## Current evidence status
+
+| Evidence | Status | What changes the status |
+|---|---|---|
+| Local gateway, auth, policy, streaming, and telemetry smoke | Complete local mock behavior evidence | Nothing; it is not cloud performance evidence |
+| Local 429, 5xx, timeout, malformed-response, and no-replay behavior | Complete local mock behavior evidence | Cloud T4 remains separate |
+| Local hybrid routing and report plumbing | Complete local mock behavior evidence | Cloud T3 remains separate |
+| T0 managed and T1 private baselines | Pending first M6 run | Valid AWS credentials, `ANTHROPIC_API_KEY`, approved budget, cloud-lab cluster, immutable deployment inputs, and deploy manifest |
+| T3 hybrid and T4 provider/Pod failure | Pending first M7 run | M6 prerequisites plus the recorded fault procedure |
+| Case-study release | Documentation complete; release tag withheld | Publishable M6 evidence and the repository release gate |
+
+No measured managed-versus-private result, cloud cost band, or cloud wall-clock duration is
+published. The SC-11 reproduce cost band and duration are **pending first M6 run**.
+
+## Reproduce locally
+
+Python 3.13 and `uv` are required. From the repository root:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+make bootstrap
+make lint
+make test
+make test-contract
+make test-integration
+make local-smoke
 ```
 
-Results will be published here as `cost / correct task` per architecture, with the environment, date, workload, sample sizes, and limitations disclosed alongside every number.
+Generate the local fault artifact and hybrid report plumbing evidence:
 
-## The business decision
+```bash
+make fault-evidence
+make benchmark-local SCENARIO=benchmark/scenarios/hybrid-local.yaml
+```
 
-A cheaper model that fails more tasks is not cheaper. The primary metric is **cost per correct task**, evaluated only for treatments that pass declared SLOs, with break-even presented as scenario curves — never a universal requests/month threshold.
+The benchmark command prints its run ID. Regenerate that report with:
 
-Two economic views are reported:
+```bash
+make report RUN_ID='<printed run ID>'
+```
 
-1. **Inference service economics** — marginal: tokens vs GPU runtime
-2. **Full-platform TCO** — gateway, network, control plane, observability, and operations included
+These commands use deterministic mock providers and are not performance evidence. See the
+[local-lab runbook](docs/runbooks/local-lab.md) for the stack and dashboard workflow and the
+[four-minute demo](docs/demo-script.md) for a concise walkthrough.
 
-## How it works
+Cloud reproduction starts with the guarded [cloud-lab runbook](docs/runbooks/cloud-lab.md), then
+continues with the [benchmark-run runbook](docs/runbooks/benchmark-runs.md). The cloud path requires
+explicit credentials, budget, quota, immutable deployment inputs, evidence export, destroy, and
+independent destroy verification.
 
-- **Managed API** — a commercial LLM provider behind a thin gateway
-- **Private serving** — vLLM on Amazon EKS, single-GPU baseline, ClusterIP-only
-- **Hybrid** — deterministic policy routing by data class, workload, and quality tier; restricted data fails closed and never leaves the cluster
+## Security and failure boundaries
 
-Every published run traces to an immutable manifest: Git SHA, model revision, image digests, pricing effective dates, hardware, traffic shape, and raw request records.
-
-The benchmark methodology lives in [TECHNICAL_SPEC.md §9](TECHNICAL_SPEC.md#9-benchmark-and-quality-evaluation-specification),
-the full specification (v1.2, approved for implementation) in [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md),
-and progress in [docs/implementation-status.md](docs/implementation-status.md).
-
-## Principles
-
-- Evidence before optimization — baseline first, one change at a time
-- Quality-adjusted economics — cost per correct task, SLO-eligible treatments only
-- Reproducibility — machine-readable manifests and raw data for every published result
-- Fail closed — restricted data never routes to an external provider
-- Safe cloud lifecycle — GPU resources are ephemeral, tagged, budgeted, destroyable by one command
+Bearer-key authentication derives team identity from the key rather than trusting a caller
+header. Prompt content is not logged by default. vLLM, the gateway, Prometheus, and Grafana are
+ClusterIP-only in the lab. Restricted traffic cannot fall back to an external provider. Streaming
+fallback is disallowed after the first content chunk, preventing replay of a partially delivered
+response.
 
 ## Limitations
 
-This is a lab, not a production deployment. Every published result states its environment, sample sizes, and what it does not prove.
+- The cloud topology deliberately uses one NAT gateway. It does not provide Availability
+  Zone-independent egress.
+- The private baseline is one vLLM replica on one GPU. It does not establish multi-replica scaling,
+  multi-GPU behavior, or hardware portability.
+- The datasets are deterministic synthetic classification, extraction, and generation workloads.
+  They do not establish behavior on production data or every task family.
+- All evidence currently present is local mock behavior or measurement plumbing. It does not prove
+  cloud latency, throughput, quality, reliability, savings, or a break-even point.
+- Managed-price configuration is a date-stamped snapshot. The current example and deployment
+  configuration use an effective date of 2026-08-15 and must be refreshed and sourced before a
+  publishable run.
+- A short lab includes cold start, minimum billing, and cluster lifecycle effects. Published runs
+  must distinguish observed run cost from steady-state scenario modeling.
+- The fictional composite describes a decision method, not a production recommendation.
 
-## License
+## Repository layout
 
-MIT — see [LICENSE](LICENSE).
+```text
+benchmark/       Frozen datasets, local and cloud scenarios, deployment manifests
+config/          Provider, pricing, SLO, authentication, and cost inputs
+docs/            ADRs, architecture source, runbooks, demo, and implementation status
+infra/           Terraform for the AWS lab and Helm charts for gateway/vLLM
+observability/   Prometheus, alert, DCGM, and Grafana definitions
+policy/          Routing, fallback, timeout, and data-class policy
+results/         Local/raw evidence areas, schemas, and the published-results contract
+scripts/         Guarded local, deploy, smoke, cloud lifecycle, and destroy checks
+src/             Gateway, adapters, benchmark, evaluation, costing, and telemetry packages
+tests/           Unit, provider-contract, and local integration coverage
+```
+
+Implementation progress and blockers are tracked in
+[docs/implementation-status.md](docs/implementation-status.md). Changes and review guidance are in
+[CONTRIBUTING.md](CONTRIBUTING.md); the repository is licensed under the [MIT License](LICENSE).
