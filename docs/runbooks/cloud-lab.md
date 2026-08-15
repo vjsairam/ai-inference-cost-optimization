@@ -139,12 +139,12 @@ export GATEWAY_API_KEY='replace-with-random-lab-key'
 export PRIVATE_VLLM_API_KEY='replace-with-random-internal-key'
 export MANAGED_PRIMARY_API_KEY='replace-with-provider-key'
 export GATEWAY_IMAGE_REPOSITORY='ghcr.io/owner/inference-gateway'
-export GATEWAY_IMAGE_TAG='immutable-build-tag'
+export GATEWAY_IMAGE_DIGEST='sha256:<64 lowercase hexadecimal characters>'
 export DEPLOY_MANIFEST_PATH="$PWD/benchmark/manifests/deploy-${RUN_ID}.yaml"
 ```
 
 Run the guarded deployment. It refuses an unreachable cluster, missing secrets, a mutable model
-revision, or a non-digest vLLM image. The install order is deliberate:
+revision, or a non-digest vLLM or gateway image. The install order is deliberate:
 
 1. kube-prometheus-stack `87.21.0` in `monitoring`;
 2. DCGM exporter `4.8.3` on the tainted GPU node;

@@ -1,0 +1,6 @@
+version: "v1"
+approved_total_usd: "500"
+currency: USD
+effective_date: "2026-08-15"
+spent_to_date_usd: "0"
+note: Changing this envelope requires an ADR.

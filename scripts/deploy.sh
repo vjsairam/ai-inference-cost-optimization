@@ -37,12 +37,15 @@ fi
 
 require_value MODEL_REVISION
 require_value VLLM_IMAGE_DIGEST
+require_value GATEWAY_IMAGE_REPOSITORY
+require_value GATEWAY_IMAGE_DIGEST
 require_value MANAGED_PRIMARY_API_KEY
 require_value GATEWAY_API_KEY
 require_value PRIVATE_VLLM_API_KEY
 
 [[ "$MODEL_REVISION" =~ ^[0-9a-f]{40}$ ]] || die "MODEL_REVISION must be a 40-character lowercase commit SHA"
 [[ "$VLLM_IMAGE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || die "VLLM_IMAGE_DIGEST must be an immutable sha256 digest"
+[[ "$GATEWAY_IMAGE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || die "GATEWAY_IMAGE_DIGEST must be an immutable sha256 digest"
 
 kube_stack_version=$(read_version charts kubePrometheusStack)
 dcgm_chart_version=$(read_version charts dcgmExporter)
@@ -54,11 +57,9 @@ for resolved_version in "$kube_stack_version" "$dcgm_chart_version" "$vllm_chart
 done
 
 model_repository=${MODEL_REPOSITORY:-Qwen/Qwen2.5-7B-Instruct-AWQ}
-gateway_image_repository=${GATEWAY_IMAGE_REPOSITORY:-ghcr.io/example/inference-gateway}
-gateway_image_tag=${GATEWAY_IMAGE_TAG:-0.1.0}
+gateway_image_repository=$GATEWAY_IMAGE_REPOSITORY
 [[ "$model_repository" =~ ^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$ ]] || die "MODEL_REPOSITORY must be a Hugging Face repository ID"
 [[ "$gateway_image_repository" =~ ^[A-Za-z0-9.-]+/[A-Za-z0-9._/-]+$ ]] || die "GATEWAY_IMAGE_REPOSITORY must be an OCI repository"
-[[ "$gateway_image_tag" =~ ^[A-Za-z0-9_][A-Za-z0-9._-]{0,127}$ ]] || die "GATEWAY_IMAGE_TAG is invalid"
 deploy_timestamp=$(date -u +%Y%m%dT%H%M%SZ)
 deploy_manifest=${DEPLOY_MANIFEST_PATH:-$repo_root/benchmark/manifests/deploy-$deploy_timestamp.yaml}
 if [[ "$deploy_manifest" != /* ]]; then
@@ -134,7 +135,7 @@ helm upgrade --install gateway "$repo_root/infra/helm/gateway" \
   --values "$repo_root/infra/helm/gateway/values-lab.yaml" \
   --set createNamespace=false \
   --set-string image.repository="$gateway_image_repository" \
-  --set-string image.tag="$gateway_image_tag" \
+  --set-string image.digest="$GATEWAY_IMAGE_DIGEST" \
   --set-string auth.keySha256="$gateway_key_digest" \
   --wait --timeout 10m
 kubectl rollout status deployment/gateway --namespace gateway-system --timeout=10m
@@ -189,7 +190,9 @@ mkdir -p "$(dirname "$deploy_manifest")"
   printf '  vllm: "%s"\n' "$vllm_chart_version"
   printf '  gateway: "%s"\n' "$gateway_chart_version"
   printf 'gateway:\n'
-  printf '  image: "%s:%s"\n' "$gateway_image_repository" "$gateway_image_tag"
+  printf '  image_repository: "%s"\n' "$gateway_image_repository"
+  printf '  image_digest: "%s"\n' "$GATEWAY_IMAGE_DIGEST"
+  printf '  image: "%s@%s"\n' "$gateway_image_repository" "$GATEWAY_IMAGE_DIGEST"
 } >"$deploy_manifest"
 
 printf 'M5 deployment ready. Deploy manifest: %s\n' "$deploy_manifest"

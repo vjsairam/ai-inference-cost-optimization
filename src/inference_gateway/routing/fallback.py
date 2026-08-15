@@ -2,9 +2,9 @@
 
 Fallback is attempted only for configured error classes, only while attempts and
 the global deadline remain, and never after streaming output has begun. Retry-After
-hints are recorded but never slept on. Restricted data never reaches an external
-provider even if a decision were somehow mis-built (defense in depth on top of the
-router and the load-time validation).
+hints are honored only when the global deadline still leaves time for another
+attempt. Restricted data never reaches an external provider even if a decision were
+somehow mis-built (defense in depth on top of the router and load-time validation).
 """
 
 from __future__ import annotations
@@ -51,6 +51,18 @@ def _deadline_error() -> ProviderError:
 def _with_attempts(error: ProviderError, attempts: list[AttemptOutcome]) -> ProviderError:
     error.attempts = tuple(attempts)
     return error
+
+
+async def _wait_for_retry_after(error: ProviderError, ctx: RequestContext) -> bool:
+    hint = error.error.retry_after_seconds
+    if hint is None:
+        return True
+    remaining = _remaining_seconds(ctx)
+    delay = min(hint, remaining)
+    if remaining - delay <= 0:
+        return False
+    await asyncio.sleep(delay)
+    return True
 
 
 class FallbackExecutor:
@@ -115,6 +127,8 @@ class FallbackExecutor:
             )
             is_last = index == len(providers) - 1
             if is_last or not self._fallback_eligible(error):
+                raise _with_attempts(error, attempts)
+            if not await _wait_for_retry_after(error, ctx):
                 raise _with_attempts(error, attempts)
         raise _with_attempts(_deadline_error(), attempts)
 
@@ -202,5 +216,7 @@ class FallbackExecutor:
                 ) from error
             is_last = index == len(providers) - 1
             if is_last or not self._fallback_eligible(error):
+                raise _with_attempts(error, attempts)
+            if not await _wait_for_retry_after(error, ctx):
                 raise _with_attempts(error, attempts)
         raise _with_attempts(_deadline_error(), attempts)

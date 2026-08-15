@@ -27,6 +27,10 @@ files hold the aggregate summary, deterministic quality evaluation, separately l
 View B costs, treatment comparison, generated charts, and a run-specific interpretation with
 limitations. Raw operator output remains under ignored `results/raw/<run-id>/` until review.
 
+Point money values are exact `Decimal` quantities. Bootstrap confidence intervals are
+float-precision statistical estimates; monetary confidence intervals are labeled as estimates,
+not ledger figures.
+
 ## Fail-closed publication rule
 
 Nothing is published without a finalized manifest whose `publishable: true` gates passed. The
@@ -47,3 +51,7 @@ Every economic claim names View A or View B. Only SLO-eligible treatments may be
 ineligible treatments still report `cost_per_correct_task` for transparency. Smoke, calibration,
 local mock, incomplete, dirty-override, or sensitive artifacts are not published as performance
 evidence.
+
+For hybrid runs, one declared SLO cell is evaluated over the mixed traffic aggregate. Per-cell
+breakdowns for the mixed tiers are not yet computed, so per-tier SLO or performance claims are out
+of scope.

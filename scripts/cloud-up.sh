@@ -60,9 +60,21 @@ awk -v value="$run_budget_usd" 'BEGIN { exit !(value > 0) }' || die "RUN_BUDGET_
 [[ -n "$expires_at" ]] || die "EXPIRES_AT or --expires-at is required"
 [[ "$expires_at" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || die "EXPIRES_AT must use YYYY-MM-DD"
 [[ "$(date -u -d "$expires_at" +%F 2>/dev/null || true)" == "$expires_at" ]] || die "EXPIRES_AT must be a valid date"
+today_utc=$(date -u +%F)
+[[ "$expires_at" < "$today_utc" ]] && die "EXPIRES_AT must be today or later in UTC"
 [[ "$gpu_node_count" == "0" || "$gpu_node_count" == "1" ]] || die "GPU_NODE_COUNT must be 0 or 1"
 [[ "$system_node_count" == "1" || "$system_node_count" == "2" ]] || die "SYSTEM_NODE_COUNT must be 1 or 2"
 [[ -n "$owner" ]] || die "OWNER must not be empty"
+
+spend_envelope="$repo_root/config/spend-envelope.yaml"
+approved_total_usd=$(awk '$1 == "approved_total_usd:" { gsub(/[\047\042]/, "", $2); print $2; exit }' "$spend_envelope")
+spent_to_date_usd=$(awk '$1 == "spent_to_date_usd:" { gsub(/[\047\042]/, "", $2); print $2; exit }' "$spend_envelope")
+currency=$(awk '$1 == "currency:" { gsub(/[\047\042]/, "", $2); print $2; exit }' "$spend_envelope")
+[[ "$approved_total_usd" =~ ^[0-9]+([.][0-9]+)?$ ]] || die "spend envelope approved_total_usd must be a non-negative decimal"
+[[ "$spent_to_date_usd" =~ ^[0-9]+([.][0-9]+)?$ ]] || die "spend envelope spent_to_date_usd must be a non-negative decimal"
+[[ "$currency" == "USD" ]] || die "spend envelope currency must be USD"
+remaining_envelope_usd=$(awk -v approved="$approved_total_usd" -v spent="$spent_to_date_usd" 'BEGIN { remaining = approved - spent; if (remaining < 0) exit 1; printf "%.2f", remaining }') || die "spend envelope spent_to_date_usd exceeds approved_total_usd"
+awk -v budget="$run_budget_usd" -v remaining="$remaining_envelope_usd" 'BEGIN { exit !(budget <= remaining) }' || die "RUN_BUDGET_USD exceeds the remaining project spend envelope of USD $remaining_envelope_usd"
 
 IFS=',' read -r -a gpu_instance_types <<<"$gpu_instance_types_csv"
 gpu_instance_types_json="["
@@ -108,6 +120,7 @@ printf '  GPU node count: %s\n' "$gpu_node_count"
 printf '  System instance type/count: %s / %s\n' "$system_instance_type" "$system_node_count"
 printf '  Estimated hourly cost: USD %s (planning estimate)\n' "$estimated_hourly"
 printf '  Run budget: USD %s (about %s hours at the estimate)\n' "$run_budget_usd" "$budget_hours"
+printf '  Remaining project spend envelope: USD %s\n' "$remaining_envelope_usd"
 printf '  Expires at: %s\n' "$expires_at"
 printf '  Estimate excludes data transfer, NAT data processing, EBS beyond defaults, and taxes.\n'
 

@@ -140,7 +140,7 @@ def _short_timeout_config(config: GatewayConfig) -> GatewayConfig:
         response_header_timeout=0.15,
         stream_idle_timeout=0.15,
         per_attempt_timeout=0.2,
-        global_request_deadline=0.6,
+        global_request_deadline=1.6,
     )
     routing = config.routing.model_copy(update={"timeouts": timeouts})
     return config.model_copy(update={"routing": routing})

@@ -1,5 +1,17 @@
 # Changelog
 
+## Post-audit hardening
+
+- Preserved measured zero quality, labeled unmeasured quality and scenario-grid assumptions, and
+  enforced treatment provider identity for publishable reports.
+- Added operator-measured private billed hours with retained request-span estimates, bounded
+  Retry-After handling, immutable gateway image/deploy-manifest requirements, and provider
+  sampling conditions in run manifests.
+- Aligned the gateway service and pricing examples with deployed configuration, required a
+  publishable deployment manifest, and added UTC expiry plus versioned spend-envelope guards.
+- Clarified exact versus estimated monetary statistics and limited hybrid SLO claims to the
+  declared aggregate cell.
+
 ## M6-M9 offline definitions and documentation
 
 - Added publishable-shape T0 managed, T1 private, T3 hybrid, and T4 failure scenarios over the

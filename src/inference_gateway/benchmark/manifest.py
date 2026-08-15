@@ -90,6 +90,15 @@ def load_deploy_manifest(repository_root: Path) -> tuple[Path, dict[str, Any]] |
         r"sha256:[0-9a-f]{64}", str(runtime.get("image_digest", ""))
     ):
         raise PublishabilityError("deploy manifest runtime image_digest must be immutable")
+    gateway = manifest.get("gateway")
+    if (
+        not isinstance(gateway, dict)
+        or not str(gateway.get("image_repository", ""))
+        or not re.fullmatch(r"sha256:[0-9a-f]{64}", str(gateway.get("image_digest", "")))
+    ):
+        raise PublishabilityError(
+            "deploy manifest gateway image_repository and immutable image_digest are required"
+        )
     return path, manifest
 
 
@@ -101,6 +110,40 @@ def make_run_id(started_at: datetime, sha: str, treatment: str) -> str:
     timestamp = started_at.astimezone(UTC).strftime("%Y%m%dT%H%M%SZ")
     short_sha = sha[:8] if sha != "unknown" else "unknown"
     return f"{timestamp}-{short_sha}-{treatment}"
+
+
+def _provider_execution_conditions(
+    providers_raw: object, temperature: float
+) -> dict[str, dict[str, object]]:
+    if not isinstance(providers_raw, dict):
+        return {}
+    conditions: dict[str, dict[str, object]] = {}
+    for provider_name, provider_value in providers_raw.items():
+        if not isinstance(provider_value, dict):
+            continue
+        models_value = provider_value.get("models")
+        if not isinstance(models_value, dict):
+            continue
+        models: dict[str, object] = {}
+        for model_name, model_value in models_value.items():
+            if not isinstance(model_value, dict):
+                continue
+            supports_sampling = model_value.get("supports_sampling") is True
+            models[str(model_name)] = {
+                "upstream_model": model_value.get("upstream_model"),
+                "supports_sampling": supports_sampling,
+                "effective_sampling": {
+                    "temperature": temperature if supports_sampling else None,
+                    "note": (
+                        "scenario temperature forwarded to the provider"
+                        if supports_sampling
+                        else "scenario temperature omitted because the provider model does not "
+                        "support sampling"
+                    ),
+                },
+            }
+        conditions[str(provider_name)] = {"models": models}
+    return conditions
 
 
 def validate_publishability(
@@ -238,6 +281,9 @@ def build_manifest(
             "config_sha256": sha256_file(pricing_path),
             "effective_dates": effective_dates,
         },
+        "providers": _provider_execution_conditions(
+            pricing_raw.get("providers"), scenario.temperature
+        ),
         "cost": {
             "config_sha256": sha256_file(cost_path),
             "config_path": scenario.cost_config,
@@ -270,6 +316,11 @@ def build_manifest(
         "operator_notes": operator_notes or ([scenario.notes] if scenario.notes else []),
     }
     captured_deployment = load_deploy_manifest(repository_root)
+    if scenario.publishable and captured_deployment is None:
+        raise PublishabilityError(
+            "publishable runs require a deploy manifest; run scripts/deploy.sh and export "
+            "DEPLOY_MANIFEST"
+        )
     if captured_deployment is not None:
         deploy_path, deployment = captured_deployment
         for section in ("environment", "compute", "runtime", "model"):

@@ -12,6 +12,32 @@ Authoritative progress tracker. Updated with every change set.
 | Published-results layout and fail-closed claimability contract | Complete; no cloud result is published |
 | M9 case-study front page, limitations, reproduce links, and four-minute local demo | Docs complete; release tag withheld pending M6 evidence |
 
+## Post-audit hardening (2026-08-15)
+
+1. Measured zero quality remains zero; unmeasured WL-03 quality uses a labeled neutral grid center.
+2. The gateway Service and monitoring/runbook path use port 8080 consistently.
+3. Example managed pricing matches deployed pricing and its dated source.
+4. Publishable runs require the immutable deploy manifest.
+5. Reports count treatment provider-identity mismatches and reject them for publishable runs.
+6. Operator-measured private billed hours override the request-span estimate while retaining it.
+7. Chat and pre-stream fallback honor Retry-After only when another attempt fits the deadline.
+8. Gateway deployments require and record an immutable repository and image digest.
+9. The disabled `benchmark` target points operators to the cloud and local run paths.
+10. Cloud creation rejects past UTC expiries and budgets above the versioned spend envelope.
+11. Run manifests record model sampling support and the effective temperature behavior.
+12. The published-results contract distinguishes exact point money from estimated intervals.
+13. Scenario-grid labeling states its shared observed-quality center and sensitivity meaning.
+14. Hybrid scenario and result limitations exclude unsupported per-tier SLO claims.
+15. This status entry and the changelog record the hardening work and verification.
+
+Final gate output: Ruff check passed; Ruff format reported 76 files already formatted; mypy reported no
+issues in 47 source files; pytest reported 103 unit, 76 contract, and 7 integration tests passed.
+Local smoke returned auth 401, non-stream 200, stream 200, restricted 200 through
+`private-vllm`, and metrics present using its in-process fallback. Helm lint reported one chart
+linted and zero failed for each of gateway and vLLM. The standalone Helm rendering test reported
+3 passed. Direct `uv` commands used `UV_CACHE_DIR=/tmp/gateway-uv-cache` because the default cache
+filesystem is read-only in this environment.
+
 ## Previous milestone: M5 — vLLM serving and observability (offline implementation complete)
 
 | Item | Status |

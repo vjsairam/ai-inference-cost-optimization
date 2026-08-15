@@ -87,6 +87,53 @@ async def test_rate_limit_falls_back_to_next_provider(
     assert outcome.attempts[0].retry_after_seconds is not None
 
 
+async def test_chat_honors_retry_after_within_deadline(
+    routing_policy: RoutingPolicy, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sleeps: list[float] = []
+
+    async def record_sleep(delay: float) -> None:
+        sleeps.append(delay)
+
+    monkeypatch.setattr("inference_gateway.routing.fallback.asyncio.sleep", record_sleep)
+    adapters = {
+        "private-vllm": _adapter(
+            "private-vllm", MockBehavior.rate_limited(retry_after_seconds=0.25)
+        ),
+        "managed-economy": _adapter("managed-economy"),
+    }
+
+    outcome = await _executor(routing_policy, adapters).chat(_request(), _ctx(1.0), DECISION)
+
+    assert outcome.provider == "managed-economy"
+    assert sleeps == [0.25]
+
+
+async def test_chat_oversized_retry_after_fails_without_sleeping(
+    routing_policy: RoutingPolicy, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sleeps: list[float] = []
+
+    async def record_sleep(delay: float) -> None:
+        sleeps.append(delay)
+
+    monkeypatch.setattr("inference_gateway.routing.fallback.asyncio.sleep", record_sleep)
+    fallback_target = _adapter("managed-economy", MockBehaviorKind.OK)
+    adapters = {
+        "private-vllm": _adapter(
+            "private-vllm", MockBehavior.rate_limited(retry_after_seconds=10.0)
+        ),
+        "managed-economy": fallback_target,
+    }
+
+    with pytest.raises(ProviderError) as excinfo:
+        await _executor(routing_policy, adapters).chat(_request(), _ctx(0.05), DECISION)
+
+    assert excinfo.value.error.error_class is ErrorClass.RATE_LIMITED
+    assert sleeps == []
+    assert len(fallback_target._script) == 1
+
+
 async def test_ineligible_error_never_falls_back(routing_policy: RoutingPolicy) -> None:
     adapters = {
         "private-vllm": _adapter("private-vllm", MockBehaviorKind.MALFORMED_RESPONSE),
@@ -182,6 +229,59 @@ async def test_stream_falls_back_before_first_chunk(
     assert providers == {"managed-economy"}
     assert all(index == 1 for _, index, _ in chunks)
     assert chunks[-1][2].is_final
+
+
+async def test_stream_honors_retry_after_within_deadline(
+    routing_policy: RoutingPolicy, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sleeps: list[float] = []
+
+    async def record_sleep(delay: float) -> None:
+        sleeps.append(delay)
+
+    monkeypatch.setattr("inference_gateway.routing.fallback.asyncio.sleep", record_sleep)
+    adapters = {
+        "private-vllm": _adapter(
+            "private-vllm", MockBehavior.rate_limited(retry_after_seconds=0.25)
+        ),
+        "managed-economy": _adapter("managed-economy", MockBehaviorKind.STREAM_OK),
+    }
+
+    chunks = [
+        item
+        async for item in _executor(routing_policy, adapters).stream(
+            _request(), _ctx(1.0), DECISION
+        )
+    ]
+
+    assert chunks[-1][2].is_final
+    assert sleeps == [0.25]
+
+
+async def test_stream_oversized_retry_after_fails_without_sleeping(
+    routing_policy: RoutingPolicy, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sleeps: list[float] = []
+
+    async def record_sleep(delay: float) -> None:
+        sleeps.append(delay)
+
+    monkeypatch.setattr("inference_gateway.routing.fallback.asyncio.sleep", record_sleep)
+    fallback_target = _adapter("managed-economy", MockBehaviorKind.STREAM_OK)
+    adapters = {
+        "private-vllm": _adapter(
+            "private-vllm", MockBehavior.rate_limited(retry_after_seconds=10.0)
+        ),
+        "managed-economy": fallback_target,
+    }
+
+    with pytest.raises(ProviderError) as excinfo:
+        async for _ in _executor(routing_policy, adapters).stream(_request(), _ctx(0.05), DECISION):
+            pass
+
+    assert excinfo.value.error.error_class is ErrorClass.RATE_LIMITED
+    assert sleeps == []
+    assert len(fallback_target._script) == 1
 
 
 async def test_stream_failure_after_start_never_replays(

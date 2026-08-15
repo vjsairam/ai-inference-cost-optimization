@@ -37,14 +37,14 @@ pricing:
     lab-economy:
       currency: USD
       effective_date: "2026-08-15"
-      input_per_1m: "0.150"
-      output_per_1m: "0.600"
+      input_per_1m: "1.00"
+      output_per_1m: "5.00"
       cached_input_per_1m: null
-      source_url: "https://example.invalid/official-pricing"
+      source_url: "https://platform.claude.com/docs/en/pricing.md"
     lab-premium:
       currency: USD
       effective_date: "2026-08-15"
-      input_per_1m: "1.250"
-      output_per_1m: "10.000"
+      input_per_1m: "5.00"
+      output_per_1m: "25.00"
       cached_input_per_1m: null
-      source_url: "https://example.invalid/official-pricing"
+      source_url: "https://platform.claude.com/docs/en/pricing.md"

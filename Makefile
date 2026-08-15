@@ -43,7 +43,7 @@ report:
 	uv run python -m inference_gateway.benchmark report --run-dir "results/local/$(RUN_ID)"
 
 benchmark:
-	@echo "benchmark is gated until M4 (see TECHNICAL_SPEC.md §18)"
+	@echo "Cloud benchmarks run in the in-cluster runner; see docs/runbooks/benchmark-runs.md. Use benchmark-local for the mock path."
 	@exit 2
 
 tf-plan:

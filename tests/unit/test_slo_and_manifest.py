@@ -18,6 +18,36 @@ from inference_gateway.benchmark.slo import SLODocument, load_slo
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def _write_deploy_manifest(path: Path) -> None:
+    path.write_text(
+        yaml.safe_dump(
+            {
+                "schema_version": "m5-v1",
+                "environment": {"cloud": "aws", "region": "us-east-1"},
+                "compute": {"gpu_count": 1},
+                "runtime": {
+                    "server_version": "0.27.1",
+                    "image_digest": f"sha256:{'b' * 64}",
+                },
+                "model": {
+                    "id": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+                    "revision": "c" * 40,
+                    "license_note": "Apache-2.0",
+                    "quantization": "awq",
+                },
+                "charts": {"vllm": "0.1.0"},
+                "gateway": {
+                    "image_repository": "ghcr.io/owner/inference-gateway",
+                    "image_digest": f"sha256:{'d' * 64}",
+                    "image": f"ghcr.io/owner/inference-gateway@sha256:{'d' * 64}",
+                },
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+
+
 def test_cloud_treatment_scenarios_load_frozen_inputs_and_slo_cells() -> None:
     scenario_paths = sorted((ROOT / "benchmark/scenarios/cloud").glob("*.yaml"))
 
@@ -73,7 +103,12 @@ def test_slo_rejects_quality_target_for_generation() -> None:
         )
 
 
-def test_manifest_refuses_dirty_publishable_run_and_records_override() -> None:
+def test_manifest_refuses_dirty_publishable_run_and_records_override(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    deploy_path = tmp_path / "deploy-manifest.yaml"
+    _write_deploy_manifest(deploy_path)
+    monkeypatch.setenv("DEPLOY_MANIFEST", str(deploy_path))
     scenario_path = ROOT / "benchmark/scenarios/classification-local.yaml"
     scenario = load_scenario(scenario_path).model_copy(update={"publishable": True})
     dataset = load_dataset(scenario.dataset, root=ROOT)
@@ -121,32 +156,10 @@ def test_manifest_consumes_immutable_deploy_manifest(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     deploy_path = tmp_path / "deploy-manifest.yaml"
-    deploy_path.write_text(
-        yaml.safe_dump(
-            {
-                "schema_version": "m5-v1",
-                "environment": {"cloud": "aws", "region": "us-east-1"},
-                "compute": {"gpu_count": 1},
-                "runtime": {
-                    "server_version": "0.27.1",
-                    "image_digest": f"sha256:{'b' * 64}",
-                },
-                "model": {
-                    "id": "Qwen/Qwen2.5-7B-Instruct-AWQ",
-                    "revision": "c" * 40,
-                    "license_note": "Apache-2.0",
-                    "quantization": "awq",
-                },
-                "charts": {"vllm": "0.1.0"},
-                "gateway": {"image": "ghcr.io/example/inference-gateway:0.1.0"},
-            },
-            sort_keys=False,
-        ),
-        encoding="utf-8",
-    )
+    _write_deploy_manifest(deploy_path)
     monkeypatch.setenv("DEPLOY_MANIFEST", str(deploy_path))
     scenario_path = ROOT / "benchmark/scenarios/classification-local.yaml"
-    scenario = load_scenario(scenario_path)
+    scenario = load_scenario(scenario_path).model_copy(update={"publishable": True})
     dataset = load_dataset(scenario.dataset, root=ROOT)
     slo, slo_hash = load_slo(ROOT / scenario.slo_config)
     manifest = build_manifest(
@@ -163,3 +176,49 @@ def test_manifest_consumes_immutable_deploy_manifest(
     assert manifest["runtime"]["image_digest"] == f"sha256:{'b' * 64}"
     assert manifest["environment"]["cloud"] == "aws"
     assert len(manifest["deployment_manifest"]["sha256"]) == 64
+    assert manifest["gateway"]["image_digest"] == f"sha256:{'d' * 64}"
+
+
+def test_publishable_manifest_requires_deploy_manifest(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("DEPLOY_MANIFEST", raising=False)
+    scenario_path = ROOT / "benchmark/scenarios/classification-local.yaml"
+    scenario = load_scenario(scenario_path).model_copy(update={"publishable": True})
+    dataset = load_dataset(scenario.dataset, root=ROOT)
+    slo, slo_hash = load_slo(ROOT / scenario.slo_config)
+
+    with pytest.raises(PublishabilityError, match="scripts/deploy.sh.*DEPLOY_MANIFEST"):
+        build_manifest(
+            repository_root=ROOT,
+            scenario_path=scenario_path,
+            scenario=scenario,
+            dataset=dataset,
+            slo_document=slo,
+            slo_hash=slo_hash,
+            repository=RepositoryState("a" * 40, False, "test"),
+        )
+
+
+def test_manifest_records_effective_provider_sampling() -> None:
+    scenario_path = ROOT / "benchmark/scenarios/classification-local.yaml"
+    scenario = load_scenario(scenario_path)
+    dataset = load_dataset(scenario.dataset, root=ROOT)
+    slo, slo_hash = load_slo(ROOT / scenario.slo_config)
+    manifest = build_manifest(
+        repository_root=ROOT,
+        scenario_path=scenario_path,
+        scenario=scenario,
+        dataset=dataset,
+        slo_document=slo,
+        slo_hash=slo_hash,
+        repository=RepositoryState("a" * 40, False, "test"),
+    )
+
+    economy = manifest["providers"]["managed-primary"]["models"]["lab-economy"]
+    premium = manifest["providers"]["managed-primary"]["models"]["lab-premium"]
+    assert economy["supports_sampling"] is True
+    assert economy["effective_sampling"]["temperature"] == scenario.temperature
+    assert premium["supports_sampling"] is False
+    assert premium["effective_sampling"]["temperature"] is None
+    assert "omitted" in premium["effective_sampling"]["note"]

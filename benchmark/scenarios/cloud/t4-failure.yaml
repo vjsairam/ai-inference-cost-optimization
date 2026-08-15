@@ -38,5 +38,7 @@ notes: >-
   T4 failure treatment; follow docs/runbooks/benchmark-runs.md for the provider-fault sequence and
   the issue #27 vLLM pod-delete procedure. Run the harness in-cluster in benchmark-jobs on the
   CPU/system node group through the gateway ClusterIP. Managed traffic uses the real Anthropic
-  API outside an injected provider-fault window; private traffic uses vLLM lab-private. Exclude
-  ten warm-up requests before each measured repeat and use the frozen classification-v1 dataset.
+  API outside an injected provider-fault window; private traffic uses vLLM lab-private. The report
+  evaluates the declared WL-01/balanced SLO cell over mixed traffic; per-cell breakdowns for the
+  mixed tiers are not computed, so per-tier claims are out of scope. Exclude ten warm-up requests
+  before each measured repeat and use the frozen classification-v1 dataset.

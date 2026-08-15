@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import statistics
 from collections import Counter
 from dataclasses import asdict, is_dataclass
 from datetime import datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, cast
 
@@ -246,6 +247,28 @@ def _provider_breakdown(
     return rows
 
 
+def _private_billed_hours(span_estimate: Decimal) -> tuple[Decimal, str]:
+    configured = os.environ.get("BENCHMARK_PRIVATE_BILLED_HOURS")
+    if configured is None:
+        return span_estimate, "request-span-estimate"
+    try:
+        measured = Decimal(configured)
+    except InvalidOperation as exc:
+        raise ValueError(
+            "BENCHMARK_PRIVATE_BILLED_HOURS must be a decimal greater than zero"
+        ) from exc
+    if not measured.is_finite() or measured <= 0:
+        raise ValueError("BENCHMARK_PRIVATE_BILLED_HOURS must be a decimal greater than zero")
+    return measured, "operator-measured"
+
+
+def _provider_mode_mismatches(records: list[BenchmarkRecord], scenario: BenchmarkScenario) -> int:
+    if scenario.provider_mode in {"hybrid", "local-mock"}:
+        return 0
+    expected_prefix = scenario.provider_mode
+    return sum(not (record.provider or "").startswith(expected_prefix) for record in records)
+
+
 def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
     manifest = yaml.safe_load((run_dir / "manifest.yaml").read_text(encoding="utf-8"))
     scenario = BenchmarkScenario.model_validate(manifest["scenario"])
@@ -314,7 +337,8 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
     repeat_hours = {
         index: max(seconds, minimum) / Decimal(3600) for index, seconds in repeat_seconds.items()
     }
-    total_hours = sum(repeat_hours.values(), Decimal(0))
+    span_estimate_hours = sum(repeat_hours.values(), Decimal(0))
+    total_hours, billed_hours_source = _private_billed_hours(span_estimate_hours)
     private_inputs = PrivateRunInputs(
         gpu_node_billed_hours=total_hours,
         cpu_node_billed_hours=total_hours,
@@ -389,7 +413,8 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
                 )
             )
     input_price, output_price = _pricing(repository_root, scenario)
-    measured_quality = Decimal(str(quality["quality_rate"] or 1))
+    quality_not_measured = quality["quality_rate"] is None
+    measured_quality = Decimal(1) if quality_not_measured else Decimal(str(quality["quality_rate"]))
     grid = build_scenario_grid(
         cost_config,
         managed_input_per_1m=input_price,
@@ -407,15 +432,25 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
             "private": private_applicable,
         },
         "private_billed_inputs": private_inputs.model_dump(mode="json"),
+        "billed_hours_source": billed_hours_source,
+        "request_span_estimate_billed_hours": span_estimate_hours,
         "views": views,
         "hybrid_combined_view_a": hybrid_view_a,
         "provider_breakdown": provider_breakdown,
         "scenario_grid": {
-            "label": "Break-even region table by economic view",
+            "label": (
+                "Break-even sensitivity table centered on the observed run quality rate for both "
+                "architectures; the quality axis varies that shared center and is not an "
+                "independent counterfactual measurement"
+            ),
+            "quality_basis": (
+                "quality_not_measured" if quality_not_measured else "observed_run_quality_rate"
+            ),
             "rows": grid,
         },
     }
     slo = _slo(records, scenario, manifest["slo"]["target"], quality)
+    provider_mode_mismatches = _provider_mode_mismatches(records, scenario)
     summary = {
         "run_id": manifest["run_id"],
         "treatment": scenario.treatment,
@@ -444,6 +479,7 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
         },
         "slo": slo,
         "routing_mix": dict(Counter(record.provider or "unknown" for record in records)),
+        "provider_mode_mismatches": provider_mode_mismatches,
         "policy_input_mix": {
             "data_class": dict(
                 Counter(
@@ -495,4 +531,8 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
     _write_json(run_dir / "cost.json", cost_payload)
     _write_json(run_dir / "scenario-grid.json", grid)
     _write_grid(run_dir / "comparison.csv", grid)
+    if scenario.publishable and provider_mode_mismatches:
+        raise ValueError(
+            f"publishable report has {provider_mode_mismatches} provider_mode mismatches"
+        )
     return summary

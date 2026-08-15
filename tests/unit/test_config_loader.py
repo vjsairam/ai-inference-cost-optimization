@@ -36,7 +36,7 @@ def test_loads_example_config_with_decimal_prices_and_timeout_defaults() -> None
     config = load_gateway_config(PROVIDERS_EXAMPLE, ROUTING_EXAMPLE)
 
     price = config.providers.pricing["managed-primary"]["lab-economy"]
-    assert price.input_per_1m == Decimal("0.150")
+    assert price.input_per_1m == Decimal("1.00")
     assert isinstance(price.input_per_1m, Decimal)
     assert price.effective_date == date(2026, 8, 15)
     assert config.routing.timeouts.connect_timeout == 5

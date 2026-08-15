@@ -96,6 +96,12 @@ kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- sh -lc '
 
 T1 uses the single-replica, single-GPU vLLM `lab-private` service and no fallback:
 
+Record the actual provisioned lifetime covering startup through the end of measured T1 traffic,
+convert it to decimal hours, and set `BENCHMARK_PRIVATE_BILLED_HOURS` to that operator measurement
+before generating the final report. Apply the same measured lifetime to the GPU node, CPU node,
+model storage, and shared-platform billed-hour inputs; do not substitute the request span. Retain
+the request-span estimate in `cost.json` as the comparison value.
+
 ```bash
 kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- sh -lc '
   cd /workspace && uv run python -m inference_gateway.benchmark run \
@@ -156,7 +162,8 @@ Regenerate each copied report with its literal run ID:
 
 ```bash
 uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t0-run-id>
-uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t1-run-id>
+BENCHMARK_PRIVATE_BILLED_HOURS='<actual decimal provisioned hours>' \
+  uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t1-run-id>
 uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t3-run-id>
 uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t4-run-id>
 ```

@@ -17,7 +17,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def _render(chart: str) -> list[dict[str, Any]]:
+def _render(chart: str, *extra_args: str) -> list[dict[str, Any]]:
     chart_dir = ROOT / "infra" / "helm" / chart
     subprocess.run(
         [str(HELM), "lint", str(chart_dir), "--values", str(chart_dir / "values-lab.yaml")],
@@ -33,6 +33,7 @@ def _render(chart: str) -> list[dict[str, Any]]:
             str(chart_dir),
             "--values",
             str(chart_dir / "values-lab.yaml"),
+            *extra_args,
         ],
         check=True,
         capture_output=True,
@@ -61,11 +62,19 @@ def test_gateway_chart_renders_required_workloads_and_config() -> None:
     }
     service = _one(documents, "Service")
     assert service["spec"]["type"] == "ClusterIP"
+    assert service["spec"]["ports"][0]["port"] == 8080
     config = _one(documents, "ConfigMap")["data"]
     assert {"providers.yaml", "routing.yaml", "auth.yaml", "slo.yaml"} <= set(config)
     container = _one(documents, "Deployment")["spec"]["template"]["spec"]["containers"][0]
     assert container["readinessProbe"]["httpGet"]["path"] == "/health/ready"
     assert container["livenessProbe"]["httpGet"]["path"] == "/health/live"
+
+
+def test_gateway_chart_renders_digest_pinned_image() -> None:
+    digest = f"sha256:{'a' * 64}"
+    documents = _render("gateway", "--set-string", f"image.digest={digest}")
+    container = _one(documents, "Deployment")["spec"]["template"]["spec"]["containers"][0]
+    assert container["image"] == f"ghcr.io/example/inference-gateway@{digest}"
 
 
 def test_vllm_chart_is_private_and_requests_one_tolerated_gpu() -> None:

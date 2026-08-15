@@ -142,6 +142,8 @@ response.
   publishable run.
 - A short lab includes cold start, minimum billing, and cluster lifecycle effects. Published runs
   must distinguish observed run cost from steady-state scenario modeling.
+- Hybrid reports evaluate one declared SLO cell over mixed traffic. Per-cell breakdowns for mixed
+  tiers are not yet computed, so per-tier SLO and performance claims are out of scope.
 - The fictional composite describes a decision method, not a production recommendation.
 
 ## Repository layout
