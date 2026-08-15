@@ -21,6 +21,7 @@ from prospera_gateway.models.enums import (
     UsageSource,
 )
 from prospera_gateway.models.errors import (
+    AttemptOutcome,
     NormalizedError,
     ProviderError,
     normalize_http_error,
@@ -28,6 +29,7 @@ from prospera_gateway.models.errors import (
 )
 
 __all__ = [
+    "AttemptOutcome",
     "CanonicalChatRequest",
     "CanonicalContentPart",
     "CanonicalMessage",

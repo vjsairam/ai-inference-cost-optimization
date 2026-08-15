@@ -30,6 +30,15 @@ class GatewayState:
     executor: FallbackExecutor
     metrics: GatewayMetrics
     pricing: PricingEngine
+    model_aliases: frozenset[str]
+
+
+def known_model_aliases(config: GatewayConfig) -> frozenset[str]:
+    """Configured aliases; bounds the model_alias metric label (spec §13.1)."""
+    aliases: set[str] = set(config.providers.route_aliases)
+    for provider in config.providers.providers.values():
+        aliases.update(provider.models)
+    return frozenset(aliases)
 
 
 def _require_env(name: str) -> str:
@@ -77,9 +86,16 @@ def build_adapters(
                 name=route_name,
                 upstream_model=upstream_model,
                 model_alias=model_alias,
-                client=anthropic.AsyncAnthropic(api_key=api_key),
+                # Retries stay with the fallback executor so the configured
+                # attempt bound is real; timeouts mirror the gateway config.
+                client=anthropic.AsyncAnthropic(
+                    api_key=api_key,
+                    max_retries=0,
+                    timeout=httpx.Timeout(response_header_timeout, connect=connect_timeout),
+                ),
                 pricing=pricing,
                 provider_config_name=provider_name,
+                supports_sampling=provider.models[model_alias].supports_sampling,
             )
         else:
             raise ConfigurationError(
@@ -119,6 +135,7 @@ def create_app(
         executor=FallbackExecutor(adapters, config.routing),
         metrics=metrics,
         pricing=pricing,
+        model_aliases=known_model_aliases(config),
     )
     app = FastAPI(title="prospera-gateway", docs_url=None, redoc_url=None)
     app.state.gateway = state

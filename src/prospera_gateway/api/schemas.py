@@ -18,12 +18,14 @@ from prospera_gateway.models import (
     RequestMetadata,
 )
 
+# Tool-role messages are rejected in v1: the gateway would otherwise have to
+# mistranslate them into plain user text on providers with structured tool
+# results (spec non-goals; revisit with tool support).
 _WIRE_TO_ROLE: dict[str, MessageRole] = {
     "system": MessageRole.SYSTEM,
     "developer": MessageRole.DEVELOPER,
     "user": MessageRole.USER,
     "assistant": MessageRole.MODEL,
-    "tool": MessageRole.TOOL,
 }
 
 MAX_MESSAGES = 128
@@ -41,7 +43,7 @@ class WireMessage(BaseModel):
 class ChatCompletionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    model: str = Field(min_length=1, max_length=64)
+    model: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
     messages: list[WireMessage] = Field(min_length=1, max_length=MAX_MESSAGES)
     temperature: float = Field(default=0.0, ge=0.0, le=2.0)
     max_tokens: int = Field(default=256, gt=0, le=8192)

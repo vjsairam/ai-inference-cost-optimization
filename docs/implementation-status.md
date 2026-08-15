@@ -64,3 +64,9 @@ Authoritative progress tracker. Updated with every change set.
   on main.
 - M1 verification: `make lint` clean (ruff + mypy strict), `make test` / `make test-contract` /
   `make test-integration` — 123 tests passed locally.
+- M1 peer-review hardening: bounded model-alias metric labels, no SDK-internal retries on the
+  managed path, configured timeouts applied to the managed client, per-attempt limits on
+  streaming, in-band stream errors normalized, structural SSE validation, real HTTP statuses for
+  pre-stream failures, OpenAI finish-reason vocabulary, config-driven sampling forwarding,
+  reasoning-token usage separation, explicit v1 rejection of tool-role messages, and
+  per-attempt failure attribution in telemetry. 11 regression tests added (134 total).

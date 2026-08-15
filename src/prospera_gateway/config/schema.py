@@ -38,6 +38,10 @@ class ProviderModelConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     upstream_model: str = Field(min_length=1)
+    supports_sampling: bool = Field(
+        default=False,
+        description="Forward the request temperature to this upstream model",
+    )
 
 
 class ProviderConfig(BaseModel):

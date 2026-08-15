@@ -7,19 +7,24 @@ providers:
     models:
       prospera-private:
         upstream_model: "PLACEHOLDER_PINNED_MODEL_ID"
+        supports_sampling: true
 
   managed-primary:
     kind: managed
-    adapter: "PLACEHOLDER_MANAGED_ADAPTER"
+    adapter: "anthropic"
     api_key_env: MANAGED_PRIMARY_API_KEY
     external: true
     models:
       prospera-economy:
         upstream_model: "PLACEHOLDER_ECONOMY_MODEL_ID"
+        supports_sampling: true
       prospera-premium:
         upstream_model: "PLACEHOLDER_PREMIUM_MODEL_ID"
 
 route_aliases:
+  prospera-default:
+    provider: private-vllm
+    model: prospera-private
   managed-economy:
     provider: managed-primary
     model: prospera-economy

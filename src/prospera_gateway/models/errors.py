@@ -73,9 +73,29 @@ def normalize_http_error(
     )
 
 
-class ProviderError(Exception):
-    """Raised by adapters after an upstream failure has been normalized."""
+class AttemptOutcome(BaseModel):
+    """One provider attempt within a routed request."""
 
-    def __init__(self, error: NormalizedError) -> None:
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    provider: str
+    error_class: ErrorClass | None = None
+    retry_after_seconds: float | None = None
+
+
+class ProviderError(Exception):
+    """Raised by adapters after an upstream failure has been normalized.
+
+    ``attempts`` carries the per-provider attempt history when the error is
+    re-raised by the fallback executor, so telemetry can attribute every
+    failure to the provider that produced it.
+    """
+
+    def __init__(
+        self,
+        error: NormalizedError,
+        attempts: tuple[AttemptOutcome, ...] = (),
+    ) -> None:
         super().__init__(error.message)
         self.error = error
+        self.attempts = attempts

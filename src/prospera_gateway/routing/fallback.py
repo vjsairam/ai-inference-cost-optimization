@@ -18,6 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from prospera_gateway.adapters.base import ProviderAdapter
 from prospera_gateway.config import RoutingPolicy
 from prospera_gateway.models import (
+    AttemptOutcome,
     CanonicalChatRequest,
     DataClass,
     ErrorClass,
@@ -28,14 +29,6 @@ from prospera_gateway.models import (
     normalized_error,
 )
 from prospera_gateway.routing.policy import RouteDecision
-
-
-class AttemptOutcome(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    provider: str
-    error_class: ErrorClass | None = None
-    retry_after_seconds: float | None = None
 
 
 class FallbackResult(BaseModel):
@@ -53,6 +46,11 @@ def _remaining_seconds(ctx: RequestContext) -> float:
 
 def _deadline_error() -> ProviderError:
     return ProviderError(normalized_error(ErrorClass.TIMEOUT, "global request deadline exhausted"))
+
+
+def _with_attempts(error: ProviderError, attempts: list[AttemptOutcome]) -> ProviderError:
+    error.attempts = tuple(attempts)
+    return error
 
 
 class FallbackExecutor:
@@ -87,7 +85,7 @@ class FallbackExecutor:
         for index, provider_name in enumerate(providers):
             remaining = _remaining_seconds(ctx)
             if remaining <= 0:
-                raise _deadline_error()
+                raise _with_attempts(_deadline_error(), attempts)
             adapter = self._adapters[provider_name]
             budget = min(timeouts.per_attempt_timeout, remaining)
             try:
@@ -117,39 +115,58 @@ class FallbackExecutor:
             )
             is_last = index == len(providers) - 1
             if is_last or not self._fallback_eligible(error):
-                raise error
-        raise _deadline_error()
+                raise _with_attempts(error, attempts)
+        raise _with_attempts(_deadline_error(), attempts)
 
     async def stream(
         self,
         request: CanonicalChatRequest,
         ctx: RequestContext,
         decision: RouteDecision,
+        attempt_log: list[AttemptOutcome] | None = None,
     ) -> AsyncIterator[tuple[str, int, ProviderChunk]]:
-        """Yield (provider, fallback_count, chunk); never replays after first chunk."""
+        """Yield (provider, fallback_count, chunk); never replays after first chunk.
+
+        ``attempt_log``, when provided, is appended in place with one record per
+        provider attempt so callers can attribute failures and fallbacks even
+        while the response is being streamed.
+        """
         providers = self._permitted_providers(decision, request.metadata.data_class)
+        attempts = attempt_log if attempt_log is not None else []
         timeouts = self._policy.timeouts
+        loop = asyncio.get_running_loop()
         for index, provider_name in enumerate(providers):
             remaining = _remaining_seconds(ctx)
             if remaining <= 0:
-                raise _deadline_error()
+                raise _with_attempts(_deadline_error(), attempts)
             adapter = self._adapters[provider_name]
             iterator = adapter.stream(request, ctx)
             started = False
             error: ProviderError | None = None
+            attempt_deadline = loop.time() + timeouts.per_attempt_timeout
             try:
                 while True:
-                    budget = (
-                        min(timeouts.response_header_timeout, _remaining_seconds(ctx))
+                    idle_budget = (
+                        timeouts.response_header_timeout
                         if not started
-                        else min(timeouts.stream_idle_timeout, _remaining_seconds(ctx))
+                        else timeouts.stream_idle_timeout
+                    )
+                    budget = min(
+                        idle_budget,
+                        _remaining_seconds(ctx),
+                        attempt_deadline - loop.time(),
                     )
                     if budget <= 0:
-                        raise _deadline_error()
+                        raise ProviderError(
+                            normalized_error(
+                                ErrorClass.TIMEOUT, "provider attempt budget exhausted"
+                            )
+                        )
                     try:
                         async with asyncio.timeout(budget):
                             chunk = await anext(iterator)
                     except StopAsyncIteration:
+                        attempts.append(AttemptOutcome(provider=provider_name))
                         return
                     started = True
                     yield provider_name, index, chunk
@@ -166,14 +183,24 @@ class FallbackExecutor:
                     await aclose()
             if error is None:
                 return
+            attempts.append(
+                AttemptOutcome(
+                    provider=provider_name,
+                    error_class=error.error.error_class,
+                    retry_after_seconds=error.error.retry_after_seconds,
+                )
+            )
             if started:
-                raise ProviderError(
-                    normalized_error(
-                        ErrorClass.STREAM_STARTED_FAILURE,
-                        "provider failed after streaming began; no replay",
-                    )
+                raise _with_attempts(
+                    ProviderError(
+                        normalized_error(
+                            ErrorClass.STREAM_STARTED_FAILURE,
+                            "provider failed after streaming began; no replay",
+                        )
+                    ),
+                    attempts,
                 ) from error
             is_last = index == len(providers) - 1
             if is_last or not self._fallback_eligible(error):
-                raise error
-        raise _deadline_error()
+                raise _with_attempts(error, attempts)
+        raise _with_attempts(_deadline_error(), attempts)

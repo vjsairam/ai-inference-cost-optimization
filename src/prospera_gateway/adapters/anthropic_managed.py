@@ -71,6 +71,21 @@ def _usage(input_tokens: int | None, output_tokens: int | None) -> NormalizedUsa
     return NormalizedUsage.model_validate(kwargs)
 
 
+_FINISH_REASONS = {
+    "end_turn": "stop",
+    "stop_sequence": "stop",
+    "max_tokens": "length",
+    "tool_use": "tool_calls",
+    "refusal": "content_filter",
+}
+
+
+def _finish_reason(stop_reason: str | None) -> str:
+    if stop_reason is None:
+        return "stop"
+    return _FINISH_REASONS.get(stop_reason, "stop")
+
+
 def _normalize_error(name: str, exc: Exception) -> ProviderError:
     if isinstance(exc, anthropic.APITimeoutError):
         return ProviderError(normalized_error(ErrorClass.TIMEOUT, f"{name} request timed out"))
@@ -84,12 +99,30 @@ def _normalize_error(name: str, exc: Exception) -> ProviderError:
                 retry_after = max(0.0, float(raw))
             except ValueError:
                 retry_after = None
+        if 400 <= exc.status_code < 600:
+            return ProviderError(
+                normalize_http_error(
+                    exc.status_code,
+                    f"{name} returned HTTP {exc.status_code}",
+                    retry_after_seconds=retry_after,
+                )
+            )
+        # In-band stream errors (e.g. overloaded_error) surface on an HTTP 200
+        # response; treat them as server-side failures so fallback applies.
         return ProviderError(
-            normalize_http_error(
-                exc.status_code,
-                f"{name} returned HTTP {exc.status_code}",
+            normalized_error(
+                ErrorClass.PROVIDER_5XX,
+                f"{name} reported an in-band error",
                 retry_after_seconds=retry_after,
             )
+        )
+    if isinstance(exc, anthropic.APIResponseValidationError):
+        return ProviderError(
+            normalized_error(ErrorClass.MALFORMED_RESPONSE, f"{name} sent an invalid payload")
+        )
+    if isinstance(exc, anthropic.AnthropicError):
+        return ProviderError(
+            normalized_error(ErrorClass.PROVIDER_5XX, f"{name} client reported a failure")
         )
     return ProviderError(normalized_error(ErrorClass.MALFORMED_RESPONSE, f"{name} client failure"))
 
@@ -105,6 +138,7 @@ class AnthropicManagedAdapter:
         client: anthropic.AsyncAnthropic,
         pricing: PricingEngine,
         provider_config_name: str,
+        supports_sampling: bool = False,
     ) -> None:
         self.name = name
         self._upstream_model = upstream_model
@@ -112,11 +146,19 @@ class AnthropicManagedAdapter:
         self._client = client
         self._pricing = pricing
         self._provider_config_name = provider_config_name
+        self._supports_sampling = supports_sampling
         self.capabilities = ProviderCapabilities(
             streaming=True,
             reports_usage=True,
             reports_streaming_usage=True,
         )
+
+    def _sampling_kwargs(self, request: CanonicalChatRequest) -> dict[str, Any]:
+        if not self._supports_sampling:
+            return {}
+        # Anthropic accepts temperature in [0, 1]; the public surface allows
+        # up to 2.0, so clamp rather than fail the request.
+        return {"temperature": min(request.temperature, 1.0)}
 
     async def chat(
         self,
@@ -131,6 +173,7 @@ class AnthropicManagedAdapter:
                 max_tokens=request.max_tokens,
                 system=system if system is not None else anthropic.omit,
                 messages=cast(Any, messages),
+                **self._sampling_kwargs(request),
             )
         except Exception as exc:  # noqa: BLE001 - normalized below
             raise _normalize_error(self.name, exc) from exc
@@ -139,7 +182,7 @@ class AnthropicManagedAdapter:
             provider=self.name,
             model=request.model,
             output=[CanonicalContentPart(type="text", text=text)],
-            finish_reason=response.stop_reason,
+            finish_reason=_finish_reason(response.stop_reason),
             usage=_usage(response.usage.input_tokens, response.usage.output_tokens),
         )
 
@@ -161,6 +204,7 @@ class AnthropicManagedAdapter:
                 system=system if system is not None else anthropic.omit,
                 messages=cast(Any, messages),
                 stream=True,
+                **self._sampling_kwargs(request),
             )
             async for event in stream:
                 if isinstance(event, anthropic.types.RawMessageStartEvent):
@@ -189,7 +233,7 @@ class AnthropicManagedAdapter:
             model=request.model,
             sequence=sequence,
             is_final=True,
-            finish_reason=finish_reason or "end_turn",
+            finish_reason=_finish_reason(finish_reason),
             usage=_usage(input_tokens, output_tokens),
         )
 

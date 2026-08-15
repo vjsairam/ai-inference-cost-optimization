@@ -52,21 +52,34 @@ def _wire_messages(request: CanonicalChatRequest) -> list[dict[str, str]]:
     ]
 
 
-def _usage_from_payload(payload: dict[str, Any] | None) -> NormalizedUsage:
+def _usage_from_payload(payload: object) -> NormalizedUsage:
     if not isinstance(payload, dict):
         return NormalizedUsage.unavailable()
     prompt = payload.get("prompt_tokens")
     completion = payload.get("completion_tokens")
     if not isinstance(prompt, int) or not isinstance(completion, int):
         return NormalizedUsage.unavailable()
-    return NormalizedUsage(
-        billed_input_tokens=prompt,
-        billed_input_tokens_source=UsageSource.PROVIDER_REPORTED,
-        billed_output_tokens=completion,
-        billed_output_tokens_source=UsageSource.PROVIDER_REPORTED,
-        visible_output_tokens=completion,
-        visible_output_tokens_source=UsageSource.PROVIDER_REPORTED,
-    )
+    details = payload.get("completion_tokens_details")
+    reasoning = details.get("reasoning_tokens") if isinstance(details, dict) else None
+    kwargs: dict[str, Any] = {
+        "billed_input_tokens": prompt,
+        "billed_input_tokens_source": UsageSource.PROVIDER_REPORTED,
+        "billed_output_tokens": completion,
+        "billed_output_tokens_source": UsageSource.PROVIDER_REPORTED,
+    }
+    if isinstance(reasoning, int) and 0 <= reasoning <= completion:
+        kwargs.update(
+            visible_output_tokens=completion - reasoning,
+            visible_output_tokens_source=UsageSource.PROVIDER_REPORTED,
+            reasoning_or_special_tokens=reasoning,
+            reasoning_or_special_tokens_source=UsageSource.PROVIDER_REPORTED,
+        )
+    else:
+        kwargs.update(
+            visible_output_tokens=completion,
+            visible_output_tokens_source=UsageSource.PROVIDER_REPORTED,
+        )
+    return NormalizedUsage.model_validate(kwargs)
 
 
 def _retry_after_seconds(response: httpx.Response) -> float | None:
@@ -151,10 +164,14 @@ class OpenAICompatAdapter:
         self._raise_for_status(response)
         try:
             payload = response.json()
+            if not isinstance(payload, dict):
+                raise TypeError("completion payload is not an object")
             choice = payload["choices"][0]
             content = choice["message"].get("content") or ""
             finish_reason = choice.get("finish_reason")
-        except (ValueError, KeyError, IndexError, TypeError) as exc:
+            if finish_reason is not None and not isinstance(finish_reason, str):
+                raise TypeError("finish_reason is not a string")
+        except (ValueError, KeyError, IndexError, TypeError, AttributeError) as exc:
             raise ProviderError(
                 normalized_error(
                     ErrorClass.MALFORMED_RESPONSE,
@@ -203,14 +220,25 @@ class OpenAICompatAdapter:
                                 f"{self.name} sent an invalid stream event",
                             )
                         ) from exc
+                    if not isinstance(event, dict):
+                        raise ProviderError(
+                            normalized_error(
+                                ErrorClass.MALFORMED_RESPONSE,
+                                f"{self.name} sent a non-object stream event",
+                            )
+                        )
                     if event.get("usage") is not None:
                         usage = _usage_from_payload(event["usage"])
                     choices = event.get("choices") or []
-                    if not choices:
+                    first = choices[0] if isinstance(choices, list) and choices else None
+                    if not isinstance(first, dict):
                         continue
-                    delta_text = choices[0].get("delta", {}).get("content")
-                    finish_reason = choices[0].get("finish_reason") or finish_reason
-                    if delta_text:
+                    delta = first.get("delta")
+                    delta_text = delta.get("content") if isinstance(delta, dict) else None
+                    raw_finish = first.get("finish_reason")
+                    if isinstance(raw_finish, str):
+                        finish_reason = raw_finish
+                    if isinstance(delta_text, str) and delta_text:
                         yield ProviderChunk(
                             provider=self.name,
                             model=request.model,

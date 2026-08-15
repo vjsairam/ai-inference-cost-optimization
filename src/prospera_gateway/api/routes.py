@@ -17,10 +17,12 @@ from pydantic import ValidationError
 from prospera_gateway.api import schemas
 from prospera_gateway.api.app import GatewayState
 from prospera_gateway.models import (
+    AttemptOutcome,
     CanonicalChatRequest,
     DataClass,
     ErrorClass,
     NormalizedUsage,
+    ProviderChunk,
     ProviderError,
     QualityTier,
     RequestContext,
@@ -129,13 +131,6 @@ def _record_result_metrics(
         metrics.record_cost(provider, model_alias, team, cost.amount)
 
 
-def _record_attempt_errors(state: GatewayState, attempts: list[tuple[str, ErrorClass]]) -> None:
-    for provider, error_class in attempts:
-        state.metrics.provider_errors_total.labels(
-            provider=provider, error_class=error_class.value
-        ).inc()
-
-
 def register_routes(app: FastAPI) -> None:
     @app.get("/health/live")
     async def live() -> dict[str, str]:
@@ -238,7 +233,7 @@ def register_routes(app: FastAPI) -> None:
             state.metrics.policy_denied_total.labels(reason="no_permitted_route").inc()
             state.metrics.requests_total.labels(
                 provider="none",
-                model_alias=wire.model,
+                model_alias=wire.model if wire.model in state.model_aliases else "other",
                 workload=workload,
                 team=team,
                 outcome="policy_denied",
@@ -266,6 +261,7 @@ def register_routes(app: FastAPI) -> None:
         )
         created_epoch = int(now.timestamp())
 
+        metric_model = wire.model if wire.model in state.model_aliases else "other"
         if wire.stream:
             return await _streamed(
                 state,
@@ -273,6 +269,7 @@ def register_routes(app: FastAPI) -> None:
                 ctx,
                 decision,
                 wire.model,
+                metric_model,
                 team,
                 workload,
                 request_id,
@@ -285,6 +282,7 @@ def register_routes(app: FastAPI) -> None:
             ctx,
             decision,
             wire.model,
+            metric_model,
             team,
             workload,
             request_id,
@@ -293,12 +291,72 @@ def register_routes(app: FastAPI) -> None:
         )
 
 
+def _record_attempt_history(
+    state: GatewayState, attempts: tuple[AttemptOutcome, ...] | list[AttemptOutcome]
+) -> None:
+    """Attribute every failed attempt and fallback transition to its provider."""
+    for index, attempt in enumerate(attempts):
+        if attempt.error_class is None:
+            continue
+        state.metrics.provider_errors_total.labels(
+            provider=attempt.provider, error_class=attempt.error_class.value
+        ).inc()
+        if index + 1 < len(attempts):
+            state.metrics.fallback_total.labels(
+                from_provider=attempt.provider,
+                to_provider=attempts[index + 1].provider,
+                reason=attempt.error_class.value,
+            ).inc()
+
+
+def _error_provider(error: ProviderError, decision: RouteDecision) -> str:
+    if error.attempts:
+        return error.attempts[-1].provider
+    return decision.primary
+
+
+def _record_terminal_error(
+    state: GatewayState,
+    error: ProviderError,
+    decision: RouteDecision,
+    metric_model: str,
+    team: str,
+    workload: str,
+    request_id: str,
+    started: float,
+) -> str:
+    _record_attempt_history(state, error.attempts)
+    provider = _error_provider(error, decision)
+    if not error.attempts:
+        state.metrics.provider_errors_total.labels(
+            provider=provider, error_class=error.error.error_class.value
+        ).inc()
+    state.metrics.requests_total.labels(
+        provider=provider,
+        model_alias=metric_model,
+        workload=workload,
+        team=team,
+        outcome=error.error.error_class.value,
+    ).inc()
+    _log_request(
+        request_id,
+        team,
+        workload,
+        error.error.error_class.value,
+        provider,
+        decision.rule_name,
+        time.monotonic() - started,
+    )
+    return provider
+
+
 async def _non_streamed(
     state: GatewayState,
     canonical: CanonicalChatRequest,
     ctx: RequestContext,
     decision: RouteDecision,
     model_alias: str,
+    metric_model: str,
     team: str,
     workload: str,
     request_id: str,
@@ -308,53 +366,24 @@ async def _non_streamed(
     try:
         outcome = await state.executor.chat(canonical, ctx, decision)
     except ProviderError as error:
-        provider = decision.primary
-        state.metrics.provider_errors_total.labels(
-            provider=provider, error_class=error.error.error_class.value
-        ).inc()
-        state.metrics.requests_total.labels(
-            provider=provider,
-            model_alias=model_alias,
-            workload=workload,
-            team=team,
-            outcome=error.error.error_class.value,
-        ).inc()
-        _log_request(
-            request_id,
-            team,
-            workload,
-            error.error.error_class.value,
-            provider,
-            decision.rule_name,
-            time.monotonic() - started,
+        _record_terminal_error(
+            state, error, decision, metric_model, team, workload, request_id, started
         )
         return _provider_error_response(error, request_id)
 
-    failed = [
-        (attempt.provider, attempt.error_class)
-        for attempt in outcome.attempts
-        if attempt.error_class is not None
-    ]
-    _record_attempt_errors(state, failed)
-    for index, (from_provider, error_class) in enumerate(failed):
-        to_provider = outcome.attempts[index + 1].provider
-        state.metrics.fallback_total.labels(
-            from_provider=from_provider,
-            to_provider=to_provider,
-            reason=error_class.value,
-        ).inc()
+    _record_attempt_history(state, outcome.attempts)
     latency = time.monotonic() - started
     state.metrics.request_latency_seconds.labels(
         provider=outcome.provider, workload=workload
     ).observe(latency)
     state.metrics.requests_total.labels(
         provider=outcome.provider,
-        model_alias=model_alias,
+        model_alias=metric_model,
         workload=workload,
         team=team,
         outcome="success",
     ).inc()
-    _record_result_metrics(state, outcome.provider, model_alias, team, outcome.result.usage)
+    _record_result_metrics(state, outcome.provider, metric_model, team, outcome.result.usage)
     _log_request(
         request_id,
         team,
@@ -382,28 +411,42 @@ async def _streamed(
     ctx: RequestContext,
     decision: RouteDecision,
     model_alias: str,
+    metric_model: str,
     team: str,
     workload: str,
     request_id: str,
     created_epoch: int,
     started: float,
 ) -> Response:
+    attempt_log: list[AttemptOutcome] = []
+    generator = state.executor.stream(canonical, ctx, decision, attempt_log)
+
+    # Prime the stream so pre-stream provider failures keep their normalized
+    # HTTP status instead of being smuggled into a 200 SSE body (spec §8.4).
+    try:
+        first_item = await anext(generator)
+    except StopAsyncIteration:
+        first_item = None
+    except ProviderError as error:
+        _record_terminal_error(
+            state, error, decision, metric_model, team, workload, request_id, started
+        )
+        return _provider_error_response(error, request_id)
+
     async def event_stream() -> AsyncIterator[str]:
         first_content = True
         provider_used: str | None = None
         outcome = "success"
+
+        async def items() -> AsyncIterator[tuple[str, int, ProviderChunk]]:
+            if first_item is not None:
+                yield first_item
+                async for item in generator:
+                    yield item
+
         try:
-            async for provider, fallback_index, chunk in state.executor.stream(
-                canonical, ctx, decision
-            ):
-                if provider_used is None:
-                    provider_used = provider
-                    if fallback_index > 0:
-                        state.metrics.fallback_total.labels(
-                            from_provider=decision.primary,
-                            to_provider=provider,
-                            reason="pre_stream_failure",
-                        ).inc()
+            async for provider, _fallback_index, chunk in items():
+                provider_used = provider
                 if chunk.delta and first_content:
                     first_content = False
                     state.metrics.ttft_seconds.labels(provider=provider, workload=workload).observe(
@@ -421,7 +464,7 @@ async def _streamed(
                     )
                     yield f"data: {json.dumps(payload)}\n\n"
                     if chunk.usage is not None:
-                        _record_result_metrics(state, provider, model_alias, team, chunk.usage)
+                        _record_result_metrics(state, provider, metric_model, team, chunk.usage)
                 elif delta_text:
                     payload = schemas.completion_chunk(
                         request_id, created_epoch, model_alias, delta_text
@@ -430,10 +473,6 @@ async def _streamed(
             yield "data: [DONE]\n\n"
         except ProviderError as error:
             outcome = error.error.error_class.value
-            provider_for_metric = provider_used or decision.primary
-            state.metrics.provider_errors_total.labels(
-                provider=provider_for_metric, error_class=outcome
-            ).inc()
             yield (
                 "data: "
                 + json.dumps(
@@ -448,14 +487,17 @@ async def _streamed(
                 + "\n\n"
             )
         finally:
+            _record_attempt_history(state, attempt_log)
             latency = time.monotonic() - started
-            final_provider = provider_used or decision.primary
+            final_provider = provider_used or (
+                attempt_log[-1].provider if attempt_log else decision.primary
+            )
             state.metrics.request_latency_seconds.labels(
                 provider=final_provider, workload=workload
             ).observe(latency)
             state.metrics.requests_total.labels(
                 provider=final_provider,
-                model_alias=model_alias,
+                model_alias=metric_model,
                 workload=workload,
                 team=team,
                 outcome=outcome,

@@ -101,7 +101,7 @@ async def test_chat_translates_wire_format_and_usage(
     assert body["messages"] == [{"role": "user", "content": "hello claude"}]
     assert "temperature" not in body
     assert result.output[0].text == "claude answer"
-    assert result.finish_reason == "end_turn"
+    assert result.finish_reason == "stop"  # end_turn translated to OpenAI vocabulary
     assert result.usage.billed_input_tokens == 13
     assert result.usage.billed_output_tokens == 6
     assert result.usage.billed_output_tokens_source is UsageSource.PROVIDER_REPORTED
@@ -213,7 +213,7 @@ async def test_stream_yields_deltas_and_final_usage(
     assert texts == ["claude ", "stream"]
     final = chunks[-1]
     assert final.is_final
-    assert final.finish_reason == "end_turn"
+    assert final.finish_reason == "stop"  # end_turn translated to OpenAI vocabulary
     assert final.usage is not None
     assert final.usage.billed_input_tokens == 13
     assert final.usage.billed_output_tokens == 6
