@@ -1,6 +1,6 @@
 # Cloud benchmark runs
 
-> **PENDING — no real T0, T1, T3, or T4 cloud run has been completed.** Do not use this runbook
+> **PENDING: no real T0, T1, T3, or T4 cloud run has been completed.** Do not use this runbook
 > until valid AWS credentials, `ANTHROPIC_API_KEY`, the cluster created from the
 > [cloud-lab runbook](cloud-lab.md), and the immutable deploy manifest written by
 > `scripts/deploy.sh` are available. `results/published/` remains empty except for its contract.

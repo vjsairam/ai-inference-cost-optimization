@@ -9,7 +9,7 @@
   </defs>
 
   <rect x="0" y="0" width="1400" height="700" fill="#ffffff"/>
-  <text x="700" y="36" text-anchor="middle" font-size="20" font-weight="bold" fill="#0f172a">v1 logical architecture — managed vs private vs hybrid inference</text>
+  <text x="700" y="36" text-anchor="middle" font-size="20" font-weight="bold" fill="#0f172a">v1 logical architecture - managed vs private vs hybrid inference</text>
 
   <!-- ===== AWS EKS lab container ===== -->
   <rect x="345" y="70" width="640" height="550" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="1.6" stroke-dasharray="8 5"/>
@@ -39,7 +39,7 @@
   <text x="515" y="176" text-anchor="middle" font-size="15" font-weight="bold" fill="#1e3a8a">Inference Gateway</text>
   <text x="515" y="194" text-anchor="middle" font-size="10.5" fill="#3b5bdb">OpenAI-compatible /v1/chat/completions</text>
   <text x="401" y="219" font-size="12" fill="#1e3a8a">• auth (hashed API keys)</text>
-  <text x="401" y="240" font-size="12" fill="#1e3a8a">• policy engine — data class,</text>
+  <text x="401" y="240" font-size="12" fill="#1e3a8a">• policy engine: data class,</text>
   <text x="413" y="258" font-size="12" fill="#1e3a8a">workload, quality tier (YAML)</text>
   <text x="401" y="279" font-size="12" fill="#1e3a8a">• provider adapters</text>
   <text x="401" y="300" font-size="12" fill="#1e3a8a">• bounded fallback (pre-stream)</text>
@@ -69,7 +69,7 @@
   <rect x="710" y="250" width="255" height="165" rx="8" fill="#ecfdf5" stroke="#047857" stroke-width="2.2"/>
   <text x="837" y="277" text-anchor="middle" font-size="15" font-weight="bold" fill="#064e3b">Private vLLM server</text>
   <text x="726" y="302" font-size="12" fill="#064e3b">• OpenAI-compatible, streaming</text>
-  <text x="726" y="323" font-size="12" fill="#064e3b">• 1× GPU node — on-demand,</text>
+  <text x="726" y="323" font-size="12" fill="#064e3b">• 1× GPU node: on-demand,</text>
   <text x="738" y="341" font-size="12" fill="#064e3b">tainted, EKS accelerated AMI</text>
   <text x="726" y="362" font-size="12" fill="#064e3b">• ClusterIP only, never public</text>
   <text x="726" y="383" font-size="12" fill="#064e3b">• pinned image digest + model</text>
@@ -90,8 +90,8 @@
   <!-- DCGM box -->
   <rect x="710" y="470" width="255" height="95" rx="8" fill="#f5f3ff" stroke="#6d28d9" stroke-width="1.6"/>
   <text x="837" y="497" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#4c1d95">DCGM exporter</text>
-  <text x="726" y="521" font-size="11.5" fill="#4c1d95">GPU utilization, memory, power —</text>
-  <text x="726" y="539" font-size="11.5" fill="#4c1d95">explains private inference cost</text>
+  <text x="726" y="521" font-size="11.5" fill="#4c1d95">GPU utilization, memory, power</text>
+  <text x="726" y="539" font-size="11.5" fill="#4c1d95">(explains private inference cost)</text>
 
   <!-- scrape arrows (dashed) -->
   <line x1="515" y1="440" x2="515" y2="370" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrowg)"/>
@@ -104,7 +104,7 @@
 
   <!-- trust boundary B line -->
   <line x1="1040" y1="110" x2="1040" y2="620" stroke="#b45309" stroke-width="1.6" stroke-dasharray="8 5"/>
-  <text x="1040" y="645" text-anchor="middle" font-size="12" font-weight="bold" fill="#b45309">B · policy-gated egress — restricted data never crosses</text>
+  <text x="1040" y="645" text-anchor="middle" font-size="12" font-weight="bold" fill="#b45309">B · policy-gated egress - restricted data never crosses</text>
 
   <!-- trust boundary A line -->
   <line x1="318" y1="110" x2="318" y2="620" stroke="#334155" stroke-width="1.4" stroke-dasharray="8 5"/>

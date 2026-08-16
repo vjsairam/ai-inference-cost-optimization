@@ -5,7 +5,7 @@
 
 Agent handoff for Claude / Codex | Version 1.2 | 15 August 2026
 
-> **North-star engineering question** — What is the lowest-cost production AI inference architecture that still meets defined quality, latency, reliability, security and availability requirements? The repository must answer this with reproducible evidence—not with a list of technologies.
+> **North-star engineering question** - What is the lowest-cost production AI inference architecture that still meets defined quality, latency, reliability, security and availability requirements? The repository must answer this with reproducible evidence, not with a list of technologies.
 
 **This specification is authoritative for v1. If an implementation choice conflicts with this document, either follow the spec or create an ADR explaining the change before coding it.**
 
@@ -103,7 +103,7 @@ The v1 implementation compares three delivery patterns under a common workload a
 
 ## 1.2 Durable engineering thesis
 
-> **Durable layer** — The business moat is not Kubernetes, vLLM, KServe, llm-d, any GPU model or any LLM vendor. The durable capability is: measure -> model economics -> architect -> optimize -> validate quality/SLO -> automate -> operate -> prove ROI. This specification therefore makes adapters, policies, benchmarks and evidence first-class, while treating runtimes as replaceable implementations.
+> **Durable layer** - The business moat is not Kubernetes, vLLM, KServe, llm-d, any GPU model or any LLM vendor. The durable capability is: measure -> model economics -> architect -> optimize -> validate quality/SLO -> automate -> operate -> prove ROI. This specification therefore makes adapters, policies, benchmarks and evidence first-class, while treating runtimes as replaceable implementations.
 
 ## 1.3 Non-negotiable engineering principles
 
@@ -188,11 +188,11 @@ The v1 implementation compares three delivery patterns under a common workload a
 | P1 - only after baseline | KEDA scale-out using queue metrics, Karpenter GPU provisioning/consolidation experiment, Spot experiment, persistent cost ledger or hard budget policy, richer traces, NetworkPolicy hardening, actual AWS Cost Explorer reconciliation, energy/request estimate. |
 | P2 - future extension    | KServe LLMInferenceService, Gateway API Inference Extension/llm-d, prefix-cache-aware routing, disaggregated prefill/decode, multi-GPU/multi-node, RAG authorization, agents/tools, multi-cloud, private/on-prem reference deployment.                            |
 
-> **Scope freeze** — Claude/Codex must not start P1 or P2 work to “complete the architecture” while any P0 acceptance criterion is failing. P1/P2 issues remain labeled and unassigned until the baseline report exists.
+> **Scope freeze** - Claude/Codex must not start P1 or P2 work to “complete the architecture” while any P0 acceptance criterion is failing. P1/P2 issues remain labeled and unassigned until the baseline report exists.
 
 # 4. System architecture
 
-![Figure 1 — v1 logical architecture](media/figure1_architecture.png)
+![Figure 1 - v1 logical architecture](media/figure1_architecture.png)
 
 Figure 1. v1 logical architecture. The custom gateway is intentionally thin: provider abstraction, policy, telemetry and failure handling. It must not become a general orchestration framework.
 
@@ -486,7 +486,7 @@ Timeouts are validated duration fields, applied to streaming and non-streaming p
 
 # 9. Benchmark and quality-evaluation specification
 
-![Figure 2 — benchmark evidence pipeline](media/image2.png)
+![Figure 2 - benchmark evidence pipeline](media/image2.png)
 
 Figure 2. Benchmark evidence pipeline. The run manifest is created before load begins, not reconstructed after the fact.
 
@@ -670,15 +670,15 @@ An out-of-cluster VPC runner requires an internal NLB/ALB or private Gateway, is
 
 - Every published comparison reports and labels both economic views:
 
-  - **View A — inference service economics (marginal):** managed cost includes token usage and provider-specific charges; private cost includes GPU runtime and private-serving-specific infrastructure. Shared platform costs are excluded from both. This view answers which inference mechanism is cheaper.
+  - **View A - inference service economics (marginal):** managed cost includes token usage and provider-specific charges; private cost includes GPU runtime and private-serving-specific infrastructure. Shared platform costs are excluded from both. This view answers which inference mechanism is cheaper.
 
-  - **View B — full-platform TCO:** both architectures include inference cost plus gateway runtime, network/NAT, control plane, storage, observability and an operations/engineering allocation. This view answers which architecture costs the organization less.
+  - **View B - full-platform TCO:** both architectures include inference cost plus gateway runtime, network/NAT, control plane, storage, observability and an operations/engineering allocation. This view answers which architecture costs the organization less.
 
 - Cost per request for each view.
 
 - Cost per 1M provider-billed/normalized tokens (only when token definition is meaningful and clearly labeled).
 
-- `cost_per_correct_task` for each view—the primary business metric.
+- `cost_per_correct_task` for each view, the primary business metric.
 
 - Monthly modeled cost across a volume × token-profile × quality-rate grid.
 
@@ -801,7 +801,7 @@ v1 deliberately uses standard EKS managed node groups. EKS Auto Mode is a consid
 
 ## 11.4 Cost safety controls
 
-> **Cloud safety gate** — No script may create GPU infrastructure unless the operator explicitly supplies/accepts a run budget and GPU count. The repository must provide cloud-down and verify-destroy before the first publishable benchmark is attempted.
+> **Cloud safety gate** - No script may create GPU infrastructure unless the operator explicitly supplies/accepts a run budget and GPU count. The repository must provide cloud-down and verify-destroy before the first publishable benchmark is attempted.
 
 - Terraform validation limits default GPU node count to 1 for P0.
 
@@ -1073,7 +1073,7 @@ Every target must return a meaningful non-zero exit code on failure. cloud-down 
 
 # 18. Milestones and implementation issue map
 
-![Figure 3 — delivery sequence](media/image3.png)
+![Figure 3 - delivery sequence](media/image3.png)
 
 Figure 3. Delivery sequence. Do not parallelize cloud complexity ahead of local contracts and measurement plumbing.
 
@@ -1267,7 +1267,7 @@ The v1 public Chat Completions surface is an interoperability adapter, not the i
 
 # 23. Agent execution contract
 
-> **Instruction to Claude/Codex** — Build the smallest complete system that satisfies the current milestone. Do not optimize for lines of code, number of tools or visual complexity. Optimize for reproducible evidence and a clean public case study.
+> **Instruction to Claude/Codex** - Build the smallest complete system that satisfies the current milestone. Do not optimize for lines of code, number of tools or visual complexity. Optimize for reproducible evidence and a clean public case study.
 
 ## 23.1 Required behavior for every agent change
 
@@ -1580,7 +1580,7 @@ These sources are included so implementation agents use current primary document
 
 # Final implementation directive
 
-> **Ship evidence, not architecture diagrams** — The first public release is complete when a reviewer can see the business decision, inspect the code and assumptions, rerun the lab, examine real benchmark records, understand what failed, and verify why one architecture is economically preferable under a stated workload. If a feature does not improve that evidence, defer it.
+> **Ship evidence, not architecture diagrams** - The first public release is complete when a reviewer can see the business decision, inspect the code and assumptions, rerun the lab, examine real benchmark records, understand what failed, and verify why one architecture is economically preferable under a stated workload. If a feature does not improve that evidence, defer it.
 
 # Changelog
 

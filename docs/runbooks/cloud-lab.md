@@ -1,6 +1,6 @@
 # AWS cloud-lab runbook
 
-> **PENDING — no AWS create/deploy/smoke/destroy cycle has been executed.** Operator credentials,
+> **PENDING: no AWS create/deploy/smoke/destroy cycle has been executed.** Operator credentials,
 > an approved run budget, immutable model revision, and image digests have not been supplied. M4
 > and M5 validation is offline only.
 

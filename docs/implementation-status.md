@@ -54,7 +54,7 @@ linted and zero failed for each of gateway and vLLM. The standalone Helm renderi
 3 passed. Direct `uv` commands used `UV_CACHE_DIR=/tmp/gateway-uv-cache` because the default cache
 filesystem is read-only in this environment.
 
-## Previous milestone: M5 — vLLM serving and observability (offline implementation complete)
+## Previous milestone: M5 - vLLM serving and observability (offline implementation complete)
 
 | Item | Status |
 |---|---|
@@ -66,7 +66,7 @@ filesystem is read-only in this environment.
 | Benchmark manifest consumption of model revision, image digest, runtime, GPU, and chart pins | Implemented; unit tested |
 | Live gateway-to-vLLM completion and vLLM/GPU metric visibility | Pending operator credentials, budget, model/image resolution, and cluster creation |
 
-## Previous milestone: M4 — AWS EKS + GPU infrastructure (offline implementation complete)
+## Previous milestone: M4 - AWS EKS + GPU infrastructure (offline implementation complete)
 
 | Item | Status |
 |---|---|
@@ -80,7 +80,7 @@ filesystem is read-only in this environment.
 | Path-filtered Terraform/Helm/config-scan CI | Implemented |
 | Fresh create, M5 smoke, destroy, and verify-destroy cycle | Pending operator inputs and M5 workload deployment |
 
-## Previous milestone: M3 — Local/mock end-to-end evidence (complete)
+## Previous milestone: M3 - Local/mock end-to-end evidence (complete)
 
 | Item | Status |
 |---|---|
@@ -94,7 +94,7 @@ filesystem is read-only in this environment.
 | CI integration and separate smoke jobs | Done |
 | Local-lab runbook | Done |
 
-## Previous milestone: M2 — Benchmark + eval (complete)
+## Previous milestone: M2 - Benchmark + eval (complete)
 
 | Item | Status |
 |---|---|
@@ -109,7 +109,7 @@ filesystem is read-only in this environment.
 | Local mock report path producing summary, quality, cost, and comparison files | Done |
 | Unit, contract, and integration coverage for issues #11 through #16 | Done |
 
-## Previous milestone: M1 — Gateway + adapters (complete)
+## Previous milestone: M1 - Gateway + adapters (complete)
 
 | Item | Status |
 |---|---|
@@ -123,7 +123,7 @@ filesystem is read-only in this environment.
 | Prometheus metrics per spec §13.1 with bounded labels | Done |
 | Routing acceptance tests: all data_class × quality_tier cells, fail-closed, no-replay, sentinel log check | Done |
 
-## Previous milestone: M0 — Repo + contracts (complete)
+## Previous milestone: M0 - Repo + contracts (complete)
 
 | Item | Status |
 |---|---|
@@ -175,21 +175,21 @@ filesystem is read-only in this environment.
   referenced SLO cells. An initial direct invocation without the writable cache override failed
   before test collection because the default uv cache filesystem is read-only.
 
-- `export PATH="$HOME/.local/bin:$PATH" && uv --version && uv lock` — failed before
+- `export PATH="$HOME/.local/bin:$PATH" && uv --version && uv lock` - failed before
   resolution because the default cache path was read-only. The Makefile now exports
   `UV_CACHE_DIR=/tmp/gateway-uv-cache` by default.
 - `export PATH="$HOME/.local/bin:$PATH" && export UV_CACHE_DIR=/tmp/gateway-uv-cache && uv lock`
-  — failed because DNS access to the package index was unavailable in the execution environment.
+  - failed because DNS access to the package index was unavailable in the execution environment.
 - `export PATH="$HOME/.local/bin:$PATH" && export UV_CACHE_DIR=/tmp/gateway-uv-cache && uv lock
-  --offline --no-index --find-links /tmp/gateway-wheelhouse` — passed; resolved 22 packages from
+  --offline --no-index --find-links /tmp/gateway-wheelhouse` - passed; resolved 22 packages from
   locally available distributions. The committed lock references the corresponding registry
   artifacts rather than the temporary wheelhouse.
 - `export PATH="$HOME/.local/bin:$PATH" && make bootstrap && make lint && make test && make
-  test-contract` — passed. Bootstrap resolved 22 packages; Ruff check and format check passed;
+  test-contract` - passed. Bootstrap resolved 22 packages; Ruff check and format check passed;
   mypy reported no issues in 11 source files; unit tests reported 29 passed; contract tests
   reported 14 passed.
 - `export PATH="$HOME/.local/bin:$PATH" && export UV_CACHE_DIR=/tmp/gateway-uv-cache && uv lock
-  --check --offline && uv sync --frozen && make test-integration` — passed. The lock resolved 22
+  --check --offline && uv sync --frozen && make test-integration` - passed. The lock resolved 22
   packages, the frozen environment check covered 21 installed packages, and the M0 compatibility
   integration target reported 43 passed.
 - Post-review hardening: mypy stub-agnostic YAML resolver registration, dependency audit wired to
@@ -197,7 +197,7 @@ filesystem is read-only in this environment.
   (29 passed), `make test-contract` (14 passed) verified locally; CI and Security workflows green
   on main.
 - M1 verification: `make lint` clean (ruff + mypy strict), `make test` / `make test-contract` /
-  `make test-integration` — 123 tests passed locally.
+  `make test-integration` - 123 tests passed locally.
 - M1 peer-review hardening: bounded model-alias metric labels, no SDK-internal retries on the
   managed path, configured timeouts applied to the managed client, per-attempt limits on
   streaming, in-band stream errors normalized, structural SSE validation, real HTTP statuses for

@@ -46,9 +46,9 @@ versioned SLO cell. Ineligible treatments still report cost but cannot be recomm
 
 Every report keeps two economic views separate:
 
-- **View A — inference service economics:** managed token/provider charges versus private GPU and
+- **View A - inference service economics:** managed token/provider charges versus private GPU and
   serving-specific costs.
-- **View B — full-platform TCO:** View A plus gateway, network/NAT, control plane, storage,
+- **View B - full-platform TCO:** View A plus gateway, network/NAT, control plane, storage,
   observability, and an explicit operations allocation.
 
 Break-even output is a sensitivity table or curve over workload, token profile, utilization,
