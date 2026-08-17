@@ -1,5 +1,12 @@
 # Changelog
 
+## Reviewed result publication
+
+- Added a fail-closed run publisher that assembles reviewed evidence, raw-record references,
+  operator-facing report scaffolding, and dependency-free SVG charts without copying raw records.
+- Added unit coverage for deterministic output, record checksums, publication gates, and existing
+  destination protection.
+
 ## Economics, extraction, container, and Terraform completeness
 
 - Expanded modeled and observed View B output with separately reported gateway, network/NAT,

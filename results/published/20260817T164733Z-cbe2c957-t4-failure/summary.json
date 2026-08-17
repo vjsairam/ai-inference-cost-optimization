@@ -1,0 +1,543 @@
+{
+  "completions": 740,
+  "cost": {
+    "hybrid_combined_view_a": {
+      "cost_per_1m_tokens_usd": null,
+      "cost_per_correct_task_usd": "0.001294116862711006781429316641",
+      "cost_per_request_usd": "0.0009188229725248148148148148148",
+      "token_count": null,
+      "token_definition": null,
+      "total_usd": "0.8269406752723333333333333333"
+    },
+    "hybrid_combined_view_b": {
+      "label": "View B - full-platform TCO",
+      "operations_sensitivity": {
+        "high": {
+          "combined": {
+            "cost_per_1m_tokens_usd": null,
+            "cost_per_correct_task_usd": "0.001909515223237176143279429665",
+            "cost_per_request_usd": "0.001355755808498395061728395062",
+            "token_count": null,
+            "token_definition": null,
+            "total_usd": "1.220180227648555555555555556"
+          },
+          "operations_monthly_allocation_usd": "2880.0",
+          "platform_components_usd": {
+            "control_plane_usd": "0.009415754055555555555555555556",
+            "gateway_runtime_usd": "0.0005837767514444444444444444445",
+            "network_nat_usd": "0.004237089325000000000000000000",
+            "observability_usd": "0.001958476843555555555555555556",
+            "operations_engineering_allocation_usd": "0.3766301622222222222222222222",
+            "shared_storage_usd": "0.0004142931784444444444444444445"
+          }
+        },
+        "low": {
+          "combined": {
+            "cost_per_1m_tokens_usd": null,
+            "cost_per_correct_task_usd": "0.001328295837091771479356247223",
+            "cost_per_request_usd": "0.0009430900443351577503429355281",
+            "token_count": null,
+            "token_definition": null,
+            "total_usd": "0.8487810399016419753086419753"
+          },
+          "operations_monthly_allocation_usd": "40.00",
+          "platform_components_usd": {
+            "control_plane_usd": "0.009415754055555555555555555556",
+            "gateway_runtime_usd": "0.0005837767514444444444444444445",
+            "network_nat_usd": "0.004237089325000000000000000000",
+            "observability_usd": "0.001958476843555555555555555556",
+            "operations_engineering_allocation_usd": "0.005230974475308641975308641975",
+            "shared_storage_usd": "0.0004142931784444444444444444445"
+          }
+        },
+        "typical": {
+          "combined": {
+            "cost_per_1m_tokens_usd": null,
+            "cost_per_correct_task_usd": "0.001393785345389845244305338202",
+            "cost_per_request_usd": "0.0009895875952267901234567901234",
+            "token_count": null,
+            "token_definition": null,
+            "total_usd": "0.8906288357041111111111111111"
+          },
+          "operations_monthly_allocation_usd": "360.0",
+          "platform_components_usd": {
+            "control_plane_usd": "0.009415754055555555555555555556",
+            "gateway_runtime_usd": "0.0005837767514444444444444444445",
+            "network_nat_usd": "0.004237089325000000000000000000",
+            "observability_usd": "0.001958476843555555555555555556",
+            "operations_engineering_allocation_usd": "0.04707877027777777777777777778",
+            "shared_storage_usd": "0.0004142931784444444444444444445"
+          }
+        }
+      }
+    },
+    "observed_path_applicability": {
+      "managed": true,
+      "private": true
+    },
+    "provider_breakdown": {
+      "managed-premium": {
+        "correct_tasks": 362,
+        "cost_basis": "provider-reported usage and date-stamped local mock pricing",
+        "quality_rate": 0.8044444444444444,
+        "requests": 450,
+        "view_a_cost_per_correct_task_usd": "0.002061353591160220994475138122",
+        "view_a_cost_per_request_usd": "0.001658244444444444444444444444",
+        "view_a_cost_usd": "0.746210"
+      },
+      "private-vllm": {
+        "correct_tasks": 277,
+        "cost_basis": "local billed private service time allocated to the private route",
+        "quality_rate": 0.6155555555555555,
+        "requests": 450,
+        "view_a_cost_per_correct_task_usd": "0.0002914464811275571600481347774",
+        "view_a_cost_per_request_usd": "0.0001794015006051851851851851852",
+        "view_a_cost_usd": "0.08073067527233333333333333333"
+      }
+    },
+    "views": {
+      "view_a": {
+        "label": "View A - inference service economics (marginal)",
+        "managed": {
+          "cost_per_1m_tokens_usd": "10.99988207199504702379197500",
+          "cost_per_correct_task_usd": "0.001167777777777777777777777778",
+          "cost_per_request_usd": "0.0008291222222222222222222222222",
+          "token_count": 67838,
+          "token_definition": "provider-billed input + output tokens",
+          "total_usd": "0.746210"
+        },
+        "private": {
+          "cost_per_1m_tokens_usd": null,
+          "cost_per_correct_task_usd": "0.0001263390849332290036515388628",
+          "cost_per_request_usd": "0.00008970075030259259259259259259",
+          "token_count": null,
+          "token_definition": null,
+          "total_usd": "0.08073067527233333333333333333"
+        }
+      },
+      "view_b": {
+        "label": "View B - full-platform TCO",
+        "operations_sensitivity": {
+          "high": {
+            "managed": {
+              "cost_per_1m_tokens_usd": "16.79662655703620717329847905",
+              "cost_per_correct_task_usd": "0.001783176138303947139627890801",
+              "cost_per_request_usd": "0.001266055058195802469135802469",
+              "token_count": 67838,
+              "token_definition": "provider-billed input + output tokens",
+              "total_usd": "1.139449552376222222222222222"
+            },
+            "operations_monthly_allocation_usd": "2880.0",
+            "platform_components_usd": {
+              "control_plane_usd": "0.009415754055555555555555555556",
+              "gateway_runtime_usd": "0.0005837767514444444444444444445",
+              "network_nat_usd": "0.004237089325000000000000000000",
+              "observability_usd": "0.001958476843555555555555555556",
+              "operations_engineering_allocation_usd": "0.3766301622222222222222222222",
+              "shared_storage_usd": "0.0004142931784444444444444444445"
+            },
+            "private": {
+              "cost_per_1m_tokens_usd": null,
+              "cost_per_correct_task_usd": "0.0007417374454593983655016518865",
+              "cost_per_request_usd": "0.0005266335862761728395061728394",
+              "token_count": null,
+              "token_definition": null,
+              "total_usd": "0.4739702276485555555555555555"
+            }
+          },
+          "low": {
+            "managed": {
+              "cost_per_1m_tokens_usd": "11.32183090051753651309455824",
+              "cost_per_correct_task_usd": "0.001201956752158542475704708360",
+              "cost_per_request_usd": "0.0008533892940325651577503429356",
+              "token_count": 67838,
+              "token_definition": "provider-billed input + output tokens",
+              "total_usd": "0.7680503646293086419753086420"
+            },
+            "operations_monthly_allocation_usd": "40.00",
+            "platform_components_usd": {
+              "control_plane_usd": "0.009415754055555555555555555556",
+              "gateway_runtime_usd": "0.0005837767514444444444444444445",
+              "network_nat_usd": "0.004237089325000000000000000000",
+              "observability_usd": "0.001958476843555555555555555556",
+              "operations_engineering_allocation_usd": "0.005230974475308641975308641975",
+              "shared_storage_usd": "0.0004142931784444444444444444445"
+            },
+            "private": {
+              "cost_per_1m_tokens_usd": null,
+              "cost_per_correct_task_usd": "0.0001605180593139937015784694449",
+              "cost_per_request_usd": "0.0001139678221129355281207133059",
+              "token_count": null,
+              "token_definition": null,
+              "total_usd": "0.1025710399016419753086419753"
+            }
+          },
+          "typical": {
+            "managed": {
+              "cost_per_1m_tokens_usd": "11.93870928435062616494852115",
+              "cost_per_correct_task_usd": "0.001267446260456616240653799339",
+              "cost_per_request_usd": "0.0008998868449241975308641975309",
+              "token_count": 67838,
+              "token_definition": "provider-billed input + output tokens",
+              "total_usd": "0.8098981604317777777777777778"
+            },
+            "operations_monthly_allocation_usd": "360.0",
+            "platform_components_usd": {
+              "control_plane_usd": "0.009415754055555555555555555556",
+              "gateway_runtime_usd": "0.0005837767514444444444444444445",
+              "network_nat_usd": "0.004237089325000000000000000000",
+              "observability_usd": "0.001958476843555555555555555556",
+              "operations_engineering_allocation_usd": "0.04707877027777777777777777778",
+              "shared_storage_usd": "0.0004142931784444444444444444445"
+            },
+            "private": {
+              "cost_per_1m_tokens_usd": null,
+              "cost_per_correct_task_usd": "0.0002260075676120674665275604243",
+              "cost_per_request_usd": "0.0001604653730045679012345679012",
+              "token_count": null,
+              "token_definition": null,
+              "total_usd": "0.1444188357041111111111111111"
+            }
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "by_class": {
+      "timeout": 160
+    },
+    "total": 160
+  },
+  "fallback_count": 0,
+  "gpu": {
+    "memory_average": null,
+    "memory_p95": null,
+    "utilization_average": null,
+    "utilization_p95": null
+  },
+  "harness": {
+    "availability_zone": "us-east-1b",
+    "build": "cbe2c957738fc0edc8632d5c907a1af83bafdf8b",
+    "gateway_access": "in-process",
+    "image": null,
+    "location": "aws-eks",
+    "namespace": null,
+    "network_path": "runner Pod -> gateway ClusterIP -> selected provider",
+    "node": "ip-10-42-11-77.ec2.internal",
+    "node_group": "system",
+    "pod": null,
+    "tls_mode": "none",
+    "workload_kind": "kubernetes-job"
+  },
+  "latency_ms": {
+    "p50": 1669.5136515008926,
+    "p95": 3274.7206381494825,
+    "p99": 4165.752951760729
+  },
+  "limitations": [
+    "Benchmark placement was location aws-eks, node group system.",
+    "No treatment comparison was run, so no directional claim is available.",
+    "GPU telemetry was not captured for this run."
+  ],
+  "policy_input_mix": {
+    "data_class": {
+      "public": 450,
+      "restricted": 450
+    },
+    "quality_tier": {
+      "balanced": 450,
+      "premium": 450
+    }
+  },
+  "provider_mode_mismatches": 0,
+  "quality": {
+    "quality_rate": 0.71,
+    "task_correct": 639
+  },
+  "repeats": {
+    "count": 3,
+    "e2e_p95_ms_dispersion": {
+      "max": 3427.2094915490015,
+      "median": 3288.909447850347,
+      "min": 3197.196564396654
+    },
+    "group_id": "20260817T164733Z-cbe2c957-t4-failure",
+    "quality_rate_dispersion": {
+      "max": 0.8833333333333333,
+      "median": 0.7833333333333333,
+      "min": 0.4633333333333333
+    },
+    "throughput_requests_per_second_dispersion": {
+      "max": 3.018714277667256,
+      "median": 2.897260813736261,
+      "min": 2.2052174150312087
+    },
+    "ttft_p95_ms_dispersion": {
+      "max": 3271.1387158011353,
+      "median": 3050.434427099026,
+      "min": 3032.620522199067
+    },
+    "values": [
+      {
+        "e2e_p95_ms": 3197.196564396654,
+        "errors": 30,
+        "quality_rate": 0.7833333333333333,
+        "repeat_index": 1,
+        "requests": 300,
+        "throughput_requests_per_second": 2.897260813736261,
+        "ttft_p95_ms": 3050.434427099026,
+        "view_a_managed_cost_per_correct_task_usd": 0.0010710425531914893,
+        "view_a_private_cost_per_correct_task_usd": 0.00010494138178723404
+      },
+      {
+        "e2e_p95_ms": 3427.2094915490015,
+        "errors": 130,
+        "quality_rate": 0.4633333333333333,
+        "repeat_index": 2,
+        "requests": 300,
+        "throughput_requests_per_second": 2.2052174150312087,
+        "ttft_p95_ms": 3271.1387158011353,
+        "view_a_managed_cost_per_correct_task_usd": 0.0017859352517985612,
+        "view_a_private_cost_per_correct_task_usd": 0.00023309664320383695
+      },
+      {
+        "e2e_p95_ms": 3288.909447850347,
+        "errors": 0,
+        "quality_rate": 0.8833333333333333,
+        "repeat_index": 3,
+        "requests": 300,
+        "throughput_requests_per_second": 3.018714277667256,
+        "ttft_p95_ms": 3032.620522199067,
+        "view_a_managed_cost_per_correct_task_usd": 0.000929320754716981,
+        "view_a_private_cost_per_correct_task_usd": 8.931704583773584e-05
+      }
+    ],
+    "view_a_managed_cost_per_correct_task_usd_dispersion": {
+      "max": 0.0017859352517985612,
+      "median": 0.0010710425531914893,
+      "min": 0.000929320754716981
+    },
+    "view_a_private_cost_per_correct_task_usd_dispersion": {
+      "max": 0.00023309664320383695,
+      "median": 0.00010494138178723404,
+      "min": 8.931704583773584e-05
+    }
+  },
+  "requests": 900,
+  "routing_mix": {
+    "managed-premium": 450,
+    "private-vllm": 450
+  },
+  "run_id": "20260817T164733Z-cbe2c957-t4-failure",
+  "sample_size": 900,
+  "slo": {
+    "aggregate": {
+      "error_rate": 0.17777777777777778,
+      "label": "informational aggregate; eligibility is derived from traffic cells",
+      "latency_ms": {
+        "p50": 1669.5136515008926,
+        "p95": 3274.7206381494825,
+        "p99": 4165.752951760729
+      },
+      "quality_rate": 0.71,
+      "sample_size": 900,
+      "ttft_ms": {
+        "p50": 1654.2882309986453,
+        "p95": 3129.6060856009713,
+        "p99": 3669.534107520305
+      }
+    },
+    "cell": "WL-01/balanced",
+    "checks": {
+      "error_rate": {
+        "actual": 0.35555555555555557,
+        "applicable": true,
+        "pass": false,
+        "target": 0.01
+      },
+      "p95_e2e_ms": {
+        "actual": 2079.6392852493227,
+        "applicable": true,
+        "pass": true,
+        "target": 5000
+      },
+      "p95_ttft_ms": {
+        "actual": 54.400061349406315,
+        "applicable": true,
+        "pass": true,
+        "target": 1500
+      },
+      "quality_rate": {
+        "actual": 0.6155555555555555,
+        "applicable": true,
+        "pass": false,
+        "target": 0.9
+      }
+    },
+    "failed_targets": [
+      "error_rate",
+      "quality_rate"
+    ],
+    "per_cell": [
+      {
+        "cell": "WL-01/balanced",
+        "checks": {
+          "error_rate": {
+            "actual": 0.35555555555555557,
+            "applicable": true,
+            "pass": false,
+            "target": 0.01
+          },
+          "p95_e2e_ms": {
+            "actual": 2079.6392852493227,
+            "applicable": true,
+            "pass": true,
+            "target": 5000
+          },
+          "p95_ttft_ms": {
+            "actual": 54.400061349406315,
+            "applicable": true,
+            "pass": true,
+            "target": 1500
+          },
+          "quality_rate": {
+            "actual": 0.6155555555555555,
+            "applicable": true,
+            "pass": false,
+            "target": 0.9
+          }
+        },
+        "eligible": false,
+        "failed_targets": [
+          "error_rate",
+          "quality_rate"
+        ],
+        "sample_size": 450,
+        "sample_status": "sufficient",
+        "slo_eligible": false,
+        "targets": {
+          "max_error_rate": "0.01",
+          "min_quality_rate": "0.90",
+          "p95_e2e_ms": 5000,
+          "p95_ttft_ms": 1500
+        },
+        "warning": null
+      },
+      {
+        "cell": "WL-01/premium",
+        "checks": {
+          "error_rate": {
+            "actual": 0.0,
+            "applicable": true,
+            "pass": true,
+            "target": 0.01
+          },
+          "p95_e2e_ms": {
+            "actual": 3434.761487047944,
+            "applicable": true,
+            "pass": true,
+            "target": 6000
+          },
+          "p95_ttft_ms": {
+            "actual": 3306.8867255995415,
+            "applicable": true,
+            "pass": false,
+            "target": 2000
+          },
+          "quality_rate": {
+            "actual": 0.8044444444444444,
+            "applicable": true,
+            "pass": false,
+            "target": 0.95
+          }
+        },
+        "eligible": false,
+        "failed_targets": [
+          "p95_ttft_ms",
+          "quality_rate"
+        ],
+        "sample_size": 450,
+        "sample_status": "sufficient",
+        "slo_eligible": false,
+        "targets": {
+          "max_error_rate": "0.01",
+          "min_quality_rate": "0.95",
+          "p95_e2e_ms": 6000,
+          "p95_ttft_ms": 2000
+        },
+        "warning": null
+      }
+    ],
+    "slo_eligible": false,
+    "targets": {
+      "max_error_rate": "0.01",
+      "min_quality_rate": "0.90",
+      "p95_e2e_ms": 5000,
+      "p95_ttft_ms": 1500
+    }
+  },
+  "statistics": {
+    "cluster_unit": "repeat_index",
+    "hybrid_view_a_cost_per_correct_task_95_ci": {
+      "confidence": 0.95,
+      "high": 0.002019031895002398,
+      "iterations": 2000,
+      "low": 0.0010186378005547169,
+      "method": "cluster ratio percentile bootstrap",
+      "resampling_unit": "repeat_index",
+      "seed": 20260819
+    },
+    "iterations": 2000,
+    "managed_view_a_cost_per_correct_task_95_ci": {
+      "confidence": 0.95,
+      "high": 0.001785935251798561,
+      "iterations": 2000,
+      "low": 0.000929320754716981,
+      "method": "cluster ratio percentile bootstrap",
+      "resampling_unit": "repeat_index",
+      "seed": 20260818
+    },
+    "method": "cluster percentile bootstrap",
+    "p95_e2e_ms_95_ci": {
+      "confidence": 0.95,
+      "high": 3427.209491549001,
+      "iterations": 2000,
+      "low": 3197.1965643966537,
+      "method": "cluster percentile bootstrap",
+      "resampling_unit": "repeat_index",
+      "seed": 20260815
+    },
+    "p95_ttft_ms_95_ci": {
+      "confidence": 0.95,
+      "high": 3294.6357022014085,
+      "iterations": 2000,
+      "low": 3036.8843719988945,
+      "method": "cluster percentile bootstrap",
+      "resampling_unit": "repeat_index",
+      "seed": 20260816
+    },
+    "private_view_a_cost_per_correct_task_95_ci": {
+      "confidence": 0.95,
+      "high": 0.00023309664320383697,
+      "iterations": 2000,
+      "low": 8.931704583773585e-05,
+      "method": "cluster ratio percentile bootstrap",
+      "resampling_unit": "repeat_index",
+      "seed": 20260817
+    },
+    "quality_pairing_unit": "dataset_item_id",
+    "seed": 20260815
+  },
+  "throughput": {
+    "output_tokens_per_second": 56.9606686623695,
+    "requests_per_second": 2.4485170652974424
+  },
+  "treatment": "t4-failure",
+  "ttft_ms": {
+    "p50": 1654.2882309986453,
+    "p95": 3129.6060856009713,
+    "p99": 3669.534107520305
+  },
+  "workload": "classification"
+}

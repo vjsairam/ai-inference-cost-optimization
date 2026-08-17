@@ -1,9 +1,10 @@
 # Cloud benchmark runs
 
-> **PENDING: no real T0, T1, T3, or T4 cloud run has been completed.** Do not use this runbook
-> until valid AWS credentials, `ANTHROPIC_API_KEY`, the cluster created from the
-> [cloud-lab runbook](cloud-lab.md), and the immutable deploy manifest written by
-> `scripts/deploy.sh` are available. `results/published/` remains empty except for its contract.
+> **Status: executed on 2026-08-17.** T0 and T1 ran for both workloads, plus T3 and both T4
+> fault phases, in us-east-1 on source revision `cbe2c95` with runner image digest
+> `sha256:cf621325a63499a4a47adec314e62a4bedb1cd1b51225e8523af9513cb96a502` and deploy manifest
+> `deploy-20260817T141955Z.yaml`. Published evidence lives under `results/published/`. The
+> procedure below remains the reference for reproducing the run.
 
 This procedure covers the M6 managed/private baselines and the M7 hybrid/failure treatments. A
 publishable runner is the Job defined in `infra/k8s/benchmark-runner.yaml`, selected onto

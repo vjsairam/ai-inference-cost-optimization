@@ -1,0 +1,28 @@
+{
+  "applicable": true,
+  "by_difficulty": {
+    "easy": {
+      "attempts": 309,
+      "correct": 306,
+      "rate": 0.9902912621359223
+    },
+    "hard": {
+      "attempts": 294,
+      "correct": 51,
+      "rate": 0.17346938775510204
+    },
+    "medium": {
+      "attempts": 297,
+      "correct": 9,
+      "rate": 0.030303030303030304
+    }
+  },
+  "quality_rate": 0.4066666666666667,
+  "task_correct": 366,
+  "task_metrics": {
+    "field_f1_mean": 0.8593333333333334,
+    "json_valid_rate": 1.0,
+    "required_field_exact_match_rate": 0.4066666666666667,
+    "whole_record_correct_rate": 0.4066666666666667
+  }
+}

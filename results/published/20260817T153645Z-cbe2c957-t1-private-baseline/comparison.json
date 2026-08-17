@@ -1,0 +1,96 @@
+{
+  "claimability": {
+    "direction": "treatment_b",
+    "failed_conditions": [],
+    "reason": "Supported direction: treatment_b.",
+    "rule": "Support requires every evidence gate plus a View A cost delta interval that excludes zero and a paired quality interval showing the cheaper treatment is not worse. Delta signs are treatment B minus treatment A.",
+    "status": "supported"
+  },
+  "cost_per_correct_task_delta": {
+    "definition": "treatment B cost_per_correct_task minus treatment A",
+    "view_a": {
+      "ci_method": "conservative difference of independent run bootstrap bounds",
+      "delta_95_ci": {
+        "high": "-0.00206379409345680489",
+        "low": "-0.00211558288656025349"
+      },
+      "delta_b_minus_a": "-0.002093148157496214033316506815",
+      "treatment_a": "0.002143642857142857142857142857",
+      "treatment_b": "0.00005049469964664310954063604241"
+    },
+    "view_b_typical": {
+      "delta_b_minus_a": "-0.002216548116179856974591956924",
+      "operations_sensitivity": "typical",
+      "treatment_a": "0.002306877915944285714285714286",
+      "treatment_b": "0.00009032979976442873969375736161"
+    }
+  },
+  "latency_delta": {
+    "e2e_ms": {
+      "p50": {
+        "delta_b_minus_a": -2632.0030785009294,
+        "treatment_a": 2711.3790980001795,
+        "treatment_b": 79.3760194992501
+      },
+      "p95": {
+        "delta_b_minus_a": -3511.079887100641,
+        "treatment_a": 3660.842737299572,
+        "treatment_b": 149.76285019893112
+      }
+    },
+    "ttft_ms": {
+      "p50": {
+        "delta_b_minus_a": -2453.0830849989798,
+        "treatment_a": 2513.0326885000613,
+        "treatment_b": 59.94960350108158
+      },
+      "p95": {
+        "delta_b_minus_a": -3319.8134022491104,
+        "treatment_a": 3449.1033083490947,
+        "treatment_b": 129.28990609998436
+      }
+    }
+  },
+  "quality_effect": {
+    "confidence_interval": {
+      "confidence": 0.95,
+      "high": 0.1988888888888889,
+      "iterations": 2000,
+      "low": 0.13666666666666666,
+      "method": "paired percentile bootstrap",
+      "resampling_unit": "dataset_item_id",
+      "seed": 20260815
+    },
+    "definition": "treatment B quality rate minus treatment A quality rate",
+    "estimate": 0.16555555555555557,
+    "paired_observations": 900,
+    "pairing_key": [
+      "dataset_item_id",
+      "repeat_index"
+    ],
+    "unique_dataset_items": 300
+  },
+  "schema_version": "benchmark-comparison-v1",
+  "treatments": [
+    {
+      "declared_repeat_count": 3,
+      "label": "A",
+      "repeat_count": 3,
+      "run_dir": "results/local/20260817T154919Z-cbe2c957-t0-managed-baseline",
+      "run_id": "20260817T154919Z-cbe2c957-t0-managed-baseline",
+      "sample_size": 900,
+      "successful_responses": 899,
+      "treatment": "t0-managed-baseline"
+    },
+    {
+      "declared_repeat_count": 3,
+      "label": "B",
+      "repeat_count": 3,
+      "run_dir": "results/local/20260817T153645Z-cbe2c957-t1-private-baseline",
+      "run_id": "20260817T153645Z-cbe2c957-t1-private-baseline",
+      "sample_size": 900,
+      "successful_responses": 900,
+      "treatment": "t1-private-baseline"
+    }
+  ]
+}

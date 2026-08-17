@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300" role="img">
+  <title>View A cost per correct task</title>
+  <rect width="600" height="300" fill="#ffffff"/>
+  <g font-family="sans-serif" fill="#17212b">
+    <text x="300" y="24" text-anchor="middle" font-size="17" font-weight="600">View A cost per correct task</text>
+    <text x="300" y="41" text-anchor="middle" font-size="10">USD per repeat; labels are truncated without rounding</text>
+    <line x1="58" y1="48" x2="58" y2="222" stroke="#52606d"/>
+    <line x1="58" y1="222" x2="580" y2="222" stroke="#52606d"/>
+    <line x1="54" y1="222.00" x2="58" y2="222.00" stroke="#52606d"/>
+    <text x="50" y="225.00" text-anchor="end" font-size="9">$0.000000000000...</text>
+    <line x1="54" y1="135.00" x2="58" y2="135.00" stroke="#52606d"/>
+    <text x="50" y="138.00" text-anchor="end" font-size="9">$0.002065058333...</text>
+    <line x1="54" y1="48.00" x2="58" y2="48.00" stroke="#52606d"/>
+    <text x="50" y="51.00" text-anchor="end" font-size="9">$0.004130116666...</text>
+    <text x="145.00" y="242" text-anchor="middle" font-size="10">Repeat 1</text>
+    <rect x="112.00" y="48.86" width="66.00" height="173.14" fill="#2563a6">
+      <title>0.004109732441471572</title>
+    </rect>
+    <text x="145.00" y="53.00" text-anchor="middle" font-size="10">$0.004109732441...</text>
+    <text x="319.00" y="242" text-anchor="middle" font-size="10">Repeat 2</text>
+    <rect x="286.00" y="49.94" width="66.00" height="172.06" fill="#2563a6">
+      <title>0.004084116666666667</title>
+    </rect>
+    <text x="319.00" y="53.00" text-anchor="middle" font-size="10">$0.004084116666...</text>
+    <text x="493.00" y="242" text-anchor="middle" font-size="10">Repeat 3</text>
+    <rect x="460.00" y="48.00" width="66.00" height="174.00" fill="#2563a6">
+      <title>0.004130116666666667</title>
+    </rect>
+    <text x="493.00" y="53.00" text-anchor="middle" font-size="10">$0.004130116666...</text>
+  </g>
+</svg>

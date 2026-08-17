@@ -1,0 +1,204 @@
+run_id: 20260817T160103Z-cbe2c957-t0-managed-baseline
+started_at: '2026-08-17T16:01:03.571Z'
+completed_at: '2026-08-17T16:15:30.827Z'
+publishable: true
+publishability:
+  dirty_override: false
+  dataset_checksum_verified: true
+  slo_cell_present: true
+  slo_cells_present: true
+git:
+  sha: cbe2c957738fc0edc8632d5c907a1af83bafdf8b
+  dirty: false
+  dirty_detection: operator-environment
+scenario:
+  id: t0-managed-extraction-v1
+  treatment: t0-managed-baseline
+  workload: structured-extraction
+  provider_mode: managed
+  stream: false
+  concurrency: 4
+  requests: 300
+  temperature: 0.0
+  max_tokens: 256
+  data_class: public
+  quality_tier: balanced
+  structured_output_mode: baseline-portable
+  warmup_requests: 10
+  repeats: 3
+  dataset: benchmark/datasets/synthetic/extraction-v1
+  slo_config: config/slo.example.yaml
+  slo_cell: WL-02/balanced
+  pricing_config: config/providers.example.yaml
+  timeout_config: policy/treatments/t0-managed-only.yaml
+  cost_config: config/cost.example.yaml
+  model: managed-premium
+  publishable: true
+  economic_views:
+  - view_a
+  - view_b
+  pricing_version: '2026-08-15'
+  bootstrap_iterations: 2000
+  seed: 20260815
+  request_rate_schedule: closed-loop
+  sampling_parameters:
+    token_profile: medium
+  request_mix: []
+  notes: T0 managed-only extraction baseline. Run the harness in-cluster in benchmark-jobs
+    on the CPU/system node group through the gateway ClusterIP. The managed provider
+    must be the real Anthropic API and fallback must be disabled. Exclude ten warm-up
+    requests before each measured repeat. Use the frozen extraction-v1 dataset and
+    baseline-portable structured output mode.
+scenario_path: benchmark/scenarios/cloud/t0-managed-extraction.yaml
+environment:
+  cloud: aws
+  region: us-east-1
+  availability_zone: us-east-1b
+  kubernetes_version: v1.34.9-eks-bca9cf6
+  node_os: null
+harness:
+  location: aws-eks
+  namespace: null
+  workload_kind: kubernetes-job
+  image: null
+  build: cbe2c957738fc0edc8632d5c907a1af83bafdf8b
+  pod: null
+  node: ip-10-42-11-77.ec2.internal
+  node_group: system
+  availability_zone: us-east-1b
+  network_path: runner Pod -> gateway ClusterIP -> selected provider
+  gateway_access: in-process
+  tls_mode: none
+compute:
+  instance_type: null
+  gpu_model: null
+  gpu_count: 1
+  driver_cuda: null
+  purchase_option: null
+  gpu_and_driver: NVIDIA L4, 580.159.03
+  cuda: '13.0'
+runtime:
+  server_version: 0.27.1
+  image_digest: sha256:0a51ea5b4ae2dc5d81890e5173f54203d2a3ae0cfffe51b8fd2afd4391bfd967
+  image: vllm/vllm-openai@sha256:0a51ea5b4ae2dc5d81890e5173f54203d2a3ae0cfffe51b8fd2afd4391bfd967
+model:
+  id: Qwen/Qwen2.5-7B-Instruct-AWQ
+  revision: b25037543e9394b818fdfca67ab2a00ecc7dd641
+  license_note: Apache-2.0; Qwen2.5-7B-Instruct AWQ artifact
+  dtype: half
+  quantization: awq
+  tensor_parallel: 1
+  max_model_len: 8192
+  gpu_memory_utilization: '0.90'
+  prefix_caching: true
+  max_sequences: 32
+  generation_config: vllm
+workload:
+  dataset: extraction-v1
+  dataset_version: 1.0.0
+  dataset_sha256: 3ff4b2ef30c87a2650c1f16d8f9e1871ffe9d18a78c77d33c91b0e351d3d864e
+  concurrency: 4
+  request_count_per_repeat: 300
+  request_rate_schedule: closed-loop
+  stream: false
+  structured_output_mode: baseline-portable
+  input_output_token_profile: medium
+  temperature: 0.0
+  max_tokens: 256
+  sampling_parameters:
+    token_profile: medium
+  warmup_rule:
+    requests_per_repeat: 10
+    excluded_from_measurement: true
+  cache_state: adapter-default
+  autoscaling:
+    enabled: false
+    min: 1
+    max: 1
+  failure_injection: false
+pricing:
+  version: '2026-08-15'
+  config_sha256: 5e24b9f139353d64d48a9bf89a04ff24b6a32a4c6f615795e5ac69068cfbfdf1
+  effective_dates:
+  - '2026-08-15'
+providers:
+  private-vllm:
+    models:
+      lab-private:
+        upstream_model: lab-private
+        supports_sampling: true
+        effective_sampling:
+          temperature: 0.0
+          note: scenario temperature forwarded to the provider
+  managed-primary:
+    models:
+      lab-economy:
+        upstream_model: claude-haiku-4-5-20251001
+        supports_sampling: true
+        effective_sampling:
+          temperature: 0.0
+          note: scenario temperature forwarded to the provider
+      lab-premium:
+        upstream_model: claude-opus-5
+        supports_sampling: false
+        effective_sampling:
+          temperature: null
+          note: scenario temperature omitted because the provider model does not support
+            sampling
+cost:
+  config_sha256: cbfbbb96e1832d1c0800abf44c7d0a4c289391a687937434b0e3d1a1187938da
+  config_path: config/cost.example.yaml
+slo:
+  version: lab-v1
+  config_sha256: d4251286f4ffbc0da56437dc95337ececa8184caabf0d2aca210fc5d21937fc7
+  cell: WL-02/balanced
+  target:
+    p95_ttft_ms: 2000
+    p95_e2e_ms: 8000
+    max_error_rate: '0.01'
+    min_quality_rate: '0.85'
+  cells:
+    WL-02/balanced:
+      p95_ttft_ms: 2000
+      p95_e2e_ms: 8000
+      max_error_rate: '0.01'
+      min_quality_rate: '0.85'
+timeouts:
+  config_sha256: c4067211a3c1bb2041c6df12032c42eae4d16729c4b05d5579c92f4c8b24282c
+  config_path: policy/treatments/t0-managed-only.yaml
+statistics:
+  repeat_group_id: 20260817T160103Z-cbe2c957-t0-managed-baseline
+  repeat_count: 3
+  repeat_indices:
+  - 1
+  - 2
+  - 3
+  execution_order: fixed local treatment; frozen item blocks
+  analysis_version: m2-v1
+  bootstrap_iterations: 2000
+  bootstrap_seed: 20260815
+measurement:
+  planned_sample_count: 900
+  actual_sample_count: 900
+  duration_seconds: 867.256577
+policy:
+  config_sha256: c4067211a3c1bb2041c6df12032c42eae4d16729c4b05d5579c92f4c8b24282c
+operator_notes:
+- T0 managed-only extraction baseline. Run the harness in-cluster in benchmark-jobs
+  on the CPU/system node group through the gateway ClusterIP. The managed provider
+  must be the real Anthropic API and fallback must be disabled. Exclude ten warm-up
+  requests before each measured repeat. Use the frozen extraction-v1 dataset and baseline-portable
+  structured output mode.
+deployment_manifest:
+  path: /evidence/deploy-manifest.yaml
+  sha256: d8f4ed3e9255b6f95373e73c1a8026775bfc905dcddbfeadbf250d4ccca219b6
+  schema_version: m5-v1
+charts:
+  kube_prometheus_stack: 87.21.0
+  dcgm_exporter: 4.8.3
+  vllm: 0.1.0
+  gateway: 0.1.0
+gateway:
+  image_repository: ghcr.io/vjsairam/inference-gateway
+  image_digest: sha256:9972b890f1e731e3a47d7943c186513c4b889778301c198e25f201be1455580e
+  image: ghcr.io/vjsairam/inference-gateway@sha256:9972b890f1e731e3a47d7943c186513c4b889778301c198e25f201be1455580e

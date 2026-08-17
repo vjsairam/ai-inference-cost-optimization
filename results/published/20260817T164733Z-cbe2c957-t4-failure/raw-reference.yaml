@@ -1,0 +1,6 @@
+records_file: "records.jsonl"
+sha256: "84792e24c12029b207e25e4da7a2ef4d7777b0d3d1dcee4f47224a96f4d4277b"
+record_count: 900
+record_schema_version: "benchmark-record-v1.schema.json"
+storage_location: "repository archive under results/raw/20260817T164733Z-cbe2c957-t4-failure/ (operator retained)"
+access_note: "Raw records are retained by the operator and are available on request."

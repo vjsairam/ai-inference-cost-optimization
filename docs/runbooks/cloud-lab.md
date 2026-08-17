@@ -1,8 +1,9 @@
 # AWS cloud-lab runbook
 
-> **PENDING: no AWS create/deploy/smoke/destroy cycle has been executed.** Operator credentials,
-> an approved run budget, immutable model revision, and image digests have not been supplied. M4
-> and M5 validation is offline only.
+> **Status: executed on 2026-08-17.** A full create, deploy, smoke, benchmark, destroy, and
+> verify-destroy cycle ran in us-east-1 under a 50 USD run budget; verify-destroy confirmed no
+> surviving tagged resources. Operational findings from that run are folded into the procedure
+> below (GPU node root volume size, rollout strategy, and AZ capacity fallback).
 
 The operator must provide exactly:
 

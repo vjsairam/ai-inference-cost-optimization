@@ -1,8 +1,13 @@
 # Published results
 
-This directory is reserved for reviewed benchmark evidence. No cloud run has passed the
-publication gate yet, so it contains only this contract. Local mock reports belong under
-`results/local/` and must not be copied here as performance evidence.
+This directory holds reviewed benchmark evidence. The 2026-08-17 cycle published seven runs:
+managed and private baselines for classification and structured extraction, the policy-routed
+hybrid, and the two failure treatments. Each run directory carries its immutable manifest,
+aggregate reports, charts, a raw-records reference with checksum, and an operator
+interpretation. Two additional runs from the same cycle were excluded during review because a
+managed-provider credit outage produced only provider errors; their raw records remain in the
+operator archive. Local mock reports belong under `results/local/` and must not be copied here
+as performance evidence.
 
 ## Run layout
 

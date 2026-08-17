@@ -2,15 +2,24 @@
 
 Authoritative progress tracker. Updated with every change set.
 
-## Current milestone: M6-M9 offline definitions and case-study documentation
+## Current milestone: M6-M7 cloud measurement (executed 2026-08-17)
 
 | Item | Status |
 |---|---|
-| M6 T0 managed and T1 private frozen cloud scenarios | Classification and extraction definitions ready; execution pending operator inputs |
-| M6 runner image, in-cluster Job, manifest inputs, publication gate, and SC-11 capture | Image and Job defined; registry push and execution pending operator inputs |
-| M7 T3 hybrid and T4 provider-fault/vLLM Pod-delete scenarios and procedure | Definitions ready; execution pending operator inputs |
-| Published-results layout and fail-closed claimability contract | Complete; no cloud result is published |
-| M9 case-study front page, limitations, reproduce links, and four-minute local demo | Docs complete; release tag withheld pending M6 evidence |
+| M6 T0 managed and T1 private baselines | Measured in us-east-1 for classification and extraction, 900 requests x 3 repeats per treatment per workload, on source `cbe2c95` |
+| M6 comparisons | Classification supported (direction private); extraction inconclusive by the Pareto rule; both produced by the fail-closed compare stage |
+| M7 T3 hybrid | Measured: 602/298 private/managed split, 88.9% correct, per-cell SLO evaluation |
+| M7 T4 provider faults and Pod delete | Measured: injected 429/500/timeout window 16:39:46Z to 16:46:41Z; vLLM Pod deleted 16:49:02Z, available again 16:51:47Z |
+| Lifecycle | Create, deploy, smoke, benchmark, destroy completed; verify-destroy passed with zero tagged survivors |
+| Publication | Evidence retained by the operator; published-results assembly in review |
+| M9 release tag | Pending publication review |
+
+Findings folded back into the tree during the run: GPU node root volume 100 GiB, vLLM
+`enableServiceLinks` off, numeric runtime user for `runAsNonRoot`, replace-style gateway rollout,
+smoke port fix, resolved cost and pricing configuration, closed-set label extraction with
+negation guard, fenced JSON scoring, finish-reason capture, and source-SHA injection for runner
+manifests. GPU telemetry was not captured (DCGM exporter never scraped after a node replacement);
+affected reports disclose it.
 
 ## Release completeness fixes (2026-08-17)
 

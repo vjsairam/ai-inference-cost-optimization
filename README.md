@@ -2,8 +2,10 @@
 
 This repository is a reproducible case study for deciding when a managed model API, a private
 vLLM service, or a policy-routed hybrid is the lower-cost choice after quality, latency, security,
-and reliability constraints are applied. It does not claim a winner yet: local mock behavior is
-verified, while the first cloud measurements are pending operator credentials and deployment.
+and reliability constraints are applied. The first full cloud run completed on 2026-08-17, and
+its headline is that there is no single winner: the private 7B model dominated classification on
+both quality and cost, the managed premium model dominated extraction quality, and the policy
+router priced the blend in between. The measured evidence is under `results/published/`.
 
 The central question is not which token or GPU rate looks smaller. Managed inference has
 usage-linked charges and external-provider constraints; private inference carries provisioned GPU
@@ -76,12 +78,26 @@ repeat metadata before load begins. Publication then follows the
 | Local gateway, auth, policy, streaming, and telemetry smoke | Complete local mock behavior evidence | Nothing; it is not cloud performance evidence |
 | Local 429, 5xx, timeout, malformed-response, and no-replay behavior | Complete local mock behavior evidence | Cloud T4 remains separate |
 | Local hybrid routing and report plumbing | Complete local mock behavior evidence | Cloud T3 remains separate |
-| T0 managed and T1 private baselines | Pending first M6 run | Valid AWS credentials, `ANTHROPIC_API_KEY`, approved budget, cloud-lab cluster, immutable deployment inputs, and deploy manifest |
-| T3 hybrid and T4 provider/Pod failure | Pending first M7 run | M6 prerequisites plus the recorded fault procedure |
-| Case-study release | Documentation complete; release tag withheld | Publishable M6 evidence and the repository release gate |
+| T0 managed and T1 private baselines | Measured 2026-08-17 in us-east-1, both workloads, 900 requests x 3 repeats each | Reruns on other stacks or dates supersede, never overwrite |
+| T3 hybrid and T4 provider/Pod failure | Measured 2026-08-17 with recorded fault windows and a 2m45s Pod recovery | Same |
+| Case-study release | Cloud evidence captured; publication and tag in review | Completing the published-results review |
 
-No measured managed-versus-private result, cloud cost band, or cloud wall-clock duration is
-published. The SC-11 reproduce cost band and duration are **pending first M6 run**.
+Measured 2026-08-17, View A, cost per correct task on the frozen synthetic datasets:
+
+| Workload | T0 managed premium | T1 private vLLM | Comparison verdict |
+|---|---|---|---|
+| Classification | 77.8% correct at $0.00214 | 94.3% correct at $0.0000505 | Supported: private is better on both axes |
+| Structured extraction | 99.9% correct at $0.00411 | 40.7% correct at $0.000205 | Inconclusive: no Pareto winner, quality requirement decides |
+
+T3 hybrid routed 602 of 900 requests private and 298 managed under the normal policy and landed
+at 88.9% correct for $0.00071 per correct task. T4 measured 88.3% correct through injected
+429/500/timeout provider faults and 71.0% correct while the vLLM Pod was deleted and recovered
+(2m45s to available). Restricted-class traffic never left the private path in any treatment.
+
+SC-11 reproduce cost: the full first cycle, including every defect it uncovered, took 5.3 wall
+hours and about 19 USD (8 USD infrastructure, 11 USD managed API). A clean rerun following the
+runbooks is estimated at 2.5 to 3 hours and 10 to 14 USD; that estimate becomes a measured band
+on the next cycle.
 
 ## Reproduce locally
 
@@ -142,8 +158,15 @@ response.
   publishable run.
 - A short lab includes cold start, minimum billing, and cluster lifecycle effects. Published runs
   must distinguish observed run cost from steady-state scenario modeling.
-- Hybrid reports evaluate one declared SLO cell over mixed traffic. Per-cell breakdowns for mixed
-  tiers are not yet computed, so per-tier SLO and performance claims are out of scope.
+- Hybrid reports evaluate every mixed traffic cell against its own SLO target and label the
+  combined aggregate as informational.
+- GPU utilization telemetry was not captured during the 2026-08-17 run because the DCGM exporter
+  was never scraped after a node replacement; the affected reports disclose this. The vLLM
+  server's own latency metrics were captured instead.
+- The managed premium model frequently exhausted the declared 64-token classification budget on
+  preamble, producing empty answers that score as failures. That is a finding about token budgets
+  for reasoning-style models under this scenario contract, not a general capability statement; a
+  higher-cap sweep is future work.
 - The fictional composite describes a decision method, not a production recommendation.
 
 ## Repository layout

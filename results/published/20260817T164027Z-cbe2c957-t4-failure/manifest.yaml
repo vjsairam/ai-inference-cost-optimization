@@ -1,0 +1,221 @@
+run_id: 20260817T164027Z-cbe2c957-t4-failure
+started_at: '2026-08-17T16:40:27.077Z'
+completed_at: '2026-08-17T16:46:40.910Z'
+publishable: true
+publishability:
+  dirty_override: false
+  dataset_checksum_verified: true
+  slo_cell_present: true
+  slo_cells_present: true
+git:
+  sha: cbe2c957738fc0edc8632d5c907a1af83bafdf8b
+  dirty: false
+  dirty_detection: operator-environment
+scenario:
+  id: t4-failure-classification-v1
+  treatment: t4-failure
+  workload: classification
+  provider_mode: hybrid
+  stream: true
+  concurrency: 4
+  requests: 300
+  temperature: 0.0
+  max_tokens: 64
+  data_class: internal
+  quality_tier: balanced
+  structured_output_mode: baseline-portable
+  warmup_requests: 10
+  repeats: 3
+  dataset: benchmark/datasets/synthetic/classification-v1
+  slo_config: config/slo.example.yaml
+  slo_cell: WL-01/balanced
+  pricing_config: config/providers.example.yaml
+  timeout_config: policy/routing.yaml
+  cost_config: config/cost.example.yaml
+  model: lab-default
+  publishable: true
+  economic_views:
+  - view_a
+  - view_b
+  pricing_version: '2026-08-15'
+  bootstrap_iterations: 2000
+  seed: 20260815
+  request_rate_schedule: closed-loop
+  sampling_parameters:
+    token_profile: short
+  request_mix:
+  - data_class: restricted
+    quality_tier: balanced
+    weight: 1
+  - data_class: public
+    quality_tier: premium
+    weight: 1
+  notes: 'T4 failure treatment; follow docs/runbooks/benchmark-runs.md for the provider-fault
+    sequence and the issue #27 vLLM pod-delete procedure. Run the harness in-cluster
+    in benchmark-jobs on the CPU/system node group through the gateway ClusterIP.
+    Managed traffic uses the real Anthropic API outside an injected provider-fault
+    window; private traffic uses vLLM lab-private. The report evaluates the declared
+    WL-01/balanced SLO cell over mixed traffic; per-cell breakdowns for the mixed
+    tiers are not computed, so per-tier claims are out of scope. Exclude ten warm-up
+    requests before each measured repeat and use the frozen classification-v1 dataset.'
+scenario_path: benchmark/scenarios/cloud/t4-failure.yaml
+environment:
+  cloud: aws
+  region: us-east-1
+  availability_zone: us-east-1b
+  kubernetes_version: v1.34.9-eks-bca9cf6
+  node_os: null
+harness:
+  location: aws-eks
+  namespace: null
+  workload_kind: kubernetes-job
+  image: null
+  build: cbe2c957738fc0edc8632d5c907a1af83bafdf8b
+  pod: null
+  node: ip-10-42-11-77.ec2.internal
+  node_group: system
+  availability_zone: us-east-1b
+  network_path: runner Pod -> gateway ClusterIP -> selected provider
+  gateway_access: in-process
+  tls_mode: none
+compute:
+  instance_type: null
+  gpu_model: null
+  gpu_count: 1
+  driver_cuda: null
+  purchase_option: null
+  gpu_and_driver: NVIDIA L4, 580.159.03
+  cuda: '13.0'
+runtime:
+  server_version: 0.27.1
+  image_digest: sha256:0a51ea5b4ae2dc5d81890e5173f54203d2a3ae0cfffe51b8fd2afd4391bfd967
+  image: vllm/vllm-openai@sha256:0a51ea5b4ae2dc5d81890e5173f54203d2a3ae0cfffe51b8fd2afd4391bfd967
+model:
+  id: Qwen/Qwen2.5-7B-Instruct-AWQ
+  revision: b25037543e9394b818fdfca67ab2a00ecc7dd641
+  license_note: Apache-2.0; Qwen2.5-7B-Instruct AWQ artifact
+  dtype: half
+  quantization: awq
+  tensor_parallel: 1
+  max_model_len: 8192
+  gpu_memory_utilization: '0.90'
+  prefix_caching: true
+  max_sequences: 32
+  generation_config: vllm
+workload:
+  dataset: classification-v1
+  dataset_version: 1.0.0
+  dataset_sha256: 48c9d5ff6dbaa7a65fe496efdc4e70f9e1efef8af2c879a7e92dd981650f01cd
+  concurrency: 4
+  request_count_per_repeat: 300
+  request_rate_schedule: closed-loop
+  stream: true
+  structured_output_mode: baseline-portable
+  input_output_token_profile: short
+  temperature: 0.0
+  max_tokens: 64
+  sampling_parameters:
+    token_profile: short
+  warmup_rule:
+    requests_per_repeat: 10
+    excluded_from_measurement: true
+  cache_state: adapter-default
+  autoscaling:
+    enabled: false
+    min: 1
+    max: 1
+  failure_injection: false
+pricing:
+  version: '2026-08-15'
+  config_sha256: 5e24b9f139353d64d48a9bf89a04ff24b6a32a4c6f615795e5ac69068cfbfdf1
+  effective_dates:
+  - '2026-08-15'
+providers:
+  private-vllm:
+    models:
+      lab-private:
+        upstream_model: lab-private
+        supports_sampling: true
+        effective_sampling:
+          temperature: 0.0
+          note: scenario temperature forwarded to the provider
+  managed-primary:
+    models:
+      lab-economy:
+        upstream_model: claude-haiku-4-5-20251001
+        supports_sampling: true
+        effective_sampling:
+          temperature: 0.0
+          note: scenario temperature forwarded to the provider
+      lab-premium:
+        upstream_model: claude-opus-5
+        supports_sampling: false
+        effective_sampling:
+          temperature: null
+          note: scenario temperature omitted because the provider model does not support
+            sampling
+cost:
+  config_sha256: cbfbbb96e1832d1c0800abf44c7d0a4c289391a687937434b0e3d1a1187938da
+  config_path: config/cost.example.yaml
+slo:
+  version: lab-v1
+  config_sha256: d4251286f4ffbc0da56437dc95337ececa8184caabf0d2aca210fc5d21937fc7
+  cell: WL-01/balanced
+  target:
+    p95_ttft_ms: 1500
+    p95_e2e_ms: 5000
+    max_error_rate: '0.01'
+    min_quality_rate: '0.90'
+  cells:
+    WL-01/balanced:
+      p95_ttft_ms: 1500
+      p95_e2e_ms: 5000
+      max_error_rate: '0.01'
+      min_quality_rate: '0.90'
+    WL-01/premium:
+      p95_ttft_ms: 2000
+      p95_e2e_ms: 6000
+      max_error_rate: '0.01'
+      min_quality_rate: '0.95'
+timeouts:
+  config_sha256: 695d1401d72f22780e59b65c43c3bb668275fc8d769b15c7cea78f75b2fb4e35
+  config_path: policy/routing.yaml
+statistics:
+  repeat_group_id: 20260817T164027Z-cbe2c957-t4-failure
+  repeat_count: 3
+  repeat_indices:
+  - 1
+  - 2
+  - 3
+  execution_order: fixed local treatment; frozen item blocks
+  analysis_version: m2-v1
+  bootstrap_iterations: 2000
+  bootstrap_seed: 20260815
+measurement:
+  planned_sample_count: 900
+  actual_sample_count: 900
+  duration_seconds: 373.833054
+policy:
+  config_sha256: 695d1401d72f22780e59b65c43c3bb668275fc8d769b15c7cea78f75b2fb4e35
+operator_notes:
+- 'T4 failure treatment; follow docs/runbooks/benchmark-runs.md for the provider-fault
+  sequence and the issue #27 vLLM pod-delete procedure. Run the harness in-cluster
+  in benchmark-jobs on the CPU/system node group through the gateway ClusterIP. Managed
+  traffic uses the real Anthropic API outside an injected provider-fault window; private
+  traffic uses vLLM lab-private. The report evaluates the declared WL-01/balanced
+  SLO cell over mixed traffic; per-cell breakdowns for the mixed tiers are not computed,
+  so per-tier claims are out of scope. Exclude ten warm-up requests before each measured
+  repeat and use the frozen classification-v1 dataset.'
+deployment_manifest:
+  path: /evidence/deploy-manifest.yaml
+  sha256: d8f4ed3e9255b6f95373e73c1a8026775bfc905dcddbfeadbf250d4ccca219b6
+  schema_version: m5-v1
+charts:
+  kube_prometheus_stack: 87.21.0
+  dcgm_exporter: 4.8.3
+  vllm: 0.1.0
+  gateway: 0.1.0
+gateway:
+  image_repository: ghcr.io/vjsairam/inference-gateway
+  image_digest: sha256:9972b890f1e731e3a47d7943c186513c4b889778301c198e25f201be1455580e
+  image: ghcr.io/vjsairam/inference-gateway@sha256:9972b890f1e731e3a47d7943c186513c4b889778301c198e25f201be1455580e

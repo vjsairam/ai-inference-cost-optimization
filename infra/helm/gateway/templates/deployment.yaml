@@ -7,6 +7,13 @@ metadata:
     {{- include "gateway.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  # Single-replica lab: replace in place instead of surging, so config
+  # rollouts do not need headroom for a second pod on the system node.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   selector:
     matchLabels:
       {{- include "gateway.selectorLabels" . | nindent 6 }}

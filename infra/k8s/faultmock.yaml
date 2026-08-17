@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faultmock
+  namespace: model-serving
+  labels:
+    app.kubernetes.io/name: faultmock
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: faultmock
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: faultmock
+    spec:
+      nodeSelector:
+        workload: system
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      automountServiceAccountToken: false
+      containers:
+        - name: faultmock
+          # Same immutable harness image; the operator substitutes the digest.
+          image: "FAULTMOCK_IMAGE"
+          command:
+            - /opt/venv/bin/python
+            - -m
+            - inference_gateway.faultmock
+            - --host
+            - 0.0.0.0
+            - --port
+            - "9401"
+          env:
+            - name: FAULTMOCK_CONFIG
+              value: config/local/fault-sequence.yaml
+          workingDir: /workspace
+          ports:
+            - containerPort: 9401
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: faultmock
+  namespace: model-serving
+  labels:
+    app.kubernetes.io/name: faultmock
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: faultmock
+  ports:
+    - port: 9401
+      targetPort: 9401
