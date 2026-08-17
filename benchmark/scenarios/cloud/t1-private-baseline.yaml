@@ -16,7 +16,7 @@ dataset: benchmark/datasets/synthetic/classification-v1
 slo_config: config/slo.example.yaml
 slo_cell: WL-01/premium
 pricing_config: config/providers.example.yaml
-timeout_config: policy/routing.yaml
+timeout_config: policy/treatments/t1-private-only.yaml
 cost_config: config/cost.example.yaml
 model: lab-private
 publishable: true

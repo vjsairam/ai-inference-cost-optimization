@@ -1,0 +1,55 @@
+version: 1
+providers:
+  private-vllm:
+    type: openai-compatible
+    external: false
+  managed-economy:
+    type: managed
+    provider: managed-primary
+    model_alias: lab-economy
+    external: true
+  managed-premium:
+    type: managed
+    provider: managed-primary
+    model_alias: lab-premium
+    external: true
+
+rules:
+  - name: restricted-private-only
+    when:
+      data_class: [restricted]
+    route: [private-vllm]
+  - name: confidential-default
+    when:
+      data_class: [confidential]
+      quality_tier: [economy, balanced]
+    route: [private-vllm]
+  - name: confidential-premium-private-only
+    when:
+      data_class: [confidential]
+      quality_tier: [premium]
+    route: [private-vllm]
+  - name: economy-managed-only
+    when:
+      data_class: [public, internal]
+      quality_tier: [economy]
+    route: [managed-economy]
+  - name: balanced-premium-managed-only
+    when:
+      data_class: [public, internal]
+      quality_tier: [balanced, premium]
+    route: [managed-premium]
+
+fallback:
+  "on": [timeout, rate_limited, provider_5xx]
+  max_attempts: 1
+  never_cross_data_policy: true
+
+timeouts:
+  connect_timeout: 5
+  response_header_timeout: 30
+  stream_idle_timeout: 30
+  per_attempt_timeout: 60
+  global_request_deadline: 90
+
+workloads: [classification, structured-extraction, generation, generic]

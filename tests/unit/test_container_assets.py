@@ -52,3 +52,14 @@ def test_benchmark_runner_job_uses_required_namespace_and_placement() -> None:
     pod_spec = job["spec"]["template"]["spec"]
     assert pod_spec["nodeSelector"] == {"workload": "system"}
     assert pod_spec["restartPolicy"] == "Never"
+    container = pod_spec["containers"][0]
+    environment = {entry["name"]: entry for entry in container["env"]}
+    assert environment["BENCHMARK_NODE"]["valueFrom"]["fieldRef"]["fieldPath"] == "spec.nodeName"
+    assert environment["BENCHMARK_WORKLOAD_KIND"]["value"] == "kubernetes-job"
+    for name in (
+        "BENCHMARK_LOCATION",
+        "BENCHMARK_NODE_GROUP",
+        "BENCHMARK_AZ",
+        "BENCHMARK_NETWORK_PATH",
+    ):
+        assert name in environment

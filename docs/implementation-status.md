@@ -12,6 +12,26 @@ Authoritative progress tracker. Updated with every change set.
 | Published-results layout and fail-closed claimability contract | Complete; no cloud result is published |
 | M9 case-study front page, limitations, reproduce links, and four-minute local demo | Docs complete; release tag withheld pending M6 evidence |
 
+## Pre-cloud benchmark review fixes (2026-08-17)
+
+Three run-blocking gaps found during review are fixed offline:
+
+1. T0 and T1 now have complete treatment-scoped policies. Their scenario routes select only the
+   named provider, fallback is limited to one attempt, and confidential and restricted traffic
+   remains private-only.
+2. Benchmark manifests read runner placement from `BENCHMARK_*` environment values. Publishable
+   runs fail closed when location, node, or workload kind still has a local default. The runner
+   Job and runbook capture the scheduled node, node group, Availability Zone, and network path.
+3. Report limitations now distinguish local from cloud placement, omit the no-comparison note
+   when comparison data exists, and disclose missing GPU telemetry for publishable cloud runs.
+4. The runbook mounts and verifies the exact T0/T1 policy in the gateway, records its SHA-256 in
+   operator notes and the run manifest, and reapplies the hashed normal policy before T3 and T4.
+
+The requested full gate passed: Ruff check passed; Ruff format reported 78 files already
+formatted; mypy reported no issues in 47 source files; pytest reported 120 unit, 76 contract, and
+7 integration tests passed. No cloud resources were created and no cloud benchmark was run. M6,
+M7, SC-11 cost, and wall-clock evidence remain pending the existing operator inputs.
+
 ## Container build and runner assets (2026-08-15)
 
 1. The multi-stage Python 3.13 image installs the locked production environment and runs the
@@ -157,6 +177,13 @@ filesystem is read-only in this environment.
 
 ## Commands run
 
+- Pre-cloud correctness final gate: `export PATH="$HOME/.local/bin:$PATH" && make lint && make
+  test && make test-contract && make test-integration` passed. Ruff check passed; Ruff format
+  reported 78 files already formatted; mypy found no issues in 47 source files; pytest reported
+  120 unit, 76 contract, and 7 integration tests passed. No cloud command was run.
+- Pre-cloud correctness targeted suite: `export PATH="$HOME/.local/bin:$PATH" && uv run pytest
+  tests/unit/test_treatment_routing.py tests/unit/test_slo_and_manifest.py
+  tests/unit/test_benchmark_report.py tests/unit/test_container_assets.py` passed with 31 tests.
 - Container-assets final gate: `export PATH="$HOME/.local/bin:$PATH" && make lint && make test &&
   make test-contract && make test-integration` passed. Ruff check passed, Ruff format reported 77
   files already formatted, mypy found no issues in 47 source files, and pytest reported 106 unit,

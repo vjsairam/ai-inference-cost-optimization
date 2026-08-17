@@ -21,6 +21,17 @@ class PublishabilityError(ValueError):
     """A run marked publishable lacks immutable evidence inputs."""
 
 
+_LOCAL_NETWORK_PATH = "in-process client -> gateway ASGI -> deterministic adapter"
+_PLACEMENT_DEFAULTS: dict[str, str | None] = {
+    "BENCHMARK_LOCATION": "local-mock",
+    "BENCHMARK_NODE": "local",
+    "BENCHMARK_NODE_GROUP": None,
+    "BENCHMARK_WORKLOAD_KIND": "local-process",
+    "BENCHMARK_AZ": None,
+    "BENCHMARK_NETWORK_PATH": _LOCAL_NETWORK_PATH,
+}
+
+
 @dataclass(frozen=True, slots=True)
 class RepositoryState:
     sha: str
@@ -146,6 +157,33 @@ def _provider_execution_conditions(
     return conditions
 
 
+def _placement_from_environment() -> dict[str, str | None]:
+    return {name: os.environ.get(name, default) for name, default in _PLACEMENT_DEFAULTS.items()}
+
+
+def _validate_publishable_placement(
+    scenario: BenchmarkScenario, placement: dict[str, str | None]
+) -> None:
+    if not scenario.publishable:
+        return
+    required = {
+        "BENCHMARK_LOCATION": "local-mock",
+        "BENCHMARK_NODE": "local",
+        "BENCHMARK_WORKLOAD_KIND": "local-process",
+    }
+    missing = [
+        name
+        for name, local_value in required.items()
+        if not placement[name] or placement[name] == local_value
+    ]
+    if missing:
+        names = ", ".join(missing)
+        raise PublishabilityError(
+            "publishable runs require non-local placement; set these variables to actual "
+            f"values: {names}"
+        )
+
+
 def validate_publishability(
     scenario: BenchmarkScenario,
     repository: RepositoryState,
@@ -186,6 +224,8 @@ def build_manifest(
     target = validate_publishability(
         scenario, repository, dataset, slo_document, allow_dirty=allow_dirty
     )
+    placement = _placement_from_environment()
+    _validate_publishable_placement(scenario, placement)
     started = started_at or datetime.now(UTC)
     run_id = make_run_id(started, repository.sha, scenario.treatment)
     pricing_path = repository_root / scenario.pricing_config
@@ -219,21 +259,21 @@ def build_manifest(
         "environment": {
             "cloud": None,
             "region": None,
-            "availability_zone": None,
+            "availability_zone": placement["BENCHMARK_AZ"],
             "kubernetes_version": None,
             "node_os": None,
         },
         "harness": {
-            "location": "local-mock",
+            "location": placement["BENCHMARK_LOCATION"],
             "namespace": None,
-            "workload_kind": "local-process",
+            "workload_kind": placement["BENCHMARK_WORKLOAD_KIND"],
             "image": None,
             "build": repository.sha,
             "pod": None,
-            "node": "local",
-            "node_group": None,
-            "availability_zone": None,
-            "network_path": "in-process client -> gateway ASGI -> deterministic adapter",
+            "node": placement["BENCHMARK_NODE"],
+            "node_group": placement["BENCHMARK_NODE_GROUP"],
+            "availability_zone": placement["BENCHMARK_AZ"],
+            "network_path": placement["BENCHMARK_NETWORK_PATH"],
             "gateway_access": "in-process",
             "tls_mode": "none",
         },

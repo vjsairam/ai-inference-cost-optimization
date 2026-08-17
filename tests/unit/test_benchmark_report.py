@@ -22,6 +22,9 @@ def _run_dir(
     correct: bool | None,
     provider_mode: str = "local-mock",
     publishable: bool = False,
+    location: str = "local-mock",
+    node_group: str | None = None,
+    comparison: dict[str, object] | None = None,
 ) -> Path:
     scenario_name = "generation-local.yaml" if correct is None else "classification-local.yaml"
     scenario = load_scenario(ROOT / "benchmark/scenarios" / scenario_name).model_copy(
@@ -37,13 +40,15 @@ def _run_dir(
     slo, _ = load_slo(ROOT / scenario.slo_config)
     run_dir = tmp_path / "report-run"
     run_dir.mkdir(parents=True)
-    manifest = {
+    manifest: dict[str, object] = {
         "run_id": "report-test",
         "scenario": scenario.model_dump(mode="json", by_alias=True),
         "slo": {"target": slo.require_cell(scenario.slo_cell).model_dump(mode="json")},
         "statistics": {"repeat_group_id": "report-test"},
-        "harness": {"location": "unit-test"},
+        "harness": {"location": location, "node_group": node_group},
     }
+    if comparison is not None:
+        manifest["comparison"] = comparison
     (run_dir / "manifest.yaml").write_text(
         yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8"
     )
@@ -174,3 +179,49 @@ def test_publishable_provider_mode_mismatch_is_a_hard_error(tmp_path: Path) -> N
 
     saved = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
     assert saved["provider_mode_mismatches"] == 1
+
+
+def test_local_report_limitations_are_unchanged(tmp_path: Path) -> None:
+    run_dir = _run_dir(tmp_path, provider="private-vllm", correct=True)
+
+    summary = build_report(run_dir, ROOT)
+
+    assert summary["limitations"] == [
+        "Local deterministic adapter run; timings and costs are plumbing evidence only.",
+        "No treatment comparison was run, so no directional claim is available.",
+    ]
+
+
+def test_cloud_report_names_placement_and_missing_gpu_telemetry(tmp_path: Path) -> None:
+    run_dir = _run_dir(
+        tmp_path,
+        provider="private-vllm",
+        correct=True,
+        provider_mode="private",
+        publishable=True,
+        location="aws-eks-us-east-1",
+        node_group="system-20260815",
+    )
+
+    summary = build_report(run_dir, ROOT)
+
+    assert summary["limitations"] == [
+        "Benchmark placement was location aws-eks-us-east-1, node group system-20260815.",
+        "No treatment comparison was run, so no directional claim is available.",
+        "GPU telemetry was not captured for this run.",
+    ]
+    assert all("plumbing evidence only" not in item for item in summary["limitations"])
+
+
+def test_paired_comparison_clears_no_comparison_limitation(tmp_path: Path) -> None:
+    run_dir = _run_dir(
+        tmp_path,
+        provider="private-vllm",
+        correct=True,
+        comparison={"paired": True},
+    )
+
+    summary = build_report(run_dir, ROOT)
+
+    assert summary["comparison"] == {"paired": True}
+    assert all("No treatment comparison" not in item for item in summary["limitations"])

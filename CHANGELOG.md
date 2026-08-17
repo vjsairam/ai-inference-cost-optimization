@@ -1,5 +1,18 @@
 # Changelog
 
+## Pre-cloud benchmark correctness fixes
+
+- Added complete managed-only and private-only T0/T1 routing policies with one-attempt fallback
+  limits and private-only confidential and restricted routes.
+- Made publishable manifests require non-local runner placement and record operator-provided
+  location, node, node group, workload kind, Availability Zone, and network path values.
+- Made report limitations distinguish local and cloud placement, condition the no-comparison note
+  on comparison data, and disclose missing GPU telemetry for publishable cloud runs.
+- Updated the in-cluster runner and benchmark runbook with placement capture, policy mounting,
+  effective policy hashes, and normal-policy restoration before T3 and T4.
+- Added unit coverage for treatment routing, placement validation and capture, report limitations,
+  and runner placement environment fields. No cloud benchmark was run.
+
 ## Container build and benchmark runner
 
 - Added a locked, non-root gateway image that also contains the benchmark harness, frozen inputs,

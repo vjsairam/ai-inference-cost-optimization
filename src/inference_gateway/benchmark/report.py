@@ -269,6 +269,28 @@ def _provider_mode_mismatches(records: list[BenchmarkRecord], scenario: Benchmar
     return sum(not (record.provider or "").startswith(expected_prefix) for record in records)
 
 
+def _report_limitations(summary: dict[str, Any], scenario: BenchmarkScenario) -> list[str]:
+    harness = cast(dict[str, Any], summary["harness"])
+    location = str(harness.get("location") or "not recorded")
+    if location == "local-mock":
+        limitations = [
+            "Local deterministic adapter run; timings and costs are plumbing evidence only."
+        ]
+    else:
+        node_group = str(harness.get("node_group") or "not recorded")
+        limitations = [f"Benchmark placement was location {location}, node group {node_group}."]
+    if "comparison" not in summary:
+        limitations.append("No treatment comparison was run, so no directional claim is available.")
+    gpu = cast(dict[str, Any], summary["gpu"])
+    if (
+        scenario.publishable
+        and location != "local-mock"
+        and all(value is None for value in gpu.values())
+    ):
+        limitations.append("GPU telemetry was not captured for this run.")
+    return limitations
+
+
 def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
     manifest = yaml.safe_load((run_dir / "manifest.yaml").read_text(encoding="utf-8"))
     scenario = BenchmarkScenario.model_validate(manifest["scenario"])
@@ -451,7 +473,13 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
     }
     slo = _slo(records, scenario, manifest["slo"]["target"], quality)
     provider_mode_mismatches = _provider_mode_mismatches(records, scenario)
-    summary = {
+    gpu = {
+        "utilization_average": None,
+        "utilization_p95": None,
+        "memory_average": None,
+        "memory_p95": None,
+    }
+    summary: dict[str, Any] = {
         "run_id": manifest["run_id"],
         "treatment": scenario.treatment,
         "workload": scenario.workload,
@@ -513,19 +541,13 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
             ),
         },
         "statistics": statistics_payload,
-        "gpu": {
-            "utilization_average": None,
-            "utilization_p95": None,
-            "memory_average": None,
-            "memory_p95": None,
-        },
+        "gpu": gpu,
         "harness": manifest["harness"],
         "sample_size": len(records),
-        "limitations": [
-            "Local deterministic adapter run; timings and costs are plumbing evidence only.",
-            "No treatment comparison was run, so no directional claim is available.",
-        ],
     }
+    if "comparison" in manifest:
+        summary["comparison"] = manifest["comparison"]
+    summary["limitations"] = _report_limitations(summary, scenario)
     _write_json(run_dir / "summary.json", summary)
     _write_json(run_dir / "quality.json", quality)
     _write_json(run_dir / "cost.json", cost_payload)

@@ -52,6 +52,20 @@ spec:
               value: /evidence/deploy-manifest.yaml
             - name: BENCHMARK_TREE_DIRTY
               value: "false"
+            - name: BENCHMARK_LOCATION
+              value: "OPERATOR_SET_BENCHMARK_LOCATION"
+            - name: BENCHMARK_NODE
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: BENCHMARK_NODE_GROUP
+              value: "OPERATOR_SET_BENCHMARK_NODE_GROUP"
+            - name: BENCHMARK_WORKLOAD_KIND
+              value: "kubernetes-job"
+            - name: BENCHMARK_AZ
+              value: "OPERATOR_SET_BENCHMARK_AZ"
+            - name: BENCHMARK_NETWORK_PATH
+              value: "runner Pod -> gateway ClusterIP -> selected provider"
             - name: GATEWAY_API_KEY
               valueFrom:
                 secretKeyRef:

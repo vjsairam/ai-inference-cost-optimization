@@ -64,11 +64,12 @@ operator notes before sending load:
 
   ```bash
   sha256sum config/slo.example.yaml config/providers.example.yaml \
-    policy/routing.yaml config/cost.example.yaml
+    policy/routing.yaml policy/treatments/t0-managed-only.yaml \
+    policy/treatments/t1-private-only.yaml config/cost.example.yaml
   ```
 
 - Record the effective connect, response-header, stream-idle, per-attempt, and global-deadline
-  values from `policy/routing.yaml`.
+  values from the policy used for each treatment.
 - Enter the approved budget without committing the value, and retain the cloud-create plan with
   the run notes:
 
@@ -120,11 +121,29 @@ kubectl get pod --namespace benchmark-jobs "$RUNNER_POD" \
   -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName,PHASE:.status.phase
 kubectl get pod --namespace benchmark-jobs "$RUNNER_POD" \
   -o jsonpath='{.spec.nodeSelector.workload}{"\n"}'
+export BENCHMARK_NODE="$(kubectl get pod --namespace benchmark-jobs "$RUNNER_POD" \
+  -o jsonpath='{.spec.nodeName}')"
+export BENCHMARK_LOCATION='aws-eks'
+export BENCHMARK_NODE_GROUP="$(kubectl get node "$BENCHMARK_NODE" \
+  -o jsonpath='{.metadata.labels.eks\.amazonaws\.com/nodegroup}')"
+export BENCHMARK_WORKLOAD_KIND='kubernetes-job'
+export BENCHMARK_AZ="$(kubectl get node "$BENCHMARK_NODE" \
+  -o jsonpath='{.metadata.labels.topology\.kubernetes\.io/zone}')"
+export BENCHMARK_NETWORK_PATH='runner Pod -> gateway ClusterIP -> selected provider'
+test -n "$BENCHMARK_NODE" && test -n "$BENCHMARK_LOCATION" && \
+  test -n "$BENCHMARK_NODE_GROUP" && test -n "$BENCHMARK_WORKLOAD_KIND" && \
+  test -n "$BENCHMARK_AZ" && test -n "$BENCHMARK_NETWORK_PATH"
 ```
 
-The last command must print `system`. Reuse this runner image/build and placement for all four
-treatments. Alternate or randomize treatment order across repeats and record the order; do not
-change the frozen scenario files between treatments.
+The nodeSelector command must print `system`, and every resolved placement value must be nonempty.
+Reuse this runner image/build and placement for all four treatments. Alternate or randomize
+treatment order across repeats and record the order; do not change the frozen scenario files
+between treatments.
+
+The Job contains placement environment stubs and obtains `BENCHMARK_NODE` from the Downward API.
+The preferred exec commands below replace the operator-set stubs with the values resolved after
+the Pod is scheduled. For an args-driven one-shot Job, replace every `OPERATOR_SET_` value in the
+rendered manifest with the resolved value and pin the Job to that recorded placement before apply.
 
 The tracked Job uses `BENCHMARK_RUN_MODE=exec`, so its default command is `sleep infinity` and the
 operator runs each treatment with `kubectl exec`. This is the preferred pattern for reusing one
@@ -153,10 +172,57 @@ state, and `DEPLOY_MANIFEST=/evidence/deploy-manifest.yaml`. Before T0 and T1, a
 run-scoped routing policy that selects only the named provider and has no fallback. Restore and
 hash the normal policy before T3 and T4.
 
+Define this helper in the operator shell. It creates a run-scoped ConfigMap, mounts its
+`routing.yaml` into the gateway Deployment, points `GATEWAY_ROUTING_CONFIG` at that mounted file,
+restarts the gateway, and verifies the mounted hash. Retain each printed hash with the run notes.
+The T0 and T1 scenarios reference the same treatment files, so `manifest.yaml` records the hash in
+both `policy.config_sha256` and `timeouts.config_sha256`.
+
+```bash
+apply_run_policy() {
+  local policy_path="$1"
+  local expected_sha
+  local mounted_sha
+  expected_sha="$(sha256sum "$policy_path" | awk '{print $1}')"
+  kubectl create configmap gateway-routing-run --namespace gateway-system \
+    --from-file=routing.yaml="$policy_path" --dry-run=client -o yaml | kubectl apply -f -
+  kubectl patch deployment gateway --namespace gateway-system --type=strategic --patch '
+spec:
+  template:
+    spec:
+      containers:
+        - name: gateway
+          volumeMounts:
+            - name: run-routing
+              mountPath: /etc/gateway-treatment
+              readOnly: true
+      volumes:
+        - name: run-routing
+          configMap:
+            name: gateway-routing-run
+'
+  kubectl set env deployment/gateway --namespace gateway-system \
+    GATEWAY_ROUTING_CONFIG=/etc/gateway-treatment/routing.yaml
+  kubectl rollout restart deployment/gateway --namespace gateway-system
+  kubectl rollout status deployment/gateway --namespace gateway-system --timeout=10m
+  mounted_sha="$(kubectl exec --namespace gateway-system deployment/gateway \
+    --container gateway -- sha256sum /etc/gateway-treatment/routing.yaml | awk '{print $1}')"
+  test "$mounted_sha" = "$expected_sha"
+  printf 'effective routing policy: %s  %s\n' "$expected_sha" "$policy_path"
+}
+```
+
 T0 uses the real Anthropic API and no fallback:
 
 ```bash
-kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- sh -lc '
+apply_run_policy policy/treatments/t0-managed-only.yaml
+kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
+  BENCHMARK_LOCATION="$BENCHMARK_LOCATION" \
+  BENCHMARK_NODE="$BENCHMARK_NODE" \
+  BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
+  BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
+  BENCHMARK_AZ="$BENCHMARK_AZ" \
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -lc '
   cd /workspace && python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t0-managed-baseline.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
@@ -172,7 +238,14 @@ model storage, and shared-platform billed-hour inputs; do not substitute the req
 the request-span estimate in `cost.json` as the comparison value.
 
 ```bash
-kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- sh -lc '
+apply_run_policy policy/treatments/t1-private-only.yaml
+kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
+  BENCHMARK_LOCATION="$BENCHMARK_LOCATION" \
+  BENCHMARK_NODE="$BENCHMARK_NODE" \
+  BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
+  BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
+  BENCHMARK_AZ="$BENCHMARK_AZ" \
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -lc '
   cd /workspace && python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t1-private-baseline.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
@@ -183,7 +256,14 @@ T3 restores the versioned hybrid policy. Restricted requests must stay on `lab-p
 routes must call the real Anthropic API:
 
 ```bash
-kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- sh -lc '
+apply_run_policy policy/routing.yaml
+kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
+  BENCHMARK_LOCATION="$BENCHMARK_LOCATION" \
+  BENCHMARK_NODE="$BENCHMARK_NODE" \
+  BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
+  BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
+  BENCHMARK_AZ="$BENCHMARK_AZ" \
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -lc '
   cd /workspace && python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t3-hybrid.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
@@ -209,7 +289,14 @@ T4 has two recorded fault phases under the same frozen build and placement:
 Start each T4 phase with this exact benchmark command in the runner:
 
 ```bash
-kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- sh -lc '
+apply_run_policy policy/routing.yaml
+kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
+  BENCHMARK_LOCATION="$BENCHMARK_LOCATION" \
+  BENCHMARK_NODE="$BENCHMARK_NODE" \
+  BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
+  BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
+  BENCHMARK_AZ="$BENCHMARK_AZ" \
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -lc '
   cd /workspace && python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t4-failure.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080

@@ -16,6 +16,14 @@ from inference_gateway.benchmark.models import load_scenario
 from inference_gateway.benchmark.slo import SLODocument, load_slo
 
 ROOT = Path(__file__).resolve().parents[2]
+PLACEMENT_ENV = (
+    "BENCHMARK_LOCATION",
+    "BENCHMARK_NODE",
+    "BENCHMARK_NODE_GROUP",
+    "BENCHMARK_WORKLOAD_KIND",
+    "BENCHMARK_AZ",
+    "BENCHMARK_NETWORK_PATH",
+)
 
 
 def _write_deploy_manifest(path: Path) -> None:
@@ -46,6 +54,19 @@ def _write_deploy_manifest(path: Path) -> None:
         ),
         encoding="utf-8",
     )
+
+
+def _set_cloud_placement(monkeypatch: pytest.MonkeyPatch) -> None:
+    values = {
+        "BENCHMARK_LOCATION": "aws-eks-us-east-1",
+        "BENCHMARK_NODE": "ip-10-0-1-12.ec2.internal",
+        "BENCHMARK_NODE_GROUP": "system-20260815",
+        "BENCHMARK_WORKLOAD_KIND": "kubernetes-job",
+        "BENCHMARK_AZ": "us-east-1a",
+        "BENCHMARK_NETWORK_PATH": "runner Pod -> gateway ClusterIP -> provider",
+    }
+    for name, value in values.items():
+        monkeypatch.setenv(name, value)
 
 
 def test_cloud_treatment_scenarios_load_frozen_inputs_and_slo_cells() -> None:
@@ -109,6 +130,7 @@ def test_manifest_refuses_dirty_publishable_run_and_records_override(
     deploy_path = tmp_path / "deploy-manifest.yaml"
     _write_deploy_manifest(deploy_path)
     monkeypatch.setenv("DEPLOY_MANIFEST", str(deploy_path))
+    _set_cloud_placement(monkeypatch)
     scenario_path = ROOT / "benchmark/scenarios/classification-local.yaml"
     scenario = load_scenario(scenario_path).model_copy(update={"publishable": True})
     dataset = load_dataset(scenario.dataset, root=ROOT)
@@ -158,6 +180,7 @@ def test_manifest_consumes_immutable_deploy_manifest(
     deploy_path = tmp_path / "deploy-manifest.yaml"
     _write_deploy_manifest(deploy_path)
     monkeypatch.setenv("DEPLOY_MANIFEST", str(deploy_path))
+    _set_cloud_placement(monkeypatch)
     scenario_path = ROOT / "benchmark/scenarios/classification-local.yaml"
     scenario = load_scenario(scenario_path).model_copy(update={"publishable": True})
     dataset = load_dataset(scenario.dataset, root=ROOT)
@@ -183,6 +206,7 @@ def test_publishable_manifest_requires_deploy_manifest(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.delenv("DEPLOY_MANIFEST", raising=False)
+    _set_cloud_placement(monkeypatch)
     scenario_path = ROOT / "benchmark/scenarios/classification-local.yaml"
     scenario = load_scenario(scenario_path).model_copy(update={"publishable": True})
     dataset = load_dataset(scenario.dataset, root=ROOT)
@@ -198,6 +222,106 @@ def test_publishable_manifest_requires_deploy_manifest(
             slo_hash=slo_hash,
             repository=RepositoryState("a" * 40, False, "test"),
         )
+
+
+def test_publishable_manifest_requires_non_local_placement(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    deploy_path = tmp_path / "deploy-manifest.yaml"
+    _write_deploy_manifest(deploy_path)
+    monkeypatch.setenv("DEPLOY_MANIFEST", str(deploy_path))
+    for name in PLACEMENT_ENV:
+        monkeypatch.delenv(name, raising=False)
+    scenario_path = ROOT / "benchmark/scenarios/classification-local.yaml"
+    scenario = load_scenario(scenario_path).model_copy(update={"publishable": True})
+    dataset = load_dataset(scenario.dataset, root=ROOT)
+    slo, slo_hash = load_slo(ROOT / scenario.slo_config)
+
+    with pytest.raises(PublishabilityError) as captured:
+        build_manifest(
+            repository_root=ROOT,
+            scenario_path=scenario_path,
+            scenario=scenario,
+            dataset=dataset,
+            slo_document=slo,
+            slo_hash=slo_hash,
+            repository=RepositoryState("a" * 40, False, "test"),
+        )
+
+    message = str(captured.value)
+    assert "BENCHMARK_LOCATION" in message
+    assert "BENCHMARK_NODE" in message
+    assert "BENCHMARK_WORKLOAD_KIND" in message
+
+
+def test_publishable_manifest_records_placement_environment_verbatim(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    deploy_path = tmp_path / "deploy-manifest.yaml"
+    _write_deploy_manifest(deploy_path)
+    monkeypatch.setenv("DEPLOY_MANIFEST", str(deploy_path))
+    _set_cloud_placement(monkeypatch)
+    scenario_path = ROOT / "benchmark/scenarios/classification-local.yaml"
+    scenario = load_scenario(scenario_path).model_copy(update={"publishable": True})
+    dataset = load_dataset(scenario.dataset, root=ROOT)
+    slo, slo_hash = load_slo(ROOT / scenario.slo_config)
+
+    manifest = build_manifest(
+        repository_root=ROOT,
+        scenario_path=scenario_path,
+        scenario=scenario,
+        dataset=dataset,
+        slo_document=slo,
+        slo_hash=slo_hash,
+        repository=RepositoryState("a" * 40, False, "test"),
+    )
+
+    assert manifest["harness"] == {
+        "location": "aws-eks-us-east-1",
+        "namespace": None,
+        "workload_kind": "kubernetes-job",
+        "image": None,
+        "build": "a" * 40,
+        "pod": None,
+        "node": "ip-10-0-1-12.ec2.internal",
+        "node_group": "system-20260815",
+        "availability_zone": "us-east-1a",
+        "network_path": "runner Pod -> gateway ClusterIP -> provider",
+        "gateway_access": "in-process",
+        "tls_mode": "none",
+    }
+    assert manifest["environment"]["availability_zone"] == "us-east-1a"
+
+
+def test_nonpublishable_manifest_keeps_local_placement_defaults(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    for name in PLACEMENT_ENV:
+        monkeypatch.delenv(name, raising=False)
+    scenario_path = ROOT / "benchmark/scenarios/classification-local.yaml"
+    scenario = load_scenario(scenario_path)
+    dataset = load_dataset(scenario.dataset, root=ROOT)
+    slo, slo_hash = load_slo(ROOT / scenario.slo_config)
+
+    manifest = build_manifest(
+        repository_root=ROOT,
+        scenario_path=scenario_path,
+        scenario=scenario,
+        dataset=dataset,
+        slo_document=slo,
+        slo_hash=slo_hash,
+        repository=RepositoryState("a" * 40, False, "test"),
+    )
+
+    assert manifest["harness"]["location"] == "local-mock"
+    assert manifest["harness"]["node"] == "local"
+    assert manifest["harness"]["node_group"] is None
+    assert manifest["harness"]["workload_kind"] == "local-process"
+    assert manifest["harness"]["availability_zone"] is None
+    assert (
+        manifest["harness"]["network_path"]
+        == "in-process client -> gateway ASGI -> deterministic adapter"
+    )
 
 
 def test_manifest_records_effective_provider_sampling() -> None:
