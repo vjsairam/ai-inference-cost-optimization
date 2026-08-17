@@ -21,13 +21,51 @@ class Evaluation:
     score: dict[str, Any]
 
 
-def evaluate_classification(output: str, expected: str) -> Evaluation:
-    predicted = normalize_text(output).strip(" .,:;\"'`")
+_TOKEN_STRIP = " .,:;!?\"'`*_#()[]{}<>"
+
+
+def _extract_label(output: str, labels: tuple[str, ...]) -> str | None:
+    """Deterministic closed-set answer extraction.
+
+    Walk lines from the end of the response. The first non-empty line that
+    mentions exactly one known label yields that label; a line mentioning
+    several labels is ambiguous and stops extraction. Applies identically to
+    every provider.
+    """
+    label_set = {normalize_text(label) for label in labels}
+    for raw_line in reversed(str(output).splitlines()):
+        line = normalize_text(raw_line)
+        if not line:
+            continue
+        words = {word.strip(_TOKEN_STRIP) for word in line.split(" ")}
+        found = words & label_set
+        if len(found) == 1:
+            return found.pop()
+        if found:
+            return None
+    return None
+
+
+def evaluate_classification(
+    output: str, expected: str, labels: tuple[str, ...] | None = None
+) -> Evaluation:
+    predicted = normalize_text(output).strip(_TOKEN_STRIP)
     truth = normalize_text(expected)
+    method = "exact"
+    if labels and predicted not in {normalize_text(label) for label in labels}:
+        extracted = _extract_label(output, labels)
+        if extracted is not None:
+            predicted = extracted
+            method = "closed-set-line-extraction"
     correct = predicted == truth
     return Evaluation(
         task_correct=correct,
-        score={"normalized_prediction": predicted, "expected": truth, "exact_match": correct},
+        score={
+            "normalized_prediction": predicted,
+            "expected": truth,
+            "exact_match": correct,
+            "extraction_method": method,
+        },
     )
 
 
@@ -93,9 +131,21 @@ def _normalize_value(value: object) -> object:
     return normalize_text(value)
 
 
+_FENCE_PATTERN = re.compile(r"```(?:json)?\s*\n(.*?)```", re.DOTALL)
+
+
+def _strip_code_fence(output: str) -> str:
+    """Return the first fenced block's body when the response wraps JSON in
+    markdown fences; otherwise return the text unchanged."""
+    match = _FENCE_PATTERN.search(output)
+    if match:
+        return match.group(1)
+    return output
+
+
 def evaluate_extraction(output: str, expected: dict[str, object]) -> Evaluation:
     try:
-        parsed = json.loads(output)
+        parsed = json.loads(_strip_code_fence(output))
     except json.JSONDecodeError:
         return Evaluation(
             task_correct=False,

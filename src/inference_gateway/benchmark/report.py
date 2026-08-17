@@ -560,7 +560,14 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
         row["view_a_managed_cost_per_correct_task_usd"] = (
             managed_numerators[index] / denominator if denominator and managed_applicable else None
         )
-    if correct_count:
+    repeat_denominators_positive = bool(correct_by_repeat) and all(
+        value > 0 for value in correct_by_repeat.values()
+    )
+    if correct_count and not repeat_denominators_positive:
+        statistics_payload["cost_per_correct_task_ci_note"] = (
+            "confidence intervals not computed: at least one repeat recorded zero correct tasks"
+        )
+    if correct_count and repeat_denominators_positive:
         statistics_payload["private_view_a_cost_per_correct_task_95_ci"] = asdict(
             repeat_ratio_ci(
                 private_numerators,

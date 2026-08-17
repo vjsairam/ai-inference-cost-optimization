@@ -46,6 +46,10 @@ class RepositoryState:
         fails closed as dirty, which is safe for publishable evidence.
         """
         sha = _read_head(repository_root / ".git")
+        if sha == "unknown":
+            env_sha = os.environ.get("BENCHMARK_GIT_SHA", "").strip().lower()
+            if re.fullmatch(r"[0-9a-f]{40,64}", env_sha):
+                sha = env_sha
         dirty_value = os.environ.get("BENCHMARK_TREE_DIRTY")
         if dirty_value is None:
             return cls(sha=sha, dirty=True, dirty_detection="unknown-fail-closed")
@@ -203,6 +207,11 @@ def validate_publishability(
     if scenario.publishable and repository.dirty and not allow_dirty:
         raise PublishabilityError(
             "publishable runs require a clean tree or an explicit dirty override"
+        )
+    if scenario.publishable and repository.sha == "unknown":
+        raise PublishabilityError(
+            "publishable runs require a known source revision; set BENCHMARK_GIT_SHA to the "
+            "commit the runner image was built from"
         )
     return targets[scenario.slo_cell]
 

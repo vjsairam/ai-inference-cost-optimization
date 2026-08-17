@@ -54,6 +54,8 @@ spec:
               value: /evidence/deploy-manifest.yaml
             - name: BENCHMARK_TREE_DIRTY
               value: "false"
+            - name: BENCHMARK_GIT_SHA
+              value: "OPERATOR_SET_BENCHMARK_GIT_SHA"
             - name: BENCHMARK_LOCATION
               value: "OPERATOR_SET_BENCHMARK_LOCATION"
             - name: BENCHMARK_NODE

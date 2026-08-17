@@ -61,12 +61,15 @@ def _error_class(status: int, payload: dict[str, Any] | None) -> ErrorClass | No
 
 
 def _quality(
-    workload: str, output: str, target: str | dict[str, object] | None
+    workload: str,
+    output: str,
+    target: str | dict[str, object] | None,
+    labels: tuple[str, ...] | None = None,
 ) -> tuple[bool | None, dict[str, Any] | None]:
     if workload == "generation":
         return None, None
     if workload == "classification" and isinstance(target, str):
-        result = evaluate_classification(output, target)
+        result = evaluate_classification(output, target, labels)
     elif workload == "structured-extraction" and isinstance(target, dict):
         result = evaluate_extraction(output, target)
     else:
@@ -131,6 +134,19 @@ class BenchmarkHarness:
 
     async def run(self, scenario: BenchmarkScenario) -> Path:
         dataset = load_dataset(scenario.dataset, root=self.repository_root)
+        self._classification_labels = (
+            tuple(
+                sorted(
+                    {
+                        item.target
+                        for item in dataset.items
+                        if isinstance(item.target, str) and item.target
+                    }
+                )
+            )
+            if scenario.workload == "classification"
+            else None
+        )
         slo_document, slo_hash = load_slo(self.repository_root / scenario.slo_config)
         manifest = build_manifest(
             repository_root=self.repository_root,
@@ -310,7 +326,12 @@ class BenchmarkHarness:
             task_correct = None if scenario.workload == "generation" else False
             score = None
         else:
-            task_correct, score = _quality(scenario.workload, output, item.target)
+            task_correct, score = _quality(
+                scenario.workload,
+                output,
+                item.target,
+                getattr(self, "_classification_labels", None),
+            )
         provider = response_headers.get("X-Gateway-Provider")
         model_alias = str(payload.get("model", scenario.model)) if payload else scenario.model
         usage_record = self._usage_record(usage)
