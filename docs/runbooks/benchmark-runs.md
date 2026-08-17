@@ -212,7 +212,8 @@ spec:
 }
 ```
 
-T0 uses the real Anthropic API and no fallback:
+T0 uses the real Anthropic API and no fallback. Run both the classification and extraction
+workloads under the mounted T0 policy:
 
 ```bash
 apply_run_policy policy/treatments/t0-managed-only.yaml
@@ -227,15 +228,28 @@ kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
     --scenario benchmark/scenarios/cloud/t0-managed-baseline.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
 '
+kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
+  BENCHMARK_LOCATION="$BENCHMARK_LOCATION" \
+  BENCHMARK_NODE="$BENCHMARK_NODE" \
+  BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
+  BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
+  BENCHMARK_AZ="$BENCHMARK_AZ" \
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -lc '
+  cd /workspace && python -m inference_gateway.benchmark run \
+    --scenario benchmark/scenarios/cloud/t0-managed-extraction.yaml \
+    --base-url http://gateway.gateway-system.svc.cluster.local:8080
+'
 ```
 
-T1 uses the single-replica, single-GPU vLLM `lab-private` service and no fallback:
+T1 uses the single-replica, single-GPU vLLM `lab-private` service and no fallback. Run both the
+classification and extraction workloads under the mounted T1 policy:
 
-Record the actual provisioned lifetime covering startup through the end of measured T1 traffic,
-convert it to decimal hours, and set `BENCHMARK_PRIVATE_BILLED_HOURS` to that operator measurement
-before generating the final report. Apply the same measured lifetime to the GPU node, CPU node,
-model storage, and shared-platform billed-hour inputs; do not substitute the request span. Retain
-the request-span estimate in `cost.json` as the comparison value.
+Record the actual provisioned lifetime allocated to each measured T1 workload without double
+counting shared runtime. Convert each allocation to decimal hours and set
+`BENCHMARK_PRIVATE_BILLED_HOURS` to the matching operator measurement before generating that
+workload's final report. Apply the same measured lifetime to the GPU node, CPU node, model storage,
+and shared-platform billed-hour inputs. Do not substitute the request span. Retain the allocation
+basis in operator notes and the request-span estimate in `cost.json` as the comparison value.
 
 ```bash
 apply_run_policy policy/treatments/t1-private-only.yaml
@@ -248,6 +262,17 @@ kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
   BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -lc '
   cd /workspace && python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t1-private-baseline.yaml \
+    --base-url http://gateway.gateway-system.svc.cluster.local:8080
+'
+kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
+  BENCHMARK_LOCATION="$BENCHMARK_LOCATION" \
+  BENCHMARK_NODE="$BENCHMARK_NODE" \
+  BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
+  BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
+  BENCHMARK_AZ="$BENCHMARK_AZ" \
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -lc '
+  cd /workspace && python -m inference_gateway.benchmark run \
+    --scenario benchmark/scenarios/cloud/t1-private-extraction.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
 '
 ```
@@ -317,34 +342,45 @@ directory is ignored and must not be presented as published evidence.
 Regenerate each copied report with its literal run ID:
 
 ```bash
-uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t0-run-id>
-BENCHMARK_PRIVATE_BILLED_HOURS='<actual decimal provisioned hours>' \
-  uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t1-run-id>
+uv run python -m inference_gateway.benchmark report \
+  --run-dir results/raw/<t0-classification-run-id>
+uv run python -m inference_gateway.benchmark report \
+  --run-dir results/raw/<t0-extraction-run-id>
+BENCHMARK_PRIVATE_BILLED_HOURS='<classification decimal provisioned hours>' \
+  uv run python -m inference_gateway.benchmark report \
+    --run-dir results/raw/<t1-classification-run-id>
+BENCHMARK_PRIVATE_BILLED_HOURS='<extraction decimal provisioned hours>' \
+  uv run python -m inference_gateway.benchmark report \
+    --run-dir results/raw/<t1-extraction-run-id>
 uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t3-run-id>
 uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t4-run-id>
 ```
 
-After the T0 and T1 reports exist, build the paired baseline comparison:
+After the T0 and T1 reports exist, build one paired baseline comparison per workload:
 
 ```bash
 uv run python -m inference_gateway.benchmark compare \
-  results/raw/<t0-run-id> results/raw/<t1-run-id>
+  results/raw/<t0-classification-run-id> results/raw/<t1-classification-run-id>
+uv run python -m inference_gateway.benchmark compare \
+  results/raw/<t0-extraction-run-id> results/raw/<t1-extraction-run-id>
 ```
 
 This writes `comparison.json` and `comparison.md` in `results/raw/`, the parent evidence
-directory of the first run, then refreshes both summaries so they include the comparison. After
-T3 is complete, run the required T3 versus T1 comparison as a separate evidence review:
+directory of the first run, then refreshes both summaries so they include the comparison. Each
+command replaces the pair-level files in `results/raw/`, so preserve the reviewed classification
+files before running the extraction comparison. After T3 is complete, run the required T3 versus
+T1 classification comparison as a separate evidence review:
 
 ```bash
 uv run python -m inference_gateway.benchmark compare \
-  results/raw/<t1-run-id> results/raw/<t3-run-id>
+  results/raw/<t1-classification-run-id> results/raw/<t3-run-id>
 ```
 
-The second command replaces the pair-level files in `results/raw/`. Preserve the reviewed T0
-versus T1 files with the M6 evidence bundle before running the T3 comparison. T3 and T1 currently
-declare different aggregate SLO cells, so their claimability result must remain inconclusive
-unless a later frozen treatment aligns the compared cells. The per-cell T3 SLO results are still
-required and cannot be replaced by its informational aggregate.
+This command also replaces the pair-level files in `results/raw/`. Preserve both reviewed T0
+versus T1 workload comparisons with the M6 evidence bundle before running the T3 comparison. T3
+and T1 currently declare different aggregate SLO cells, so their claimability result must remain
+inconclusive unless a later frozen treatment aligns the compared cells. The per-cell T3 SLO
+results are still required and cannot be replaced by its informational aggregate.
 
 Before publishing any comparison, the operator must inspect all of the following:
 
@@ -378,7 +414,8 @@ following are true:
 - p95 TTFT, p95 E2E, error, and objective-quality gates are reported per workload and quality-tier
   traffic cell; every publishable cell has at least 30 records, and only treatments whose cells
   are all SLO-eligible can be recommended;
-- View A and View B costs, cost per request, and `cost_per_correct_task` are separately labeled;
+- View A and View B costs, cost per request, cost per 1M provider-billed or normalized tokens when
+  meaningful, and `cost_per_correct_task` are separately labeled;
 - dispersion, per-repeat values, min/median/max, cluster-preserving confidence intervals,
   resampling method, iterations, block/cluster unit, and seed are present;
 - any directional claim includes effect size, confidence interval, run-level consistency, and a

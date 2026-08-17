@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -150,6 +151,36 @@ def test_private_billed_hours_override_and_source_labels(
             "shared_platform_billed_hours",
         )
     } == {"2.5"}
+
+
+def test_observed_cost_payload_labels_only_meaningful_token_definitions(tmp_path: Path) -> None:
+    private_dir = _run_dir(tmp_path / "private", provider="private-vllm", correct=True)
+    build_report(private_dir, ROOT)
+    private_cost = json.loads((private_dir / "cost.json").read_text(encoding="utf-8"))
+    private_view = private_cost["views"]["view_a"]["private"]
+    managed_view = private_cost["views"]["view_a"]["managed"]
+
+    assert private_view["token_count"] == 6
+    assert private_view["token_definition"] == "normalized input + visible output tokens"
+    assert Decimal(private_view["cost_per_1m_tokens_usd"]) == (
+        Decimal(private_view["total_usd"]) * Decimal(1_000_000) / Decimal(6)
+    )
+    assert managed_view["cost_per_1m_tokens_usd"] is None
+    assert managed_view["token_definition"] is None
+
+    managed_dir = _run_dir(tmp_path / "managed", provider="managed-premium", correct=True)
+    build_report(managed_dir, ROOT)
+    managed_cost = json.loads((managed_dir / "cost.json").read_text(encoding="utf-8"))
+    managed_view = managed_cost["views"]["view_a"]["managed"]
+    private_view = managed_cost["views"]["view_a"]["private"]
+
+    assert managed_view["token_count"] == 6
+    assert managed_view["token_definition"] == "provider-billed input + output tokens"
+    assert Decimal(managed_view["cost_per_1m_tokens_usd"]) == (
+        Decimal(managed_view["total_usd"]) * Decimal(1_000_000) / Decimal(6)
+    )
+    assert private_view["cost_per_1m_tokens_usd"] is None
+    assert private_view["token_definition"] is None
 
 
 def test_provider_mode_mismatches_are_reported_for_nonpublishable_run(tmp_path: Path) -> None:

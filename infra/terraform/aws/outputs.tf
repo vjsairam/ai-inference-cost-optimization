@@ -8,6 +8,21 @@ output "region" {
   value       = var.aws_region
 }
 
+output "gateway_namespace" {
+  description = "Kubernetes namespace containing the gateway release."
+  value       = "gateway-system"
+}
+
+output "observability_namespace" {
+  description = "Kubernetes namespace containing Prometheus and Grafana."
+  value       = "monitoring"
+}
+
+output "grafana_access" {
+  description = "Command to make the cluster-internal Grafana service available on localhost."
+  value       = "kubectl port-forward --namespace monitoring service/kube-prometheus-stack-grafana 3000:80"
+}
+
 output "node_group_names" {
   description = "Managed node group names."
   value = {

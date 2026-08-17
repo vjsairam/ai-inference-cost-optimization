@@ -1,5 +1,19 @@
 # Changelog
 
+## Economics, extraction, container, and Terraform completeness
+
+- Expanded modeled and observed View B output with separately reported gateway, network/NAT,
+  control-plane, shared-storage, observability, and operations allocation components applied
+  symmetrically to managed and private architectures.
+- Added clearly defined cost per 1M provider-billed managed tokens and normalized private tokens
+  to modeled grid rows and observed cost views when the denominator is meaningful.
+- Added publishable T0 managed and T1 private extraction scenarios, baseline workload coverage
+  tests, and runbook commands for executing and comparing both baseline workloads.
+- Added the main/tag container build, health smoke, SBOM, and immutable GitHub Container Registry
+  publishing workflow, plus a blocking Trivy scan of the built image in the security workflow.
+- Added Terraform outputs for the gateway namespace, observability namespace, and Grafana
+  port-forward command. Runtime workflow and Terraform validation remain pending operator runs.
+
 ## Offline treatment comparison and hybrid SLO evaluation
 
 - Added a paired treatment comparison command that writes JSON and Markdown evidence with quality,

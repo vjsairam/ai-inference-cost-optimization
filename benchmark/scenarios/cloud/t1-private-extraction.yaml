@@ -1,0 +1,35 @@
+id: t1-private-extraction-v1
+treatment: t1-private-baseline
+workload: structured-extraction
+provider_mode: private
+stream: false
+concurrency: 4
+requests: 300
+temperature: 0
+max_tokens: 256
+data_class: public
+quality_tier: balanced
+structured_output_mode: baseline-portable
+warmup_requests: 10
+repeats: 3
+dataset: benchmark/datasets/synthetic/extraction-v1
+slo_config: config/slo.example.yaml
+slo_cell: WL-02/balanced
+pricing_config: config/providers.example.yaml
+timeout_config: policy/treatments/t1-private-only.yaml
+cost_config: config/cost.example.yaml
+model: lab-private
+publishable: true
+economic_views: [view_a, view_b]
+pricing_version: "2026-08-15"
+bootstrap_iterations: 2000
+seed: 20260815
+request_rate_schedule: closed-loop
+sampling_parameters:
+  token_profile: medium
+notes: >-
+  T1 private-only extraction baseline. Run the harness in-cluster in benchmark-jobs on the
+  CPU/system node group through the gateway ClusterIP. The private provider must be the deployed
+  vLLM lab-private model. Fallback must be disabled and serving must remain one replica on one
+  GPU. Exclude ten warm-up requests before each measured repeat. Use the frozen extraction-v1
+  dataset and baseline-portable structured output mode.

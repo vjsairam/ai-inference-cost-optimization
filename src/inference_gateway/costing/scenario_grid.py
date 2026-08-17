@@ -24,6 +24,16 @@ class GridRow(TypedDict):
     replicas: int
     managed_total_usd: str
     private_total_usd: str
+    gateway_runtime_usd: str | None
+    network_nat_usd: str | None
+    control_plane_usd: str | None
+    shared_storage_usd: str | None
+    observability_usd: str | None
+    operations_engineering_allocation_usd: str | None
+    managed_cost_per_1m_provider_billed_tokens_usd: str | None
+    managed_token_definition: str | None
+    private_cost_per_1m_normalized_tokens_usd: str | None
+    private_token_definition: str | None
     managed_cost_per_correct_task_usd: str | None
     private_cost_per_correct_task_usd: str | None
     lower_cost_path: str
@@ -44,16 +54,6 @@ def build_scenario_grid(
     private_quality_rate: Decimal,
 ) -> list[GridRow]:
     rows: list[GridRow] = []
-    shared_hourly = sum(
-        (
-            config.shared.gateway_hourly_usd,
-            config.shared.network_nat_hourly_usd,
-            config.shared.control_plane_hourly_usd,
-            config.shared.shared_storage_hourly_usd,
-            config.shared.observability_hourly_usd,
-        ),
-        Decimal(0),
-    )
     quality_cases: list[tuple[str, int, Decimal, Decimal]] = []
     for quality_delta in config.scenario_grid.quality_sensitivity_points:
         delta = Decimal(quality_delta) / Decimal(100)
@@ -88,6 +88,8 @@ def build_scenario_grid(
                 )
                 / _MILLION
             )
+            tokens_per_request = profile.input_tokens + profile.output_tokens
+            monthly_tokens = volume * tokens_per_request
             for tier_name, tier in config.scenario_grid.utilization_tiers.items():
                 replicas = required_replicas(volume, tier.requests_per_replica_month)
                 replica_hours = Decimal(replicas) * tier.replica_hours_per_month
@@ -114,11 +116,42 @@ def build_scenario_grid(
                             if view == "view_a":
                                 managed_total = managed_inference
                                 private_total = private_inference
+                                components: dict[str, Decimal] | None = None
                             else:
-                                shared = shared_hourly * tier.replica_hours_per_month
-                                operations = config.operations[sensitivity].monthly_cost  # type: ignore[index]
-                                managed_total = managed_inference + shared + operations
-                                private_total = private_inference + shared + operations
+                                hours = tier.replica_hours_per_month
+                                components = {
+                                    "gateway_runtime_usd": (
+                                        config.shared.gateway_hourly_usd * hours
+                                    ),
+                                    "network_nat_usd": (
+                                        config.shared.network_nat_hourly_usd * hours
+                                    ),
+                                    "control_plane_usd": (
+                                        config.shared.control_plane_hourly_usd * hours
+                                    ),
+                                    "shared_storage_usd": (
+                                        config.shared.shared_storage_hourly_usd * hours
+                                    ),
+                                    "observability_usd": (
+                                        config.shared.observability_hourly_usd * hours
+                                    ),
+                                    "operations_engineering_allocation_usd": (
+                                        config.operations[sensitivity].monthly_cost  # type: ignore[index]
+                                    ),
+                                }
+                                shared = sum(components.values(), Decimal(0))
+                                managed_total = managed_inference + shared
+                                private_total = private_inference + shared
+                            managed_per_million = (
+                                managed_total * _MILLION / Decimal(monthly_tokens)
+                                if monthly_tokens
+                                else None
+                            )
+                            private_per_million = (
+                                private_total * _MILLION / Decimal(monthly_tokens)
+                                if monthly_tokens
+                                else None
+                            )
                             managed_cpc = (
                                 managed_total / managed_correct if managed_correct else None
                             )
@@ -147,6 +180,56 @@ def build_scenario_grid(
                                     "replicas": replicas,
                                     "managed_total_usd": str(managed_total),
                                     "private_total_usd": str(private_total),
+                                    "gateway_runtime_usd": (
+                                        str(components["gateway_runtime_usd"])
+                                        if components is not None
+                                        else None
+                                    ),
+                                    "network_nat_usd": (
+                                        str(components["network_nat_usd"])
+                                        if components is not None
+                                        else None
+                                    ),
+                                    "control_plane_usd": (
+                                        str(components["control_plane_usd"])
+                                        if components is not None
+                                        else None
+                                    ),
+                                    "shared_storage_usd": (
+                                        str(components["shared_storage_usd"])
+                                        if components is not None
+                                        else None
+                                    ),
+                                    "observability_usd": (
+                                        str(components["observability_usd"])
+                                        if components is not None
+                                        else None
+                                    ),
+                                    "operations_engineering_allocation_usd": (
+                                        str(components["operations_engineering_allocation_usd"])
+                                        if components is not None
+                                        else None
+                                    ),
+                                    "managed_cost_per_1m_provider_billed_tokens_usd": (
+                                        str(managed_per_million)
+                                        if managed_per_million is not None
+                                        else None
+                                    ),
+                                    "managed_token_definition": (
+                                        "provider-billed input + output tokens"
+                                        if managed_per_million is not None
+                                        else None
+                                    ),
+                                    "private_cost_per_1m_normalized_tokens_usd": (
+                                        str(private_per_million)
+                                        if private_per_million is not None
+                                        else None
+                                    ),
+                                    "private_token_definition": (
+                                        "normalized input + visible output tokens"
+                                        if private_per_million is not None
+                                        else None
+                                    ),
                                     "managed_cost_per_correct_task_usd": (
                                         str(managed_cpc) if managed_cpc is not None else None
                                     ),

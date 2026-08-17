@@ -63,3 +63,26 @@ def test_benchmark_runner_job_uses_required_namespace_and_placement() -> None:
         "BENCHMARK_NETWORK_PATH",
     ):
         assert name in environment
+
+
+def test_container_workflow_uses_immutable_tags_health_smoke_and_sbom() -> None:
+    workflow = (ROOT / ".github/workflows/container.yml").read_text(encoding="utf-8")
+
+    assert "branches: [main]" in workflow
+    assert 'tags: ["v*"]' in workflow
+    assert "packages: write" in workflow
+    assert "0.1.0-${short_sha}" in workflow
+    assert "sha-${GITHUB_SHA}" in workflow
+    assert ":latest" not in workflow.lower()
+    assert "http://127.0.0.1:8080/health/live" in workflow
+    assert "docker rm -f" in workflow
+    assert "anchore/sbom-action@v0.24.0" in workflow
+
+
+def test_security_workflow_scans_the_built_image() -> None:
+    workflow = (ROOT / ".github/workflows/security.yml").read_text(encoding="utf-8")
+
+    assert "docker build --tag inference-gateway:security-scan ." in workflow
+    assert "aquasecurity/trivy-action@v0.36.0" in workflow
+    assert "image-ref: inference-gateway:security-scan" in workflow
+    assert 'exit-code: "1"' in workflow

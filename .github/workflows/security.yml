@@ -30,4 +30,20 @@ jobs:
       - name: Audit dependencies
         run: uvx pip-audit -r requirements.txt --disable-pip --no-deps
 
-      # Container scanning starts with the M3+ container artifact.
+  container-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image for scanning
+        run: docker build --tag inference-gateway:security-scan .
+      - name: Scan built image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: image
+          image-ref: inference-gateway:security-scan
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          ignore-unfixed: true
+          hide-progress: true

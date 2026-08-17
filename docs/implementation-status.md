@@ -6,11 +6,40 @@ Authoritative progress tracker. Updated with every change set.
 
 | Item | Status |
 |---|---|
-| M6 T0 managed and T1 private frozen cloud scenarios | Definitions ready; execution pending operator inputs |
+| M6 T0 managed and T1 private frozen cloud scenarios | Classification and extraction definitions ready; execution pending operator inputs |
 | M6 runner image, in-cluster Job, manifest inputs, publication gate, and SC-11 capture | Image and Job defined; registry push and execution pending operator inputs |
 | M7 T3 hybrid and T4 provider-fault/vLLM Pod-delete scenarios and procedure | Definitions ready; execution pending operator inputs |
 | Published-results layout and fail-closed claimability contract | Complete; no cloud result is published |
 | M9 case-study front page, limitations, reproduce links, and four-minute local demo | Docs complete; release tag withheld pending M6 evidence |
+
+## Release completeness fixes (2026-08-17)
+
+The modeled and observed cost paths now report every full-platform View B component from the
+shared cost configuration for both managed and private architectures. They also report cost per
+1M tokens when the relevant provider-billed or normalized token count is available and nonzero.
+Exact Decimal tests cover a hand-computed component fixture, shared-price sensitivity, zero token
+usage, and symmetric View B additions.
+
+Publishable T0 and T1 extraction scenarios now use the frozen extraction dataset, the existing
+balanced extraction SLO cell, and the same treatment policies as their classification peers. The
+cloud scenario test loads every file and requires classification and extraction coverage for both
+baseline treatments. The benchmark runbook runs and compares both workload pairs.
+
+The container workflow builds once, checks the live health endpoint, generates an SPDX JSON SBOM,
+and pushes `0.1.0-<shortsha>` and `sha-<fullsha>` tags to the GitHub Container Registry. The
+security workflow builds and scans the image with Trivy. The SBOM action tag was checked against
+the action repository's published releases. Workflow execution remains pending the next matching
+push because no container runtime command was run locally.
+
+Terraform now outputs the gateway namespace, observability namespace, and the Grafana
+port-forward command. Formatting and validation are deferred to the operator as requested; no
+Terraform command was run.
+
+The final requested gate passed. Ruff check passed, Ruff format reported 80 files already
+formatted, mypy found no issues in 48 source files, and pytest reported 146 unit, 76 contract,
+and 7 integration tests passed. The first gate attempt stopped at two mypy optional-integer
+narrowing errors in the new token calculations. Those branches were made explicit and the full
+gate then passed from the beginning.
 
 ## Treatment comparison and per-tier SLO pipeline (2026-08-17)
 
@@ -195,6 +224,11 @@ filesystem is read-only in this environment.
   cost/duration capture. M7 T3/T4 execution follows accepted M6 evidence.
 
 ## Commands run
+
+- Release completeness gate: `export PATH="$HOME/.local/bin:$PATH" && make lint && make test &&
+  make test-contract && make test-integration` passed. Ruff check passed; Ruff format reported 80
+  files already formatted; mypy found no issues in 48 source files; pytest reported 146 unit, 76
+  contract, and 7 integration tests passed. No container, cloud, or Terraform command was run.
 
 - Treatment comparison and per-tier SLO full gate: `export PATH="$HOME/.local/bin:$PATH" && make
   lint && make test && make test-contract && make test-integration` passed. Ruff check passed;

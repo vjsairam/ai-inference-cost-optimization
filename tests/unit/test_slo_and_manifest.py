@@ -74,10 +74,13 @@ def test_cloud_treatment_scenarios_load_frozen_inputs_and_slo_cells() -> None:
 
     assert [path.name for path in scenario_paths] == [
         "t0-managed-baseline.yaml",
+        "t0-managed-extraction.yaml",
         "t1-private-baseline.yaml",
+        "t1-private-extraction.yaml",
         "t3-hybrid.yaml",
         "t4-failure.yaml",
     ]
+    baseline_coverage: set[tuple[str, str]] = set()
     for scenario_path in scenario_paths:
         scenario = load_scenario(scenario_path)
         dataset = load_dataset(scenario.dataset, root=ROOT)
@@ -90,6 +93,16 @@ def test_cloud_treatment_scenarios_load_frozen_inputs_and_slo_cells() -> None:
         assert dataset.version == "1.0.0"
         assert dataset.checksum
         assert slo.require_cell(scenario.slo_cell)
+        assert (ROOT / scenario.dataset).parent.is_dir()
+        if scenario.treatment in {"t0-managed-baseline", "t1-private-baseline"}:
+            baseline_coverage.add((scenario.treatment, scenario.workload))
+
+    assert baseline_coverage == {
+        ("t0-managed-baseline", "classification"),
+        ("t0-managed-baseline", "structured-extraction"),
+        ("t1-private-baseline", "classification"),
+        ("t1-private-baseline", "structured-extraction"),
+    }
 
 
 def test_slo_loader_has_spec_defaults_and_wl03_omits_quality() -> None:

@@ -452,28 +452,71 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
         shared_platform_billed_hours=total_hours,
     )
     managed = engine.aggregate_managed(records)
+    private_applicable = any((record.provider or "").startswith("private") for record in records)
+    managed_applicable = any((record.provider or "").startswith("managed") for record in records)
+    managed_tokens = engine.managed_provider_billed_tokens(records)
+    private_tokens = engine.private_normalized_tokens(records)
     correct_count = int(quality["task_correct"]) if quality["applicable"] else None
-    views = engine.run_views(managed.total_usd, private_inputs, len(records), correct_count)
+    views = engine.run_views(
+        managed.total_usd,
+        private_inputs,
+        len(records),
+        correct_count,
+        managed_token_count=managed_tokens,
+        private_token_count=private_tokens,
+    )
     private_total = engine.private_view_a(private_inputs)
     provider_breakdown = _provider_breakdown(records, private_total)
     hybrid_total = private_total + managed.total_usd
-    hybrid_view_a = engine.view(hybrid_total, len(records), correct_count)
+    hybrid_tokens: int | None = 0
+    token_definitions = []
+    if managed_applicable:
+        if managed_tokens is None:
+            hybrid_tokens = None
+        elif hybrid_tokens is not None:
+            hybrid_tokens = hybrid_tokens + managed_tokens
+            token_definitions.append("provider-billed managed input + output tokens")
+    if private_applicable:
+        if private_tokens is None:
+            hybrid_tokens = None
+        elif hybrid_tokens is not None:
+            hybrid_tokens = hybrid_tokens + private_tokens
+            token_definitions.append("normalized private input + visible output tokens")
+    hybrid_token_definition = " plus ".join(token_definitions) or None
+    hybrid_view_a = engine.view(
+        hybrid_total,
+        len(records),
+        correct_count,
+        hybrid_tokens,
+        hybrid_token_definition,
+    )
     hybrid_view_b_sensitivity: dict[str, dict[str, object]] = {}
     for sensitivity in ("low", "typical", "high"):
-        additions = engine.shared_platform_cost(private_inputs.shared_platform_billed_hours)
-        additions += engine.operations_cost(
+        platform_components = engine.shared_platform_components(
+            private_inputs.shared_platform_billed_hours
+        )
+        operations = engine.operations_cost(
             private_inputs.shared_platform_billed_hours, sensitivity
         )
+        additions = sum(platform_components.values(), Decimal(0)) + operations
         hybrid_view_b_sensitivity[sensitivity] = {
-            "combined": engine.view(hybrid_total + additions, len(records), correct_count),
+            "combined": engine.view(
+                hybrid_total + additions,
+                len(records),
+                correct_count,
+                hybrid_tokens,
+                hybrid_token_definition,
+            ),
+            "platform_components_usd": {
+                **platform_components,
+                "operations_engineering_allocation_usd": operations,
+            },
             "operations_monthly_allocation_usd": cost_config.operations[sensitivity].monthly_cost,
         }
     hybrid_view_b = {
         "label": "View B - full-platform TCO",
         "operations_sensitivity": hybrid_view_b_sensitivity,
     }
-    private_applicable = any((record.provider or "").startswith("private") for record in records)
-    managed_applicable = any((record.provider or "").startswith("managed") for record in records)
     private_numerators = {
         index: float(
             hours
