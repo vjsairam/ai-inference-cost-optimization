@@ -223,8 +223,8 @@ kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
   BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
   BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
   BENCHMARK_AZ="$BENCHMARK_AZ" \
-  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -lc '
-  cd /workspace && python -m inference_gateway.benchmark run \
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -c '
+  cd /workspace && /opt/venv/bin/python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t0-managed-baseline.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
 '
@@ -234,8 +234,8 @@ kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
   BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
   BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
   BENCHMARK_AZ="$BENCHMARK_AZ" \
-  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -lc '
-  cd /workspace && python -m inference_gateway.benchmark run \
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -c '
+  cd /workspace && /opt/venv/bin/python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t0-managed-extraction.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
 '
@@ -259,8 +259,8 @@ kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
   BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
   BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
   BENCHMARK_AZ="$BENCHMARK_AZ" \
-  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -lc '
-  cd /workspace && python -m inference_gateway.benchmark run \
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -c '
+  cd /workspace && /opt/venv/bin/python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t1-private-baseline.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
 '
@@ -270,8 +270,8 @@ kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
   BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
   BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
   BENCHMARK_AZ="$BENCHMARK_AZ" \
-  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -lc '
-  cd /workspace && python -m inference_gateway.benchmark run \
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -c '
+  cd /workspace && /opt/venv/bin/python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t1-private-extraction.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
 '
@@ -288,8 +288,8 @@ kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
   BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
   BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
   BENCHMARK_AZ="$BENCHMARK_AZ" \
-  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -lc '
-  cd /workspace && python -m inference_gateway.benchmark run \
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -c '
+  cd /workspace && /opt/venv/bin/python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t3-hybrid.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
 '
@@ -321,8 +321,8 @@ kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
   BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
   BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
   BENCHMARK_AZ="$BENCHMARK_AZ" \
-  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -lc '
-  cd /workspace && python -m inference_gateway.benchmark run \
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -c '
+  cd /workspace && /opt/venv/bin/python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t4-failure.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
 '

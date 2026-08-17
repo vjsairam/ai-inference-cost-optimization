@@ -6,7 +6,7 @@ providers:
     external: false
     models:
       lab-private:
-        upstream_model: "PLACEHOLDER_PINNED_MODEL_ID"
+        upstream_model: "lab-private"
         supports_sampling: true
 
   managed-primary:
@@ -16,10 +16,10 @@ providers:
     external: true
     models:
       lab-economy:
-        upstream_model: "PLACEHOLDER_ECONOMY_MODEL_ID"
+        upstream_model: "claude-haiku-4-5-20251001"
         supports_sampling: true
       lab-premium:
-        upstream_model: "PLACEHOLDER_PREMIUM_MODEL_ID"
+        upstream_model: "claude-opus-5"
 
 route_aliases:
   lab-default:

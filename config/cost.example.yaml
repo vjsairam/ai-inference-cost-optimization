@@ -1,35 +1,39 @@
 version: "lab-cost-v1"
 currency: USD
-effective_date: "2026-08-15"
+effective_date: "2026-08-17"
+# Rates are us-east-1 on-demand list prices as of the effective date.
+# Sources: https://aws.amazon.com/ec2/pricing/on-demand/,
+# https://aws.amazon.com/eks/pricing/, https://aws.amazon.com/vpc/pricing/,
+# https://aws.amazon.com/ebs/pricing/
 private:
-  gpu_node_hourly_usd: "PLACEHOLDER"
-  cpu_node_hourly_usd: "PLACEHOLDER"
-  model_storage_hourly_usd: "PLACEHOLDER"
-  model_transfer_per_gb_usd: "PLACEHOLDER"
-  node_lifecycle_hourly_usd: "PLACEHOLDER"
+  gpu_node_hourly_usd: "0.8048" # g6.xlarge on-demand
+  cpu_node_hourly_usd: "0.0416" # t3.medium on-demand
+  model_storage_hourly_usd: "0.0110" # 100 GiB gp3 at 0.08 USD per GiB-month over 730 h
+  model_transfer_per_gb_usd: "0.045" # NAT gateway data processing per GiB
+  node_lifecycle_hourly_usd: "0.0536" # 10 min GPU node boot and teardown amortized over a 2.5 h session
   minimum_billing_seconds: 60
 shared:
-  gateway_hourly_usd: "PLACEHOLDER"
-  network_nat_hourly_usd: "PLACEHOLDER"
-  control_plane_hourly_usd: "PLACEHOLDER"
-  shared_storage_hourly_usd: "PLACEHOLDER"
-  observability_hourly_usd: "PLACEHOLDER"
+  gateway_hourly_usd: "0.0062" # 15 percent of one t3.medium for the gateway pod
+  network_nat_hourly_usd: "0.045" # single NAT gateway hourly charge
+  control_plane_hourly_usd: "0.10" # EKS control plane
+  shared_storage_hourly_usd: "0.0044" # 40 GiB gp3 system node volumes
+  observability_hourly_usd: "0.0208" # half of one t3.medium for Prometheus, Grafana, DCGM
 operations:
   low:
-    hours_per_month: "PLACEHOLDER"
-    hourly_rate_usd: "PLACEHOLDER"
-    allocation_fraction: "PLACEHOLDER"
-    basis: "Document the team and allocation basis."
+    hours_per_month: "2"
+    hourly_rate_usd: "80"
+    allocation_fraction: "0.25"
+    basis: "Single operator, stable stack, quarterly upkeep amortized; a quarter attributed to inference serving."
   typical:
-    hours_per_month: "PLACEHOLDER"
-    hourly_rate_usd: "PLACEHOLDER"
-    allocation_fraction: "PLACEHOLDER"
-    basis: "Document the team and allocation basis."
+    hours_per_month: "6"
+    hourly_rate_usd: "120"
+    allocation_fraction: "0.5"
+    basis: "One DevOps engineer at a fully loaded internal rate; half of platform time attributed to inference serving."
   high:
-    hours_per_month: "PLACEHOLDER"
-    hourly_rate_usd: "PLACEHOLDER"
-    allocation_fraction: "PLACEHOLDER"
-    basis: "Document the team and allocation basis."
+    hours_per_month: "16"
+    hourly_rate_usd: "180"
+    allocation_fraction: "1.0"
+    basis: "External contractor rate during active iteration; all platform time attributed to inference serving."
 scenario_grid:
   monthly_requests: [10000, 50000, 100000, 500000, 1000000]
   token_profiles:
