@@ -68,6 +68,19 @@ resource "aws_launch_template" "system" {
 resource "aws_launch_template" "gpu" {
   name_prefix = "${local.name_prefix}-gpu-"
 
+  # The vLLM serving image unpacks to tens of GiB; the AMI default root
+  # volume (20 GiB) evicts the pod on ephemeral-storage pressure.
+  block_device_mappings {
+    device_name = "/dev/xvda"
+
+    ebs {
+      volume_size           = 100
+      volume_type           = "gp3"
+      encrypted             = true
+      delete_on_termination = true
+    }
+  }
+
   metadata_options {
     http_endpoint               = "enabled"
     http_tokens                 = "required"

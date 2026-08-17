@@ -39,7 +39,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-kubectl port-forward --namespace gateway-system service/gateway 18080:80 \
+kubectl port-forward --namespace gateway-system service/gateway 18080:8080 \
   >"$tmp_dir/gateway-port-forward.log" 2>&1 &
 gateway_pf_pid=$!
 kubectl port-forward --namespace monitoring service/kube-prometheus-stack-prometheus 19090:9090 \

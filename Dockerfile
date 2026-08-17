@@ -45,7 +45,7 @@ COPY --chown=gateway:gateway policy/ policy/
 COPY --chown=gateway:gateway benchmark/ benchmark/
 COPY --chown=gateway:gateway results/schema/ results/schema/
 
-USER gateway
+USER 10001:10001
 
 EXPOSE 8080
 

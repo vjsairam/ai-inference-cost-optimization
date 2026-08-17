@@ -17,6 +17,10 @@ spec:
       labels:
         {{- include "vllm.selectorLabels" . | nindent 8 }}
     spec:
+      # The Service is named vllm, so Kubernetes would inject VLLM_PORT as a
+      # tcp:// link URL, which the vLLM server rejects when it reads its own
+      # VLLM_PORT setting.
+      enableServiceLinks: false
       automountServiceAccountToken: false
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
