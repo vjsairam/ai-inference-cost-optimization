@@ -16,9 +16,19 @@ RUN uv sync --frozen --no-dev --no-editable
 
 FROM python:3.13-slim AS runtime
 
+LABEL org.opencontainers.image.source=https://github.com/vjsairam/ai-inference-cost-optimization
+
 ENV PATH=/opt/venv/bin:${PATH} \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
+
+# Patch base packages and drop pip: the venv is prebuilt, and pip's vendored
+# dependencies would otherwise sit unused in the runtime image.
+RUN apt-get update \
+    && apt-get upgrade --yes \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m pip uninstall --yes pip \
+    && rm -rf /usr/local/lib/python3.13/ensurepip
 
 RUN groupadd --gid 10001 gateway \
     && useradd --uid 10001 --gid gateway --create-home --home-dir /home/gateway gateway \
