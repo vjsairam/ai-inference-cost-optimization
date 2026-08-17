@@ -143,6 +143,7 @@ class BenchmarkRecord(BaseModel):
     e2e_ms: float = Field(ge=0)
     usage: TokenUsageRecord
     http_status: int = Field(ge=100, le=599)
+    finish_reason: str | None = None
     error_class: ErrorClass | None
     fallback_count: int = Field(ge=0)
     task_correct: bool | None

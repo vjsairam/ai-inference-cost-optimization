@@ -79,11 +79,12 @@ def _quality(
 
 async def _stream_text(
     response: httpx.Response,
-) -> tuple[str, dict[str, int], str | None, float | None]:
+) -> tuple[str, dict[str, int], str | None, float | None, str | None]:
     output: list[str] = []
     usage: dict[str, int] = {}
     stream_error: str | None = None
     first_content_at: float | None = None
+    finish_reason: str | None = None
     async for line in response.aiter_lines():
         if not line.startswith("data: "):
             continue
@@ -105,9 +106,12 @@ async def _stream_text(
                 if first_content_at is None:
                     first_content_at = time.perf_counter()
                 output.append(str(text))
+            chunk_finish = choices[0].get("finish_reason")
+            if chunk_finish:
+                finish_reason = str(chunk_finish)
         if isinstance(event.get("usage"), dict):
             usage = {key: int(value) for key, value in event["usage"].items()}
-    return "".join(output), usage, stream_error, first_content_at
+    return "".join(output), usage, stream_error, first_content_at, finish_reason
 
 
 class BenchmarkHarness:
@@ -285,11 +289,14 @@ class BenchmarkHarness:
         payload: dict[str, Any] | None = None
         stream_error: str | None = None
         ttft_ms: float | None = None
+        finish_reason: str | None = None
         if scenario.stream:
             async with client.stream(
                 "POST", "/v1/chat/completions", json=body, headers=headers
             ) as response:
-                output, usage, stream_error, first_content_at = await _stream_text(response)
+                output, usage, stream_error, first_content_at, finish_reason = await _stream_text(
+                    response
+                )
                 if first_content_at is not None:
                     ttft_ms = (first_content_at - dispatch) * 1000
                 status = response.status_code
@@ -309,6 +316,8 @@ class BenchmarkHarness:
                 payload = None
             if status < 300 and payload:
                 output = str(payload["choices"][0]["message"]["content"])
+                raw_finish = payload["choices"][0].get("finish_reason")
+                finish_reason = str(raw_finish) if raw_finish else None
                 if isinstance(payload.get("usage"), dict):
                     usage = {key: int(value) for key, value in payload["usage"].items()}
         completed_at = datetime.now(UTC)
@@ -354,6 +363,7 @@ class BenchmarkHarness:
             e2e_ms=(time.perf_counter() - dispatch) * 1000,
             usage=usage_record,
             http_status=status,
+            finish_reason=finish_reason,
             error_class=error,
             fallback_count=int(response_headers.get("X-Gateway-Fallback-Count", "0")),
             task_correct=task_correct,

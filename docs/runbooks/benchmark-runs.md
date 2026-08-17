@@ -37,9 +37,12 @@ into a temporary manifest with this exact command, preserving the tracked templa
 
 ```bash
 export RUNNER_MANIFEST=/tmp/benchmark-runner.yaml
-sed "s|BENCHMARK_RUNNER_IMAGE|${RUNNER_IMAGE}|g" \
+export RUNNER_SOURCE_SHA='<full commit the runner image was built from>'
+sed -e "s|BENCHMARK_RUNNER_IMAGE|${RUNNER_IMAGE}|g" \
+  -e "s|OPERATOR_SET_BENCHMARK_GIT_SHA|${RUNNER_SOURCE_SHA}|g" \
   infra/k8s/benchmark-runner.yaml > "$RUNNER_MANIFEST"
 grep -F "image: \"${RUNNER_IMAGE}\"" "$RUNNER_MANIFEST"
+grep -F "value: \"${RUNNER_SOURCE_SHA}\"" "$RUNNER_MANIFEST"
 ```
 
 ## Pre-run checklist

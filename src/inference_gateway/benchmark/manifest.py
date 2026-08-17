@@ -48,7 +48,7 @@ class RepositoryState:
         sha = _read_head(repository_root / ".git")
         if sha == "unknown":
             env_sha = os.environ.get("BENCHMARK_GIT_SHA", "").strip().lower()
-            if re.fullmatch(r"[0-9a-f]{40,64}", env_sha):
+            if re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", env_sha):
                 sha = env_sha
         dirty_value = os.environ.get("BENCHMARK_TREE_DIRTY")
         if dirty_value is None:
@@ -73,7 +73,7 @@ def _read_head(git_dir: Path) -> str:
             candidate = head
     except OSError:
         return "unknown"
-    return candidate if re.fullmatch(r"[0-9a-f]{40,64}", candidate) else "unknown"
+    return candidate if re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", candidate) else "unknown"
 
 
 def sha256_file(path: Path) -> str:

@@ -27,7 +27,7 @@ LABELS = (
 def test_plain_answer_still_exact() -> None:
     result = evaluate_classification("hardware", "hardware", LABELS)
     assert result.task_correct
-    assert result.score["extraction_method"] == "exact"
+    assert result.score["extraction_method"] == "bare"
 
 
 def test_markdown_wrapped_answer_matches() -> None:
@@ -90,3 +90,32 @@ def test_extraction_invalid_json_still_fails() -> None:
     result = evaluate_extraction("not json at all", {"name": "alice"})
     assert not result.task_correct
     assert not result.score["json_valid"]
+
+
+def test_negated_final_mention_rejected() -> None:
+    output = "Answer: billing.\nHardware was ruled out."
+    result = evaluate_classification(output, "hardware", LABELS)
+    assert not result.task_correct
+
+
+def test_uppercase_fence_accepted() -> None:
+    output = '```JSON\n{"name": "alice"}\n```'
+    result = evaluate_extraction(output, {"name": "alice"})
+    assert result.task_correct
+
+
+def test_last_parsing_fence_wins() -> None:
+    output = 'Draft:\n```json\n{"name": "bob"}\n```\nFinal:\n```json\n{"name": "alice"}\n```'
+    result = evaluate_extraction(output, {"name": "alice"})
+    assert result.task_correct
+
+
+def test_non_json_first_fence_skipped() -> None:
+    output = '```\nplain text\n```\n```json\n{"name": "alice"}\n```'
+    result = evaluate_extraction(output, {"name": "alice"})
+    assert result.task_correct
+
+
+def test_raw_output_prefix_recorded() -> None:
+    result = evaluate_classification("**hardware**", "hardware", LABELS)
+    assert result.score["raw_output_prefix"] == "**hardware**"

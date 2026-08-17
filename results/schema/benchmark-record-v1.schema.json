@@ -22,6 +22,7 @@
     "e2e_ms",
     "usage",
     "http_status",
+    "finish_reason",
     "error_class",
     "fallback_count",
     "task_correct",
@@ -29,21 +30,89 @@
     "managed_inference_cost_usd"
   ],
   "properties": {
-    "run_id": {"type": "string", "minLength": 1},
-    "repeat_index": {"type": "integer", "minimum": 1},
-    "request_id": {"type": "string", "minLength": 1},
-    "workload": {"enum": ["classification", "structured-extraction", "generation"]},
-    "dataset_item_id": {"type": "string", "minLength": 1},
-    "difficulty": {"enum": ["easy", "medium", "hard", null]},
-    "data_class": {"enum": ["public", "internal", "confidential", "restricted", null]},
-    "quality_tier": {"enum": ["economy", "balanced", "premium", null]},
-    "route": {"type": ["string", "null"]},
-    "provider": {"type": ["string", "null"]},
-    "model_alias": {"type": "string", "minLength": 1},
-    "started_at": {"type": "string", "format": "date-time"},
-    "completed_at": {"type": "string", "format": "date-time"},
-    "ttft_ms": {"type": ["number", "null"], "minimum": 0},
-    "e2e_ms": {"type": "number", "minimum": 0},
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repeat_index": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workload": {
+      "enum": [
+        "classification",
+        "structured-extraction",
+        "generation"
+      ]
+    },
+    "dataset_item_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "difficulty": {
+      "enum": [
+        "easy",
+        "medium",
+        "hard",
+        null
+      ]
+    },
+    "data_class": {
+      "enum": [
+        "public",
+        "internal",
+        "confidential",
+        "restricted",
+        null
+      ]
+    },
+    "quality_tier": {
+      "enum": [
+        "economy",
+        "balanced",
+        "premium",
+        null
+      ]
+    },
+    "route": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provider": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "model_alias": {
+      "type": "string",
+      "minLength": 1
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ttft_ms": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "e2e_ms": {
+      "type": "number",
+      "minimum": 0
+    },
     "usage": {
       "type": "object",
       "additionalProperties": false,
@@ -59,25 +128,110 @@
         "reasoning_or_special_tokens"
       ],
       "properties": {
-        "input_tokens": {"type": ["integer", "null"], "minimum": 0},
-        "input_tokens_source": {"enum": ["provider_reported", "tokenizer_estimated", "unavailable"]},
-        "visible_output_tokens": {"type": ["integer", "null"], "minimum": 0},
-        "visible_output_tokens_source": {"enum": ["provider_reported", "tokenizer_estimated", "unavailable"]},
-        "billed_input_tokens": {"type": ["integer", "null"], "minimum": 0},
-        "billed_input_tokens_source": {"enum": ["provider_reported", "tokenizer_estimated", "unavailable"]},
-        "billed_output_tokens": {"type": ["integer", "null"], "minimum": 0},
-        "billed_output_tokens_source": {"enum": ["provider_reported", "tokenizer_estimated", "unavailable"]},
-        "reasoning_or_special_tokens": {"type": ["object", "null"]}
+        "input_tokens": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "input_tokens_source": {
+          "enum": [
+            "provider_reported",
+            "tokenizer_estimated",
+            "unavailable"
+          ]
+        },
+        "visible_output_tokens": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "visible_output_tokens_source": {
+          "enum": [
+            "provider_reported",
+            "tokenizer_estimated",
+            "unavailable"
+          ]
+        },
+        "billed_input_tokens": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "billed_input_tokens_source": {
+          "enum": [
+            "provider_reported",
+            "tokenizer_estimated",
+            "unavailable"
+          ]
+        },
+        "billed_output_tokens": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "billed_output_tokens_source": {
+          "enum": [
+            "provider_reported",
+            "tokenizer_estimated",
+            "unavailable"
+          ]
+        },
+        "reasoning_or_special_tokens": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
       }
     },
-    "http_status": {"type": "integer", "minimum": 100, "maximum": 599},
-    "error_class": {"type": ["string", "null"]},
-    "fallback_count": {"type": "integer", "minimum": 0},
-    "task_correct": {"type": ["boolean", "null"]},
-    "quality_score": {"type": ["object", "null"]},
+    "http_status": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 599
+    },
+    "error_class": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "fallback_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "task_correct": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "quality_score": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
     "managed_inference_cost_usd": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+    },
+    "finish_reason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Provider finish reason for the final choice, when reported."
     }
   }
 }

@@ -38,7 +38,7 @@ def _vllm_handler(counters: UpstreamCounters, fail_first: bool = False):
         if fail_first and counters.vllm_requests == 1:
             return httpx.Response(429, json={"error": "busy"}, headers={"retry-after": "1"})
         body = json.loads(request.content)
-        assert body["model"] == "PLACEHOLDER_PINNED_MODEL_ID"
+        assert body["model"] == "lab-private"
         return httpx.Response(
             200,
             json={

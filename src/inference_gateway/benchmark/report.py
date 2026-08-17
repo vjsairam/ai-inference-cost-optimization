@@ -563,7 +563,7 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
     repeat_denominators_positive = bool(correct_by_repeat) and all(
         value > 0 for value in correct_by_repeat.values()
     )
-    if correct_count and not repeat_denominators_positive:
+    if not repeat_denominators_positive:
         statistics_payload["cost_per_correct_task_ci_note"] = (
             "confidence intervals not computed: at least one repeat recorded zero correct tasks"
         )
