@@ -52,6 +52,6 @@ ineligible treatments still report `cost_per_correct_task` for transparency. Smo
 local mock, incomplete, dirty-override, or sensitive artifacts are not published as performance
 evidence.
 
-For hybrid runs, one declared SLO cell is evaluated over the mixed traffic aggregate. Per-cell
-breakdowns for the mixed tiers are not yet computed, so per-tier SLO or performance claims are out
-of scope.
+For hybrid runs, every workload and quality-tier traffic cell is evaluated against its embedded
+SLO target. The mixed-traffic aggregate is informational. Overall eligibility is the conjunction
+of all traffic-cell results, and any publishable cell with fewer than 30 records fails closed.

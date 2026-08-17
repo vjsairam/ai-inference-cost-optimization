@@ -83,6 +83,20 @@ class BenchmarkScenario(BaseModel):
             raise ValueError("request_mix is only valid for hybrid scenarios")
         return self
 
+    def slo_cells_used(self) -> tuple[str, ...]:
+        """Return every workload and quality-tier SLO cell that can carry traffic."""
+        workload_id = {
+            "classification": "WL-01",
+            "structured-extraction": "WL-02",
+            "generation": "WL-03",
+        }[self.workload]
+        tiers = (
+            {profile.quality_tier.value for profile in self.request_mix}
+            if self.request_mix
+            else {self.quality_tier.value}
+        )
+        return tuple(f"{workload_id}/{tier}" for tier in sorted(tiers))
+
 
 def load_scenario(path: str | Path) -> BenchmarkScenario:
     scenario_path = Path(path)

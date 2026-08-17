@@ -11,6 +11,7 @@ from pathlib import Path
 import httpx
 
 from inference_gateway.api import create_app
+from inference_gateway.benchmark.comparison import build_comparison, write_comparison_markdown
 from inference_gateway.benchmark.datasets import load_dataset
 from inference_gateway.benchmark.harness import BenchmarkHarness
 from inference_gateway.benchmark.local import local_adapters
@@ -96,6 +97,28 @@ def _report(args: argparse.Namespace) -> None:
     )
 
 
+def _compare(args: argparse.Namespace) -> None:
+    root = _repository_root()
+    run_dir_a = Path(args.run_dir_a).resolve()
+    run_dir_b = Path(args.run_dir_b).resolve()
+    comparison = build_comparison(run_dir_a, run_dir_b, root)
+    output_dir = run_dir_a.parent
+    write_comparison_markdown(output_dir / "comparison.md", comparison)
+    build_report(run_dir_a, root)
+    if run_dir_b.parent == output_dir:
+        build_report(run_dir_b, root)
+    print(
+        json.dumps(
+            {
+                "claimability": comparison["claimability"]["status"],
+                "comparison_json": str(output_dir / "comparison.json"),
+                "comparison_markdown": str(output_dir / "comparison.md"),
+            },
+            sort_keys=True,
+        )
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="python -m inference_gateway.benchmark")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -106,11 +129,16 @@ def main() -> None:
     run.add_argument("--allow-dirty", action="store_true")
     report = commands.add_parser("report")
     report.add_argument("--run-dir", required=True)
+    compare = commands.add_parser("compare")
+    compare.add_argument("run_dir_a")
+    compare.add_argument("run_dir_b")
     args = parser.parse_args()
     if args.command == "run":
         asyncio.run(_run(args))
-    else:
+    elif args.command == "report":
         _report(args)
+    else:
+        _compare(args)
 
 
 if __name__ == "__main__":

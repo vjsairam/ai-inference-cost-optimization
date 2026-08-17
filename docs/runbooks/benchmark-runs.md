@@ -324,6 +324,42 @@ uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t3-ru
 uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t4-run-id>
 ```
 
+After the T0 and T1 reports exist, build the paired baseline comparison:
+
+```bash
+uv run python -m inference_gateway.benchmark compare \
+  results/raw/<t0-run-id> results/raw/<t1-run-id>
+```
+
+This writes `comparison.json` and `comparison.md` in `results/raw/`, the parent evidence
+directory of the first run, then refreshes both summaries so they include the comparison. After
+T3 is complete, run the required T3 versus T1 comparison as a separate evidence review:
+
+```bash
+uv run python -m inference_gateway.benchmark compare \
+  results/raw/<t1-run-id> results/raw/<t3-run-id>
+```
+
+The second command replaces the pair-level files in `results/raw/`. Preserve the reviewed T0
+versus T1 files with the M6 evidence bundle before running the T3 comparison. T3 and T1 currently
+declare different aggregate SLO cells, so their claimability result must remain inconclusive
+unless a later frozen treatment aligns the compared cells. The per-cell T3 SLO results are still
+required and cannot be replaced by its informational aggregate.
+
+Before publishing any comparison, the operator must inspect all of the following:
+
+- `claimability.status` and every entry in `claimability.failed_conditions`;
+- treatment run IDs, sample sizes, successful-response counts, and observed repeat counts;
+- the paired item count and the paired quality-effect interval;
+- View A and View B `cost_per_correct_task` deltas, including the View A delta interval;
+- p50 and p95 E2E and TTFT deltas where TTFT was measured;
+- every `summary.slo.per_cell` entry, including sample status, failed targets, and eligibility;
+- both manifests for matching frozen inputs and recorded non-local placement.
+
+A `supported` status is not a publication decision by itself. The operator must still apply the
+full publishability gate below and may recommend only treatments whose traffic cells are all SLO
+eligible.
+
 Before teardown, export the raw JSONL, finalized manifest, summary, quality, cost, comparison,
 scenario grid, Prometheus/GPU snapshot, fault-service counters, Kubernetes events, and operator
 notes. Scrub credentials and other sensitive values without changing measured records.
@@ -339,8 +375,9 @@ following are true:
 - every treatment cell has at least three independent repeats and at least 200 non-error responses
   per repeat under frozen inputs;
 - dataset items are paired across treatments and execution order is alternated or randomized;
-- p95 TTFT, p95 E2E, error, and objective-quality gates are each reported; only SLO-eligible
-  treatments can be recommended;
+- p95 TTFT, p95 E2E, error, and objective-quality gates are reported per workload and quality-tier
+  traffic cell; every publishable cell has at least 30 records, and only treatments whose cells
+  are all SLO-eligible can be recommended;
 - View A and View B costs, cost per request, and `cost_per_correct_task` are separately labeled;
 - dispersion, per-repeat values, min/median/max, cluster-preserving confidence intervals,
   resampling method, iterations, block/cluster unit, and seed are present;

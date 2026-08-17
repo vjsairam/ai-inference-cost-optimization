@@ -12,6 +12,25 @@ Authoritative progress tracker. Updated with every change set.
 | Published-results layout and fail-closed claimability contract | Complete; no cloud result is published |
 | M9 case-study front page, limitations, reproduce links, and four-minute local demo | Docs complete; release tag withheld pending M6 evidence |
 
+## Treatment comparison and per-tier SLO pipeline (2026-08-17)
+
+The offline evidence pipeline now builds a real paired comparison from two completed run
+directories. It reports treatment sample and repeat counts, paired quality uncertainty, View A
+and View B cost-per-correct-task deltas, latency deltas, and derived fail-closed claimability.
+Claimability requires publishable manifests, matching frozen inputs and comparison cells,
+non-local placement, at least three repeats and 200 successful responses per treatment, plus a
+paired quality and stable View A cost direction. No cloud comparison has been executed.
+
+Hybrid reports now group traffic by workload and quality tier, evaluate each group against its
+embedded SLO target, and make overall eligibility the conjunction of the traffic-cell results.
+The mixed aggregate is explicitly informational. Fewer than 30 records makes a publishable cell
+ineligible and produces only an exploratory warning for a local run. This is offline capability
+and test coverage only. It does not add cloud latency, cost, quality, or placement evidence.
+
+The full requested gate passed. Ruff check passed, Ruff format reported 80 files already
+formatted, mypy reported no issues in 48 source files, and pytest reported 138 unit, 76 contract,
+and 7 integration tests passed. No cloud command was run.
+
 ## Pre-cloud benchmark review fixes (2026-08-17)
 
 Three run-blocking gaps found during review are fixed offline:
@@ -176,6 +195,14 @@ filesystem is read-only in this environment.
   cost/duration capture. M7 T3/T4 execution follows accepted M6 evidence.
 
 ## Commands run
+
+- Treatment comparison and per-tier SLO full gate: `export PATH="$HOME/.local/bin:$PATH" && make
+  lint && make test && make test-contract && make test-integration` passed. Ruff check passed;
+  Ruff format reported 80 files already formatted; mypy found no issues in 48 source files;
+  pytest reported 138 unit, 76 contract, and 7 integration tests passed. No cloud command was run.
+- Focused comparison and SLO suite: `export PATH="$HOME/.local/bin:$PATH" && uv run pytest
+  tests/unit/test_benchmark_comparison.py tests/unit/test_benchmark_report.py
+  tests/unit/test_slo_and_manifest.py` passed with 38 tests.
 
 - Pre-cloud correctness final gate: `export PATH="$HOME/.local/bin:$PATH" && make lint && make
   test && make test-contract && make test-integration` passed. Ruff check passed; Ruff format

@@ -10,7 +10,7 @@ import yaml
 from inference_gateway.benchmark.models import BenchmarkRecord, TokenUsageRecord, load_scenario
 from inference_gateway.benchmark.report import build_report
 from inference_gateway.benchmark.slo import load_slo
-from inference_gateway.models import UsageSource
+from inference_gateway.models import QualityTier, UsageSource
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -24,7 +24,6 @@ def _run_dir(
     publishable: bool = False,
     location: str = "local-mock",
     node_group: str | None = None,
-    comparison: dict[str, object] | None = None,
 ) -> Path:
     scenario_name = "generation-local.yaml" if correct is None else "classification-local.yaml"
     scenario = load_scenario(ROOT / "benchmark/scenarios" / scenario_name).model_copy(
@@ -47,8 +46,6 @@ def _run_dir(
         "statistics": {"repeat_group_id": "report-test"},
         "harness": {"location": location, "node_group": node_group},
     }
-    if comparison is not None:
-        manifest["comparison"] = comparison
     (run_dir / "manifest.yaml").write_text(
         yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8"
     )
@@ -214,14 +211,119 @@ def test_cloud_report_names_placement_and_missing_gpu_telemetry(tmp_path: Path) 
 
 
 def test_paired_comparison_clears_no_comparison_limitation(tmp_path: Path) -> None:
-    run_dir = _run_dir(
-        tmp_path,
-        provider="private-vllm",
-        correct=True,
-        comparison={"paired": True},
-    )
+    run_dir = _run_dir(tmp_path, provider="private-vllm", correct=True)
+    comparison = {
+        "treatments": [{"run_id": "report-test"}, {"run_id": "other-run"}],
+        "claimability": {"status": "inconclusive", "reason": "local placement"},
+    }
+    (tmp_path / "comparison.json").write_text(json.dumps(comparison), encoding="utf-8")
 
     summary = build_report(run_dir, ROOT)
 
-    assert summary["comparison"] == {"paired": True}
+    assert summary["comparison"] == comparison
+    assert summary["statistics"]["claimability"] == comparison["claimability"]
     assert all("No treatment comparison" not in item for item in summary["limitations"])
+
+
+def _mixed_tier_run(tmp_path: Path, *, publishable: bool, samples_per_cell: int) -> Path:
+    scenario = load_scenario(ROOT / "benchmark/scenarios/hybrid-local.yaml").model_copy(
+        update={
+            "publishable": publishable,
+            "requests": samples_per_cell * 3,
+            "warmup_requests": 0,
+            "repeats": 1,
+            "bootstrap_iterations": 100,
+        }
+    )
+    slo, _ = load_slo(ROOT / scenario.slo_config)
+    run_dir = tmp_path / "mixed-tier"
+    run_dir.mkdir(parents=True)
+    manifest = {
+        "run_id": "mixed-tier",
+        "scenario": scenario.model_dump(mode="json", by_alias=True),
+        "slo": {
+            "cell": scenario.slo_cell,
+            "target": slo.require_cell(scenario.slo_cell).model_dump(mode="json"),
+            "cells": {
+                cell: slo.require_cell(cell).model_dump(mode="json")
+                for cell in scenario.slo_cells_used()
+            },
+        },
+        "statistics": {"repeat_group_id": "mixed-tier"},
+        "harness": {"location": "local-mock", "node_group": None},
+    }
+    (run_dir / "manifest.yaml").write_text(
+        yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8"
+    )
+    started = datetime(2026, 8, 15, tzinfo=UTC)
+    records = []
+    for tier in (QualityTier.ECONOMY, QualityTier.BALANCED, QualityTier.PREMIUM):
+        for index in range(samples_per_cell):
+            correct = not (tier is QualityTier.PREMIUM and samples_per_cell >= 30 and index < 3)
+            records.append(
+                BenchmarkRecord(
+                    run_id="mixed-tier",
+                    repeat_index=1,
+                    request_id=f"{tier.value}-{index}",
+                    workload="classification",
+                    dataset_item_id=f"item-{tier.value}-{index}",
+                    difficulty="easy",
+                    data_class=scenario.data_class,
+                    quality_tier=tier,
+                    route="private-vllm",
+                    provider="private-vllm",
+                    model_alias="lab-default",
+                    started_at=started,
+                    completed_at=started + timedelta(seconds=2),
+                    ttft_ms=10,
+                    e2e_ms=20,
+                    usage=TokenUsageRecord(),
+                    http_status=200,
+                    error_class=None,
+                    fallback_count=0,
+                    task_correct=correct,
+                    quality_score={
+                        "expected": "expected",
+                        "normalized_prediction": "expected" if correct else "wrong",
+                    },
+                    managed_inference_cost_usd=None,
+                )
+            )
+    (run_dir / "records.jsonl").write_text(
+        "".join(record.json_line() + "\n" for record in records), encoding="utf-8"
+    )
+    return run_dir
+
+
+def test_mixed_tier_slo_is_grouped_and_fails_when_one_cell_fails(tmp_path: Path) -> None:
+    run_dir = _mixed_tier_run(tmp_path, publishable=False, samples_per_cell=30)
+
+    summary = build_report(run_dir, ROOT)
+
+    cells = {cell["cell"]: cell for cell in summary["slo"]["per_cell"]}
+    assert set(cells) == {"WL-01/economy", "WL-01/balanced", "WL-01/premium"}
+    assert cells["WL-01/economy"]["eligible"] is True
+    assert cells["WL-01/balanced"]["eligible"] is True
+    assert cells["WL-01/premium"]["eligible"] is False
+    assert cells["WL-01/premium"]["checks"]["quality_rate"]["actual"] == 0.9
+    assert summary["slo"]["aggregate"]["quality_rate"] == pytest.approx(0.9666666667)
+    assert summary["slo"]["slo_eligible"] is False
+
+
+@pytest.mark.parametrize("publishable, expected_eligible", [(False, True), (True, False)])
+def test_insufficient_slo_cell_fails_closed_only_for_publishable_runs(
+    tmp_path: Path, publishable: bool, expected_eligible: bool
+) -> None:
+    run_dir = _mixed_tier_run(tmp_path, publishable=publishable, samples_per_cell=29)
+
+    summary = build_report(run_dir, ROOT)
+
+    assert summary["slo"]["slo_eligible"] is expected_eligible
+    assert all(
+        cell["sample_status"] == "insufficient-sample" for cell in summary["slo"]["per_cell"]
+    )
+    assert all(cell["eligible"] is expected_eligible for cell in summary["slo"]["per_cell"])
+    if publishable:
+        assert all(cell["warning"] is None for cell in summary["slo"]["per_cell"])
+    else:
+        assert all(cell["warning"] for cell in summary["slo"]["per_cell"])

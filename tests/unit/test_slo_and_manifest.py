@@ -346,3 +346,26 @@ def test_manifest_records_effective_provider_sampling() -> None:
     assert premium["supports_sampling"] is False
     assert premium["effective_sampling"]["temperature"] is None
     assert "omitted" in premium["effective_sampling"]["note"]
+
+
+def test_hybrid_manifest_embeds_every_traffic_slo_cell() -> None:
+    scenario_path = ROOT / "benchmark/scenarios/hybrid-local.yaml"
+    scenario = load_scenario(scenario_path)
+    dataset = load_dataset(scenario.dataset, root=ROOT)
+    slo, slo_hash = load_slo(ROOT / scenario.slo_config)
+
+    manifest = build_manifest(
+        repository_root=ROOT,
+        scenario_path=scenario_path,
+        scenario=scenario,
+        dataset=dataset,
+        slo_document=slo,
+        slo_hash=slo_hash,
+        repository=RepositoryState("a" * 40, False, "test"),
+    )
+
+    assert set(manifest["slo"]["cells"]) == {
+        "WL-01/economy",
+        "WL-01/balanced",
+        "WL-01/premium",
+    }

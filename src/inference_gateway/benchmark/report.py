@@ -126,8 +126,79 @@ def _quality_payload(records: list[BenchmarkRecord], scenario: BenchmarkScenario
 def _slo(
     records: list[BenchmarkRecord],
     scenario: BenchmarkScenario,
+    manifest_slo: dict[str, Any],
+) -> dict[str, Any]:
+    targets = manifest_slo.get("cells") or {scenario.slo_cell: manifest_slo["target"]}
+    workload_ids = {
+        "classification": "WL-01",
+        "structured-extraction": "WL-02",
+        "generation": "WL-03",
+    }
+    grouped: dict[str, list[BenchmarkRecord]] = {}
+    for record in records:
+        tier = record.quality_tier or scenario.quality_tier
+        cell = f"{workload_ids[record.workload]}/{tier.value}"
+        grouped.setdefault(cell, []).append(record)
+
+    per_cell = []
+    for cell in sorted(grouped):
+        if cell not in targets:
+            raise ValueError(f"manifest is missing embedded SLO target for traffic cell {cell}")
+        group = grouped[cell]
+        evaluated = _evaluate_slo_cell(
+            group,
+            workload=group[0].workload,
+            stream=scenario.stream,
+            target=targets[cell],
+            cell=cell,
+        )
+        insufficient = len(group) < 30
+        eligible = evaluated["slo_eligible"] and not (scenario.publishable and insufficient)
+        per_cell.append(
+            {
+                **evaluated,
+                "sample_size": len(group),
+                "sample_status": "insufficient-sample" if insufficient else "sufficient",
+                "eligible": eligible,
+                "warning": (
+                    "fewer than 30 records; local result is exploratory"
+                    if insufficient and not scenario.publishable
+                    else None
+                ),
+            }
+        )
+
+    aggregate_quality = _quality_payload(records, scenario)
+    aggregate = {
+        "label": "informational aggregate; eligibility is derived from traffic cells",
+        "sample_size": len(records),
+        "latency_ms": _latency([record.e2e_ms for record in records]),
+        "ttft_ms": _latency([record.ttft_ms for record in records if record.ttft_ms is not None]),
+        "error_rate": sum(record.error_class is not None for record in records) / len(records),
+        "quality_rate": aggregate_quality["quality_rate"],
+    }
+
+    primary = next((cell for cell in per_cell if cell["cell"] == scenario.slo_cell), None)
+    if primary is None:
+        primary = per_cell[0]
+    return {
+        "cell": scenario.slo_cell,
+        "targets": primary["targets"],
+        "checks": primary["checks"],
+        "failed_targets": primary["failed_targets"],
+        "slo_eligible": all(cell["eligible"] for cell in per_cell),
+        "aggregate": aggregate,
+        "per_cell": per_cell,
+    }
+
+
+def _evaluate_slo_cell(
+    records: list[BenchmarkRecord],
+    *,
+    workload: str,
+    stream: bool,
     target: dict[str, Any],
-    quality: dict[str, Any],
+    cell: str,
 ) -> dict[str, Any]:
     e2e_p95 = _latency([record.e2e_ms for record in records])["p95"]
     ttft_p95 = _latency([record.ttft_ms for record in records if record.ttft_ms is not None])["p95"]
@@ -142,9 +213,8 @@ def _slo(
         "p95_ttft_ms": {
             "actual": ttft_p95,
             "target": target["p95_ttft_ms"],
-            "applicable": scenario.stream,
-            "pass": (not scenario.stream)
-            or (ttft_p95 is not None and ttft_p95 <= target["p95_ttft_ms"]),
+            "applicable": stream,
+            "pass": (not stream) or (ttft_p95 is not None and ttft_p95 <= target["p95_ttft_ms"]),
         },
         "error_rate": {
             "actual": error_rate,
@@ -153,8 +223,8 @@ def _slo(
             "pass": error_rate <= float(target["max_error_rate"]),
         },
     }
-    if scenario.workload != "generation":
-        quality_rate = float(quality["quality_rate"])
+    if workload != "generation":
+        quality_rate = sum(record.task_correct is True for record in records) / len(records)
         checks["quality_rate"] = {
             "actual": quality_rate,
             "target": float(target["min_quality_rate"]),
@@ -162,12 +232,30 @@ def _slo(
             "pass": quality_rate >= float(target["min_quality_rate"]),
         }
     return {
-        "cell": scenario.slo_cell,
+        "cell": cell,
         "targets": target,
         "checks": checks,
         "failed_targets": [name for name, check in checks.items() if not check["pass"]],
         "slo_eligible": all(check["pass"] for check in checks.values()),
     }
+
+
+def _comparison_for_run(run_dir: Path, run_id: str) -> dict[str, Any] | None:
+    for path in (run_dir / "comparison.json", run_dir.parent / "comparison.json"):
+        if not path.is_file():
+            continue
+        try:
+            comparison = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ValueError(f"cannot load comparison file {path}: {exc}") from exc
+        treatment_ids = {
+            str(item.get("run_id"))
+            for item in comparison.get("treatments", [])
+            if isinstance(item, dict)
+        }
+        if run_id in treatment_ids:
+            return cast(dict[str, Any], comparison)
+    return None
 
 
 def _repeat_summary(records: list[BenchmarkRecord]) -> list[dict[str, Any]]:
@@ -327,10 +415,6 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
                 seed=seed,
             )
         ),
-        "claimability": {
-            "status": "inconclusive",
-            "reason": "single local treatment; no paired comparison was run",
-        },
     }
     ttft_clusters = {
         index: [
@@ -374,6 +458,20 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
     provider_breakdown = _provider_breakdown(records, private_total)
     hybrid_total = private_total + managed.total_usd
     hybrid_view_a = engine.view(hybrid_total, len(records), correct_count)
+    hybrid_view_b_sensitivity: dict[str, dict[str, object]] = {}
+    for sensitivity in ("low", "typical", "high"):
+        additions = engine.shared_platform_cost(private_inputs.shared_platform_billed_hours)
+        additions += engine.operations_cost(
+            private_inputs.shared_platform_billed_hours, sensitivity
+        )
+        hybrid_view_b_sensitivity[sensitivity] = {
+            "combined": engine.view(hybrid_total + additions, len(records), correct_count),
+            "operations_monthly_allocation_usd": cost_config.operations[sensitivity].monthly_cost,
+        }
+    hybrid_view_b = {
+        "label": "View B - full-platform TCO",
+        "operations_sensitivity": hybrid_view_b_sensitivity,
+    }
     private_applicable = any((record.provider or "").startswith("private") for record in records)
     managed_applicable = any((record.provider or "").startswith("managed") for record in records)
     private_numerators = {
@@ -400,6 +498,9 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
             )
         )
         for index in repeat_hours
+    }
+    hybrid_numerators = {
+        index: private_numerators[index] + managed_numerators[index] for index in repeat_hours
     }
     correct_by_repeat = {
         index: sum(
@@ -434,6 +535,15 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
                     seed=seed + 3,
                 )
             )
+        if private_applicable and managed_applicable:
+            statistics_payload["hybrid_view_a_cost_per_correct_task_95_ci"] = asdict(
+                repeat_ratio_ci(
+                    hybrid_numerators,
+                    correct_by_repeat,
+                    iterations=iterations,
+                    seed=seed + 4,
+                )
+            )
     input_price, output_price = _pricing(repository_root, scenario)
     quality_not_measured = quality["quality_rate"] is None
     measured_quality = Decimal(1) if quality_not_measured else Decimal(str(quality["quality_rate"]))
@@ -458,6 +568,7 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
         "request_span_estimate_billed_hours": span_estimate_hours,
         "views": views,
         "hybrid_combined_view_a": hybrid_view_a,
+        "hybrid_combined_view_b": hybrid_view_b,
         "provider_breakdown": provider_breakdown,
         "scenario_grid": {
             "label": (
@@ -471,7 +582,7 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
             "rows": grid,
         },
     }
-    slo = _slo(records, scenario, manifest["slo"]["target"], quality)
+    slo = _slo(records, scenario, manifest["slo"])
     provider_mode_mismatches = _provider_mode_mismatches(records, scenario)
     gpu = {
         "utilization_average": None,
@@ -503,6 +614,7 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
             },
             "views": views,
             "hybrid_combined_view_a": hybrid_view_a,
+            "hybrid_combined_view_b": hybrid_view_b,
             "provider_breakdown": provider_breakdown,
         },
         "slo": slo,
@@ -545,8 +657,13 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
         "harness": manifest["harness"],
         "sample_size": len(records),
     }
-    if "comparison" in manifest:
-        summary["comparison"] = manifest["comparison"]
+    comparison = _comparison_for_run(run_dir, str(manifest["run_id"]))
+    if comparison is None and "comparison" in manifest:
+        comparison = cast(dict[str, Any], manifest["comparison"])
+    if comparison is not None:
+        summary["comparison"] = comparison
+        if isinstance(comparison.get("claimability"), dict):
+            statistics_payload["claimability"] = comparison["claimability"]
     summary["limitations"] = _report_limitations(summary, scenario)
     _write_json(run_dir / "summary.json", summary)
     _write_json(run_dir / "quality.json", quality)

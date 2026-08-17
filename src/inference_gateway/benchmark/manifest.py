@@ -195,7 +195,7 @@ def validate_publishability(
     if not dataset.checksum:
         raise PublishabilityError("dataset checksum is missing")
     try:
-        target = slo.require_cell(scenario.slo_cell)
+        targets = {cell: slo.require_cell(cell) for cell in scenario.slo_cells_used()}
     except ValueError as exc:
         if scenario.publishable:
             raise PublishabilityError(str(exc)) from exc
@@ -204,7 +204,7 @@ def validate_publishability(
         raise PublishabilityError(
             "publishable runs require a clean tree or an explicit dirty override"
         )
-    return target
+    return targets[scenario.slo_cell]
 
 
 def build_manifest(
@@ -224,6 +224,10 @@ def build_manifest(
     target = validate_publishability(
         scenario, repository, dataset, slo_document, allow_dirty=allow_dirty
     )
+    slo_targets = {
+        cell: slo_document.require_cell(cell).model_dump(mode="json")
+        for cell in scenario.slo_cells_used()
+    }
     placement = _placement_from_environment()
     _validate_publishable_placement(scenario, placement)
     started = started_at or datetime.now(UTC)
@@ -248,6 +252,7 @@ def build_manifest(
             "dirty_override": bool(repository.dirty and allow_dirty),
             "dataset_checksum_verified": True,
             "slo_cell_present": True,
+            "slo_cells_present": True,
         },
         "git": {
             "sha": repository.sha,
@@ -333,6 +338,7 @@ def build_manifest(
             "config_sha256": slo_hash,
             "cell": scenario.slo_cell,
             "target": target.model_dump(mode="json"),
+            "cells": slo_targets,
         },
         "timeouts": {
             "config_sha256": sha256_file(timeout_path),

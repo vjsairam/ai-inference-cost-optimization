@@ -1,5 +1,16 @@
 # Changelog
 
+## Offline treatment comparison and hybrid SLO evaluation
+
+- Added a paired treatment comparison command that writes JSON and Markdown evidence with quality,
+  View A and View B cost, latency, sample, repeat, and claimability results.
+- Derived claimability from publishability, frozen input, placement, sample, repeat, paired quality,
+  and stable View A cost direction checks. Missing evidence remains inconclusive.
+- Embedded every traffic-cell SLO target in hybrid manifests and evaluated mixed quality tiers
+  independently, with an informational aggregate and fail-closed publishable sample minimum.
+- Added focused comparison, claimability, mixed-tier grouping, and insufficient-sample tests. No
+  cloud benchmark was run and no cloud evidence was produced.
+
 ## Pre-cloud benchmark correctness fixes
 
 - Added complete managed-only and private-only T0/T1 routing policies with one-attempt fallback

@@ -41,7 +41,7 @@ notes: >-
   T3 policy-routing treatment. Run the harness in-cluster in benchmark-jobs on the CPU/system
   node group through the gateway ClusterIP. Managed routes must use the real Anthropic API and
   private routes must use vLLM lab-private; restricted requests remain private and fail closed.
-  The report evaluates the declared WL-01/balanced SLO cell over mixed traffic; per-cell
-  breakdowns for the mixed tiers are not computed, so per-tier claims are out of scope.
+  The report evaluates each mixed quality tier against its matching SLO cell and labels the
+  combined traffic aggregate as informational.
   Exclude ten warm-up requests before each measured repeat and use the frozen classification-v1
   dataset.
