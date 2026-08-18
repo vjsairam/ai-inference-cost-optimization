@@ -25,7 +25,8 @@ data:
       managed-primary:
         kind: managed
         adapter: anthropic
-        api_key_env: MANAGED_PRIMARY_API_KEY
+{{ if .Values.config.managedPrimaryBaseUrl }}        base_url_env: MANAGED_PRIMARY_BASE_URL
+{{ end }}        api_key_env: MANAGED_PRIMARY_API_KEY
         external: true
         models:
           lab-economy:
@@ -128,4 +129,3 @@ data:
       WL-03/economy: {p95_ttft_ms: 1500, p95_e2e_ms: 5000, max_error_rate: "0.02"}
       WL-03/balanced: {p95_ttft_ms: 1500, p95_e2e_ms: 5000, max_error_rate: "0.01"}
       WL-03/premium: {p95_ttft_ms: 2000, p95_e2e_ms: 6000, max_error_rate: "0.01"}
-

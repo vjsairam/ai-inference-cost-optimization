@@ -33,7 +33,8 @@ prometheus_pf_pid=
 cleanup() {
   [[ -z "$gateway_pf_pid" ]] || kill "$gateway_pf_pid" 2>/dev/null || true
   [[ -z "$prometheus_pf_pid" ]] || kill "$prometheus_pf_pid" 2>/dev/null || true
-  rm -f "$tmp_dir/chat-request.json" "$tmp_dir/chat-response.json" "$tmp_dir/metrics.json" \
+  rm -f "$tmp_dir/chat-request.json" "$tmp_dir/chat-response.json" \
+    "$tmp_dir/dcgm-metrics.json" "$tmp_dir/metrics.json" \
     "$tmp_dir/gateway-port-forward.log" "$tmp_dir/prometheus-port-forward.log"
   rmdir "$tmp_dir" 2>/dev/null || true
 }
@@ -103,5 +104,23 @@ missing = {"gateway-system", "model-serving"} - healthy
 if missing:
     raise SystemExit(f"Prometheus has no healthy scrape target for: {', '.join(sorted(missing))}")
 PY
+
+if [[ "${SMOKE_REQUIRE_DCGM:-false}" == "true" ]]; then
+  curl --fail --silent --show-error --get \
+    --data-urlencode 'query=last_over_time(DCGM_FI_DEV_GPU_UTIL[5m])' \
+    http://127.0.0.1:19090/api/v1/query >"$tmp_dir/dcgm-metrics.json"
+  python3 - "$tmp_dir/dcgm-metrics.json" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as source:
+    payload = json.load(source)
+if payload.get("status") != "success":
+    raise SystemExit("Prometheus DCGM query did not succeed")
+if not payload.get("data", {}).get("result", []):
+    raise SystemExit("Prometheus has no DCGM_FI_DEV_GPU_UTIL sample from the last 5 minutes")
+PY
+  printf 'Recent DCGM_FI_DEV_GPU_UTIL telemetry found.\n'
+fi
 
 printf 'M5 smoke passed: GPU visible, vLLM and gateway ready, private completion succeeded, metrics scraped.\n'

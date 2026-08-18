@@ -23,6 +23,12 @@ PLACEMENT_ENV = (
     "BENCHMARK_WORKLOAD_KIND",
     "BENCHMARK_AZ",
     "BENCHMARK_NETWORK_PATH",
+    "BENCHMARK_INSTANCE_TYPE",
+    "BENCHMARK_GPU_MODEL",
+    "BENCHMARK_NODE_OS",
+    "BENCHMARK_GATEWAY_ACCESS",
+    "BENCHMARK_EXECUTION_ORDER",
+    "BENCHMARK_FAILURE_INJECTION",
 )
 
 
@@ -335,6 +341,72 @@ def test_nonpublishable_manifest_keeps_local_placement_defaults(
         manifest["harness"]["network_path"]
         == "in-process client -> gateway ASGI -> deterministic adapter"
     )
+    assert manifest["harness"]["gateway_access"] == "in-process"
+    assert manifest["environment"]["node_os"] is None
+    assert manifest["compute"]["instance_type"] is None
+    assert manifest["compute"]["gpu_model"] is None
+    assert manifest["statistics"]["execution_order"] == (
+        "fixed local treatment; frozen item blocks"
+    )
+    assert manifest["workload"]["failure_injection"] is False
+
+
+def test_manifest_records_extended_placement_environment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    values = {
+        "BENCHMARK_INSTANCE_TYPE": "g6.xlarge",
+        "BENCHMARK_GPU_MODEL": "NVIDIA L4",
+        "BENCHMARK_NODE_OS": "Bottlerocket 1.40.0",
+        "BENCHMARK_GATEWAY_ACCESS": "clusterip",
+        "BENCHMARK_EXECUTION_ORDER": "randomized repeat blocks: T1,T0,T4,T3",
+        "BENCHMARK_FAILURE_INJECTION": "true",
+    }
+    for name, value in values.items():
+        monkeypatch.setenv(name, value)
+    scenario_path = ROOT / "benchmark/scenarios/classification-local.yaml"
+    scenario = load_scenario(scenario_path)
+    dataset = load_dataset(scenario.dataset, root=ROOT)
+    slo, slo_hash = load_slo(ROOT / scenario.slo_config)
+
+    manifest = build_manifest(
+        repository_root=ROOT,
+        scenario_path=scenario_path,
+        scenario=scenario,
+        dataset=dataset,
+        slo_document=slo,
+        slo_hash=slo_hash,
+        repository=RepositoryState("a" * 40, False, "test"),
+    )
+
+    assert manifest["compute"]["instance_type"] == "g6.xlarge"
+    assert manifest["compute"]["gpu_model"] == "NVIDIA L4"
+    assert manifest["environment"]["node_os"] == "Bottlerocket 1.40.0"
+    assert manifest["harness"]["gateway_access"] == "clusterip"
+    assert manifest["statistics"]["execution_order"] == ("randomized repeat blocks: T1,T0,T4,T3")
+    assert manifest["workload"]["failure_injection"] is True
+
+
+@pytest.mark.parametrize("value", ["", "1", "TRUE", "yes"])
+def test_manifest_rejects_non_strict_failure_injection_boolean(
+    monkeypatch: pytest.MonkeyPatch, value: str
+) -> None:
+    monkeypatch.setenv("BENCHMARK_FAILURE_INJECTION", value)
+    scenario_path = ROOT / "benchmark/scenarios/classification-local.yaml"
+    scenario = load_scenario(scenario_path)
+    dataset = load_dataset(scenario.dataset, root=ROOT)
+    slo, slo_hash = load_slo(ROOT / scenario.slo_config)
+
+    with pytest.raises(ValueError, match="must be exactly true or false"):
+        build_manifest(
+            repository_root=ROOT,
+            scenario_path=scenario_path,
+            scenario=scenario,
+            dataset=dataset,
+            slo_document=slo,
+            slo_hash=slo_hash,
+            repository=RepositoryState("a" * 40, False, "test"),
+        )
 
 
 def test_manifest_records_effective_provider_sampling() -> None:

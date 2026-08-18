@@ -61,6 +61,12 @@ def test_benchmark_runner_job_uses_required_namespace_and_placement() -> None:
         "BENCHMARK_NODE_GROUP",
         "BENCHMARK_AZ",
         "BENCHMARK_NETWORK_PATH",
+        "BENCHMARK_INSTANCE_TYPE",
+        "BENCHMARK_GPU_MODEL",
+        "BENCHMARK_NODE_OS",
+        "BENCHMARK_GATEWAY_ACCESS",
+        "BENCHMARK_EXECUTION_ORDER",
+        "BENCHMARK_FAILURE_INJECTION",
     ):
         assert name in environment
 

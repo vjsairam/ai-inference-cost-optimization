@@ -25,6 +25,7 @@ resources:
 config:
   mountPath: /etc/gateway
   privateVllmBaseUrl: http://vllm.model-serving.svc.cluster.local:8000
+  managedPrimaryBaseUrl: ""
 
 auth:
   # deploy.sh replaces this digest from GATEWAY_API_KEY without storing the raw key.

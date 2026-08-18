@@ -299,37 +299,164 @@ kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
 '
 ```
 
-T4 has two recorded fault phases under the same frozen build and placement:
-
-1. Point the managed adapter at the repository's deterministic Anthropic-format fault service in
-   the cluster. Run separate 429, 5xx, and timeout windows, record their UTC start/end timestamps,
-   and verify eligible public traffic follows policy while restricted traffic never leaves
-   `lab-private`. Restore the real Anthropic endpoint after the provider-fault phase.
-2. During a separate T4 run, delete the current vLLM Pod without waiting, record the UTC deletion
-   time and replacement Pod identity, and capture gateway/Prometheus events until the deployment
-   becomes available again:
-
-   ```bash
-   kubectl delete pod --namespace model-serving \
-     --selector app.kubernetes.io/name=vllm --wait=false
-   kubectl rollout status deployment/vllm --namespace model-serving --timeout=20m
-   ```
-
-Start each T4 phase with this exact benchmark command in the runner:
+T4 has two recorded fault phases under the same frozen build and placement. For the provider-fault
+phase, deploy `infra/k8s/faultmock.yaml` with the immutable runner image and configure its
+deterministic sequence for the intended 429, 5xx, or timeout window. Repeat the complete procedure
+below for each fault window. The ClusterIP URL defined by that manifest is
+`http://faultmock.model-serving.svc.cluster.local:9401`.
 
 ```bash
+sed "s|FAULTMOCK_IMAGE|${RUNNER_IMAGE}|g" infra/k8s/faultmock.yaml \
+  > /tmp/faultmock.yaml
+kubectl apply -f /tmp/faultmock.yaml
+kubectl rollout status deployment/faultmock --namespace model-serving --timeout=10m
+
 apply_run_policy policy/routing.yaml
+helm upgrade gateway infra/helm/gateway \
+  --namespace gateway-system \
+  --reuse-values \
+  --set config.managedPrimaryBaseUrl=http://faultmock.model-serving.svc.cluster.local:9401
+kubectl rollout status deployment/gateway --namespace gateway-system --timeout=10m
+```
+
+Before starting the measured run, perform this mandatory in-path verification. Reset faultmock,
+send one public premium-tier request through the gateway, and require the faultmock request count
+to be nonzero. A direct request to faultmock does not satisfy this check.
+
+```bash
+kubectl port-forward --namespace gateway-system service/gateway 18080:8080 \
+  >/tmp/provider-fault-gateway-port-forward.log 2>&1 &
+export PROVIDER_FAULT_GATEWAY_PF_PID=$!
+kubectl port-forward --namespace model-serving service/faultmock 19401:9401 \
+  >/tmp/provider-fault-faultmock-port-forward.log 2>&1 &
+export PROVIDER_FAULTMOCK_PF_PID=$!
+
+for attempt in {1..30}; do
+  curl --fail --silent http://127.0.0.1:18080/health/ready >/dev/null 2>&1 && break
+  sleep 1
+done
+for attempt in {1..30}; do
+  curl --fail --silent http://127.0.0.1:19401/health/live >/dev/null 2>&1 && break
+  sleep 1
+done
+curl --fail --silent --show-error http://127.0.0.1:18080/health/ready >/dev/null
+curl --fail --silent --show-error http://127.0.0.1:19401/health/live >/dev/null
+
+curl --fail --silent --show-error --request POST \
+  http://127.0.0.1:19401/__faultmock/reset >/dev/null
+curl --silent --show-error --max-time 120 \
+  --header "Authorization: Bearer $GATEWAY_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --header 'X-Gateway-Workload: classification' \
+  --header 'X-Gateway-Data-Class: public' \
+  --header 'X-Gateway-Quality-Tier: premium' \
+  --data '{"model":"lab-default","messages":[{"role":"user","content":"provider fault path verification"}],"temperature":0,"max_tokens":16,"stream":false}' \
+  http://127.0.0.1:18080/v1/chat/completions \
+  >/tmp/provider-fault-probe.json
+curl --fail --silent --show-error \
+  http://127.0.0.1:19401/__faultmock/state \
+  >/tmp/provider-fault-state.json
+python3 - /tmp/provider-fault-state.json <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as source:
+    state = json.load(source)
+request_count = sum(state.get("counts", {}).values())
+if request_count <= 0:
+    raise SystemExit("faultmock counter verification failed: no gateway request reached faultmock")
+print(f"verified faultmock request count: {request_count}")
+PY
+```
+
+Do not start the run unless that script prints a positive count. Record the start immediately
+before the benchmark and retain it with the fault-service counters and operator notes.
+
+```bash
+export PROVIDER_FAULT_WINDOW_START="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+printf 'provider fault window start: %s\n' "$PROVIDER_FAULT_WINDOW_START"
 kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
   BENCHMARK_LOCATION="$BENCHMARK_LOCATION" \
   BENCHMARK_NODE="$BENCHMARK_NODE" \
   BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
   BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
   BENCHMARK_AZ="$BENCHMARK_AZ" \
-  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -c '
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" \
+  BENCHMARK_FAILURE_INJECTION=true sh -c '
   cd /workspace && /opt/venv/bin/python -m inference_gateway.benchmark run \
     --scenario benchmark/scenarios/cloud/t4-failure.yaml \
     --base-url http://gateway.gateway-system.svc.cluster.local:8080
 '
+```
+
+After the benchmark finishes, capture the current faultmock count, restore the chart's empty base
+URL value, wait for the gateway rollout, and send another premium-tier request. The response must
+come from `managed-premium`, and the faultmock count must remain unchanged.
+
+```bash
+curl --fail --silent --show-error \
+  http://127.0.0.1:19401/__faultmock/state \
+  >/tmp/provider-fault-state-before-restore.json
+helm upgrade gateway infra/helm/gateway \
+  --namespace gateway-system \
+  --reuse-values \
+  --set config.managedPrimaryBaseUrl=
+kubectl rollout status deployment/gateway --namespace gateway-system --timeout=10m
+
+curl --fail --silent --show-error --max-time 120 \
+  --dump-header /tmp/real-provider-response.headers \
+  --header "Authorization: Bearer $GATEWAY_API_KEY" \
+  --header 'Content-Type: application/json' \
+  --header 'X-Gateway-Workload: classification' \
+  --header 'X-Gateway-Data-Class: public' \
+  --header 'X-Gateway-Quality-Tier: premium' \
+  --data '{"model":"lab-default","messages":[{"role":"user","content":"Reply with restored"}],"temperature":0,"max_tokens":16,"stream":false}' \
+  http://127.0.0.1:18080/v1/chat/completions \
+  >/tmp/real-provider-response.json
+grep --ignore-case '^X-Gateway-Provider: managed-premium' \
+  /tmp/real-provider-response.headers
+python3 - /tmp/real-provider-response.json <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as source:
+    response = json.load(source)
+content = response.get("choices", [{}])[0].get("message", {}).get("content")
+if not content or "fault mock completion" in content.casefold():
+    raise SystemExit("real-provider response verification failed")
+PY
+curl --fail --silent --show-error \
+  http://127.0.0.1:19401/__faultmock/state \
+  >/tmp/provider-fault-state-after-restore.json
+python3 - /tmp/provider-fault-state-before-restore.json \
+  /tmp/provider-fault-state-after-restore.json <<'PY'
+import json
+import sys
+
+counts = []
+for path in sys.argv[1:]:
+    with open(path, encoding="utf-8") as source:
+        counts.append(sum(json.load(source).get("counts", {}).values()))
+if counts[1] != counts[0]:
+    raise SystemExit("faultmock received traffic after the real-provider restore")
+PY
+export PROVIDER_FAULT_WINDOW_END="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+printf 'provider fault window end: %s\n' "$PROVIDER_FAULT_WINDOW_END"
+kill "$PROVIDER_FAULT_GATEWAY_PF_PID" "$PROVIDER_FAULTMOCK_PF_PID"
+```
+
+A provider-fault run without the mandatory nonzero counter verification is not publishable as
+fault evidence.
+
+During the separate T4 Pod-delete run, set `BENCHMARK_FAILURE_INJECTION=true`, start the same T4
+benchmark command, delete the current vLLM Pod without waiting, record the UTC deletion time and
+replacement Pod identity, and capture gateway and Prometheus events until the deployment becomes
+available again:
+
+```bash
+kubectl delete pod --namespace model-serving \
+  --selector app.kubernetes.io/name=vllm --wait=false
+kubectl rollout status deployment/vllm --namespace model-serving --timeout=20m
 ```
 
 Do not use an uncontrolled upstream outage as a fault mechanism. The manifest and run notes must

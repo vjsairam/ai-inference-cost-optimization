@@ -29,6 +29,11 @@ _PLACEMENT_DEFAULTS: dict[str, str | None] = {
     "BENCHMARK_WORKLOAD_KIND": "local-process",
     "BENCHMARK_AZ": None,
     "BENCHMARK_NETWORK_PATH": _LOCAL_NETWORK_PATH,
+    "BENCHMARK_INSTANCE_TYPE": None,
+    "BENCHMARK_GPU_MODEL": None,
+    "BENCHMARK_NODE_OS": None,
+    "BENCHMARK_GATEWAY_ACCESS": "in-process",
+    "BENCHMARK_EXECUTION_ORDER": "fixed local treatment; frozen item blocks",
 }
 
 
@@ -161,12 +166,29 @@ def _provider_execution_conditions(
     return conditions
 
 
-def _placement_from_environment() -> dict[str, str | None]:
-    return {name: os.environ.get(name, default) for name, default in _PLACEMENT_DEFAULTS.items()}
+def _strict_boolean_environment(name: str, *, default: bool) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    if value == "true":
+        return True
+    if value == "false":
+        return False
+    raise ValueError(f"{name} must be exactly true or false")
+
+
+def _placement_from_environment() -> dict[str, str | bool | None]:
+    placement: dict[str, str | bool | None] = {
+        name: os.environ.get(name, default) for name, default in _PLACEMENT_DEFAULTS.items()
+    }
+    placement["BENCHMARK_FAILURE_INJECTION"] = _strict_boolean_environment(
+        "BENCHMARK_FAILURE_INJECTION", default=False
+    )
+    return placement
 
 
 def _validate_publishable_placement(
-    scenario: BenchmarkScenario, placement: dict[str, str | None]
+    scenario: BenchmarkScenario, placement: dict[str, str | bool | None]
 ) -> None:
     if not scenario.publishable:
         return
@@ -275,7 +297,7 @@ def build_manifest(
             "region": None,
             "availability_zone": placement["BENCHMARK_AZ"],
             "kubernetes_version": None,
-            "node_os": None,
+            "node_os": placement["BENCHMARK_NODE_OS"],
         },
         "harness": {
             "location": placement["BENCHMARK_LOCATION"],
@@ -288,12 +310,12 @@ def build_manifest(
             "node_group": placement["BENCHMARK_NODE_GROUP"],
             "availability_zone": placement["BENCHMARK_AZ"],
             "network_path": placement["BENCHMARK_NETWORK_PATH"],
-            "gateway_access": "in-process",
+            "gateway_access": placement["BENCHMARK_GATEWAY_ACCESS"],
             "tls_mode": "none",
         },
         "compute": {
-            "instance_type": None,
-            "gpu_model": None,
+            "instance_type": placement["BENCHMARK_INSTANCE_TYPE"],
+            "gpu_model": placement["BENCHMARK_GPU_MODEL"],
             "gpu_count": 0,
             "driver_cuda": None,
             "purchase_option": None,
@@ -328,7 +350,7 @@ def build_manifest(
             },
             "cache_state": "adapter-default",
             "autoscaling": {"enabled": False, "min": 1, "max": 1},
-            "failure_injection": False,
+            "failure_injection": placement["BENCHMARK_FAILURE_INJECTION"],
         },
         "pricing": {
             "version": scenario.pricing_version,
@@ -357,7 +379,7 @@ def build_manifest(
             "repeat_group_id": run_id,
             "repeat_count": scenario.repeats,
             "repeat_indices": list(range(1, scenario.repeats + 1)),
-            "execution_order": "fixed local treatment; frozen item blocks",
+            "execution_order": placement["BENCHMARK_EXECUTION_ORDER"],
             "analysis_version": "m2-v1",
             "bootstrap_iterations": scenario.bootstrap_iterations,
             "bootstrap_seed": scenario.seed,

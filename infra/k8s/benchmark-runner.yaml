@@ -70,6 +70,18 @@ spec:
               value: "OPERATOR_SET_BENCHMARK_AZ"
             - name: BENCHMARK_NETWORK_PATH
               value: "runner Pod -> gateway ClusterIP -> selected provider"
+            - name: BENCHMARK_INSTANCE_TYPE
+              value: "OPERATOR_SET_BENCHMARK_INSTANCE_TYPE"
+            - name: BENCHMARK_GPU_MODEL
+              value: "OPERATOR_SET_BENCHMARK_GPU_MODEL"
+            - name: BENCHMARK_NODE_OS
+              value: "OPERATOR_SET_BENCHMARK_NODE_OS"
+            - name: BENCHMARK_GATEWAY_ACCESS
+              value: "clusterip"
+            - name: BENCHMARK_EXECUTION_ORDER
+              value: "OPERATOR_SET_BENCHMARK_EXECUTION_ORDER"
+            - name: BENCHMARK_FAILURE_INJECTION
+              value: "false"
             - name: GATEWAY_API_KEY
               valueFrom:
                 secretKeyRef:

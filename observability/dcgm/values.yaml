@@ -9,7 +9,10 @@ tolerations:
 
 serviceMonitor:
   enabled: true
-  interval: 15s
+  # scrapeTimeout must stay below interval or Prometheus drops the target;
+  # the chart default timeout of 25s silently disabled scraping at 15s.
+  interval: 30s
+  scrapeTimeout: 25s
   additionalLabels:
     app.kubernetes.io/part-of: inference-lab
 

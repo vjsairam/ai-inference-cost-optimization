@@ -77,6 +77,28 @@ def test_gateway_chart_renders_digest_pinned_image() -> None:
     assert container["image"] == f"ghcr.io/example/inference-gateway@{digest}"
 
 
+def test_gateway_chart_omits_empty_managed_primary_base_url() -> None:
+    documents = _render("gateway")
+    config = _one(documents, "ConfigMap")["data"]
+    providers = yaml.safe_load(config["providers.yaml"])["providers"]
+    container = _one(documents, "Deployment")["spec"]["template"]["spec"]["containers"][0]
+
+    assert "base_url_env" not in providers["managed-primary"]
+    assert "MANAGED_PRIMARY_BASE_URL" not in {entry["name"] for entry in container["env"]}
+
+
+def test_gateway_chart_wires_configured_managed_primary_base_url() -> None:
+    base_url = "http://faultmock.model-serving.svc.cluster.local:9401"
+    documents = _render("gateway", "--set-string", f"config.managedPrimaryBaseUrl={base_url}")
+    config = _one(documents, "ConfigMap")["data"]
+    providers = yaml.safe_load(config["providers.yaml"])["providers"]
+    container = _one(documents, "Deployment")["spec"]["template"]["spec"]["containers"][0]
+    environment = {entry["name"]: entry for entry in container["env"]}
+
+    assert providers["managed-primary"]["base_url_env"] == "MANAGED_PRIMARY_BASE_URL"
+    assert environment["MANAGED_PRIMARY_BASE_URL"]["value"] == base_url
+
+
 def test_vllm_chart_is_private_and_requests_one_tolerated_gpu() -> None:
     documents = _render("vllm")
     assert {document["kind"] for document in documents} >= {
