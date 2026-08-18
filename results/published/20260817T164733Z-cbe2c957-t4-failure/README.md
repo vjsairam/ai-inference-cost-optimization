@@ -10,7 +10,7 @@
 
 ## Interpretation
 
-Pod-delete treatment. The single vLLM Pod was deleted at 16:49:02Z without draining and the deployment was available again at 16:51:47Z, a 2m45s outage window during live traffic. Quality dropped to 71.0 percent and the run correctly fails the error-rate and quality SLO checks: private-only traffic during the window failed closed rather than leaking to the managed provider, which is the designed trade-off. Together with the provider-fault run this completes the failure-behavior evidence.
+Pod-delete treatment. The single vLLM Pod was deleted at 16:49:02Z without draining and the deployment was available again at 16:51:47Z, a 2m45s outage window during live traffic. Quality dropped to 71.0 percent and the run correctly fails the error-rate and quality SLO checks: private-only traffic during the window failed closed rather than leaking to the managed provider, which is the designed trade-off. This is the only failure treatment published from the 2026-08-17 cycle; the provider-fault attempt was excluded during review because its records show the fault service was never in the request path.
 
 ## Limitations
 

@@ -1,13 +1,36 @@
 # Published results
 
-This directory holds reviewed benchmark evidence. The 2026-08-17 cycle published seven runs:
+This directory holds reviewed benchmark evidence. The 2026-08-17 cycle published six runs:
 managed and private baselines for classification and structured extraction, the policy-routed
-hybrid, and the two failure treatments. Each run directory carries its immutable manifest,
+hybrid, and the Pod-delete failure treatment. Each run directory carries its immutable manifest,
 aggregate reports, charts, a raw-records reference with checksum, and an operator
-interpretation. Two additional runs from the same cycle were excluded during review because a
-managed-provider credit outage produced only provider errors; their raw records remain in the
+interpretation. Three additional runs from the same cycle were excluded during review. Two were
+excluded because a managed-provider credit outage produced only provider errors. The third, the
+provider-fault treatment, was excluded because its own records contradict the intended
+treatment: zero provider errors, zero fallbacks, and a premium-cell latency profile matching the
+real managed provider rather than the 100 ms fault service, which shows the fault-service
+reconfiguration never took effect for that run. Raw records for all excluded runs remain in the
 operator archive. Local mock reports belong under `results/local/` and must not be copied here
 as performance evidence.
+
+## 2026-08-17 cycle disclosures
+
+The published manifests from this cycle carry known metadata gaps that review accepted with
+disclosure rather than silent correction, because finalized manifests are immutable:
+
+- `instance_type`, `gpu_model`, and `node_os` are null. The hardware identity for the cycle is
+  recorded in the committed deploy manifest under `benchmark/manifests/`, which pins the GPU
+  (NVIDIA L4, driver 580.159.03), CUDA version, instance class, image digests, and model revision.
+- `gateway_access` reads `in-process`, a stale local default. The runner executed in-cluster on
+  the system node group and reached the gateway over its ClusterIP service, as the placement
+  fields state.
+- `execution_order` reads `fixed local treatment; frozen item blocks`, another stale default
+  string. The actual treatment order is visible in the run timestamps, which interleave the
+  managed and private baseline runs; explicit randomized-order metadata is a next-cycle fix.
+- `failure_injection` was never set by the deploy tooling, so it reads false even where injection
+  was attempted.
+
+The harness will populate these fields before the next publishable cycle.
 
 ## Run layout
 

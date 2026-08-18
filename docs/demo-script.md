@@ -100,7 +100,9 @@ deployment.
 
 ## 3:40-4:00 - boundary and next run
 
-Close on the evidence table in the README. The next claim-bearing step is the guarded M6 T0/T1
-cloud comparison followed by M7 hybrid and failure runs. The runbook requires raw evidence export,
-publication gates, immediate destroy, and independent destroy verification. Cost and duration
-remain pending first M6 run.
+Close on the evidence table in the README. The 2026-08-17 cycle measured the T0/T1 baselines,
+the T3 hybrid, and the T4 Pod-delete treatment, published six reviewed runs, and destroyed the
+lab with independent verification. Point at the headline: private wins classification on both
+axes, managed premium wins extraction quality, and the router prices the blend in between. The
+excluded provider-fault attempt and the disclosed metadata gaps show the fail-closed review
+working on real evidence.

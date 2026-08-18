@@ -10,7 +10,7 @@
 
 ## Interpretation
 
-Under the normal routing policy the mixed traffic split 602 requests to the private arm and 298 to the managed arm. The blend landed at 88.9 percent correct for 0.00071 USD per correct task, between the two baselines on cost, and every traffic cell passed its own SLO target with the aggregate labeled informational. Restricted-class requests never left the private path. This run is the direct evidence for the policy-routed hybrid pattern the repository argues for.
+Under the normal routing policy the mixed traffic split 602 requests to the private arm and 298 to the managed arm. The blend landed at 88.9 percent correct for 0.00071 USD per correct task, between the two baselines on cost. The balanced and economy traffic cells passed their SLO targets. The premium cell failed its p95 TTFT target (3.82 s against 2.0 s) and its quality target (77.7 percent against 95 percent), mirroring the managed premium baseline's preamble latency and token-budget behavior, so overall SLO eligibility is false and the mixed aggregate stays informational. Restricted-class requests never left the private path. This run is the direct evidence for the policy-routed hybrid pattern the repository argues for, with the premium cell result carried as a finding rather than a pass.
 
 ## Limitations
 

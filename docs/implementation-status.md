@@ -9,10 +9,11 @@ Authoritative progress tracker. Updated with every change set.
 | M6 T0 managed and T1 private baselines | Measured in us-east-1 for classification and extraction, 900 requests x 3 repeats per treatment per workload, on source `cbe2c95` |
 | M6 comparisons | Classification supported (direction private); extraction inconclusive by the Pareto rule; both produced by the fail-closed compare stage |
 | M7 T3 hybrid | Measured: 602/298 private/managed split, 88.9% correct, per-cell SLO evaluation |
-| M7 T4 provider faults and Pod delete | Measured: injected 429/500/timeout window 16:39:46Z to 16:46:41Z; vLLM Pod deleted 16:49:02Z, available again 16:51:47Z |
+| M7 T4 Pod delete | Measured: vLLM Pod deleted 16:49:02Z, available again 16:51:47Z, 160 timeouts, restricted traffic failed closed |
+| M7 T4 provider faults | Attempted and excluded on review: run records show the fault service was never in the request path; rerun with verified injection is future work |
 | Lifecycle | Create, deploy, smoke, benchmark, destroy completed; verify-destroy passed with zero tagged survivors |
-| Publication | Evidence retained by the operator; published-results assembly in review |
-| M9 release tag | Pending publication review |
+| Publication | Six runs published under results/published with the cycle's exclusions and manifest metadata gaps disclosed |
+| M9 release tag | v0.1.0 tagged; post-tag review withdrew the provider-fault run and corrected the affected claims on main |
 
 Findings folded back into the tree during the run: GPU node root volume 100 GiB, vLLM
 `enableServiceLinks` off, numeric runtime user for `runAsNonRoot`, replace-style gateway rollout,

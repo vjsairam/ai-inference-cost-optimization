@@ -428,9 +428,10 @@ following are true:
 - T4 records the provider-fault and Pod-delete procedure, timestamps, and recovery observations;
 - artifacts are reviewed against [the published-results contract](../../results/published/README.md).
 
-Fail closed if any condition is missing. The first M6 run must record measured USD cost and
-wall-clock duration to satisfy SC-11. Until that run exists, its expected reproduce cost band and
-duration are **pending first M6 run**, and `results/published/` stays empty except for its README.
+Fail closed if any condition is missing. The first M6 cycle ran on 2026-08-17 and recorded the
+SC-11 measurement: 5.3 wall hours and about 19 USD including every defect the cycle uncovered,
+with a clean rerun estimated at 2.5 to 3 hours and 10 to 14 USD until the next cycle measures it.
+`results/published/` now holds that cycle's six reviewed runs and documents its exclusions.
 
 ## Destroy and verify
 

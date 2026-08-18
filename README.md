@@ -79,8 +79,9 @@ repeat metadata before load begins. Publication then follows the
 | Local 429, 5xx, timeout, malformed-response, and no-replay behavior | Complete local mock behavior evidence | Cloud T4 remains separate |
 | Local hybrid routing and report plumbing | Complete local mock behavior evidence | Cloud T3 remains separate |
 | T0 managed and T1 private baselines | Measured 2026-08-17 in us-east-1, both workloads, 900 requests x 3 repeats each | Reruns on other stacks or dates supersede, never overwrite |
-| T3 hybrid and T4 provider/Pod failure | Measured 2026-08-17 with recorded fault windows and a 2m45s Pod recovery | Same |
-| Case-study release | Cloud evidence captured; publication and tag in review | Completing the published-results review |
+| T3 hybrid and T4 Pod failure | Measured 2026-08-17; Pod deleted live and recovered in 2m45s | Same |
+| T4 provider faults | Attempted 2026-08-17 and excluded on review; the fault reconfiguration never took effect | A rerun with verified injection |
+| Case-study release | Published and tagged; six reviewed runs after post-tag review withdrew the provider-fault attempt | Future measured cycles add evidence under new run IDs |
 
 Measured 2026-08-17, View A, cost per correct task on the frozen synthetic datasets:
 
@@ -90,9 +91,13 @@ Measured 2026-08-17, View A, cost per correct task on the frozen synthetic datas
 | Structured extraction | 99.9% correct at $0.00411 | 40.7% correct at $0.000205 | Inconclusive: no Pareto winner, quality requirement decides |
 
 T3 hybrid routed 602 of 900 requests private and 298 managed under the normal policy and landed
-at 88.9% correct for $0.00071 per correct task. T4 measured 88.3% correct through injected
-429/500/timeout provider faults and 71.0% correct while the vLLM Pod was deleted and recovered
-(2m45s to available). Restricted-class traffic never left the private path in any treatment.
+at 88.9% correct for $0.00071 per correct task; its balanced and economy traffic cells passed
+their SLO targets while the premium cell failed its TTFT and quality targets, mirroring the
+managed premium baseline. T4 measured 71.0% correct with 160 timeout errors while the vLLM Pod
+was deleted and recovered (2m45s to available); restricted traffic failed closed rather than
+leaking to the managed provider. The provider-fault treatment was attempted in the same cycle
+but excluded during review because its records show the fault service was never actually in the
+path. Restricted-class traffic never left the private path in any treatment.
 
 SC-11 reproduce cost: the full first cycle, including every defect it uncovered, took 5.3 wall
 hours and about 19 USD (8 USD infrastructure, 11 USD managed API). A clean rerun following the
@@ -151,8 +156,8 @@ response.
   multi-GPU behavior, or hardware portability.
 - The datasets are deterministic synthetic classification, extraction, and generation workloads.
   They do not establish behavior on production data or every task family.
-- All evidence currently present is local mock behavior or measurement plumbing. It does not prove
-  cloud latency, throughput, quality, reliability, savings, or a break-even point.
+- The measured evidence covers one cloud cycle on one stack and date. It supports the published
+  per-workload comparisons but not a universal savings or break-even claim.
 - Managed-price configuration is a date-stamped snapshot. The current example and deployment
   configuration use an effective date of 2026-08-15 and must be refreshed and sourced before a
   publishable run.
@@ -160,6 +165,11 @@ response.
   must distinguish observed run cost from steady-state scenario modeling.
 - Hybrid reports evaluate every mixed traffic cell against its own SLO target and label the
   combined aggregate as informational.
+- The provider-fault treatment produced no valid evidence in the 2026-08-17 cycle: post-publication
+  record review showed the gateway was still talking to the real managed provider during the
+  intended fault window, so the run was withdrawn from `results/published/`. Provider-fault
+  behavior in the cloud remains proven only at the local mock level until a rerun with verified
+  injection.
 - GPU utilization telemetry was not captured during the 2026-08-17 run because the DCGM exporter
   was never scraped after a node replacement; the affected reports disclose this. The vLLM
   server's own latency metrics were captured instead.
