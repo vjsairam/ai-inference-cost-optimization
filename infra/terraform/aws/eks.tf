@@ -164,7 +164,7 @@ resource "aws_eks_node_group" "gpu" {
   scaling_config {
     desired_size = var.gpu_node_count
     min_size     = var.gpu_node_count
-    max_size     = 1
+    max_size     = 2
   }
 
   update_config {
@@ -174,7 +174,7 @@ resource "aws_eks_node_group" "gpu" {
   labels = {
     workload         = "gpu"
     accelerator      = "nvidia"
-    "node-lifecycle" = "fixed-p0"
+    "node-lifecycle" = "fixed-capacity"
   }
 
   taint {

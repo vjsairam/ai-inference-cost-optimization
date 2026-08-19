@@ -3,6 +3,10 @@ createNamespace: true
 
 replicaCount: 1
 
+# When enabled, the Deployment omits spec.replicas so KEDA owns the scale subresource.
+autoscaling:
+  enabled: false
+
 image:
   repository: vllm/vllm-openai
   tag: v0.27.1

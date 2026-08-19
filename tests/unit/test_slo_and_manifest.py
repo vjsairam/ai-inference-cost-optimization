@@ -55,6 +55,7 @@ def _write_deploy_manifest(path: Path) -> None:
                     "image_digest": f"sha256:{'d' * 64}",
                     "image": f"ghcr.io/owner/inference-gateway@sha256:{'d' * 64}",
                 },
+                "autoscaling": {"enabled": False, "provider": "none"},
             },
             sort_keys=False,
         ),
@@ -85,6 +86,7 @@ def test_cloud_treatment_scenarios_load_frozen_inputs_and_slo_cells() -> None:
         "t1-private-extraction.yaml",
         "t3-hybrid.yaml",
         "t4-failure.yaml",
+        "t5-autoscale.yaml",
     ]
     baseline_coverage: set[tuple[str, str]] = set()
     for scenario_path in scenario_paths:
@@ -109,6 +111,12 @@ def test_cloud_treatment_scenarios_load_frozen_inputs_and_slo_cells() -> None:
         ("t1-private-baseline", "classification"),
         ("t1-private-baseline", "structured-extraction"),
     }
+
+    t1 = load_scenario(ROOT / "benchmark/scenarios/cloud/t1-private-baseline.yaml")
+    t5 = load_scenario(ROOT / "benchmark/scenarios/cloud/t5-autoscale.yaml")
+    assert t5.provider_mode == "private"
+    assert t5.data_class.value == "restricted"
+    assert t5.concurrency > t1.concurrency
 
 
 def test_slo_loader_has_spec_defaults_and_wl03_omits_quality() -> None:
@@ -219,6 +227,46 @@ def test_manifest_consumes_immutable_deploy_manifest(
     assert manifest["environment"]["cloud"] == "aws"
     assert len(manifest["deployment_manifest"]["sha256"]) == 64
     assert manifest["gateway"]["image_digest"] == f"sha256:{'d' * 64}"
+
+
+def test_t5_manifest_requires_and_records_two_gpu_keda_deployment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    deploy_path = tmp_path / "deploy-manifest.yaml"
+    _write_deploy_manifest(deploy_path)
+    monkeypatch.setenv("DEPLOY_MANIFEST", str(deploy_path))
+    _set_cloud_placement(monkeypatch)
+    scenario_path = ROOT / "benchmark/scenarios/cloud/t5-autoscale.yaml"
+    scenario = load_scenario(scenario_path)
+    dataset = load_dataset(scenario.dataset, root=ROOT)
+    slo, slo_hash = load_slo(ROOT / scenario.slo_config)
+    arguments = {
+        "repository_root": ROOT,
+        "scenario_path": scenario_path,
+        "scenario": scenario,
+        "dataset": dataset,
+        "slo_document": slo,
+        "slo_hash": slo_hash,
+        "repository": RepositoryState("a" * 40, False, "test"),
+    }
+
+    with pytest.raises(PublishabilityError, match="at least two GPUs"):
+        build_manifest(**arguments)
+
+    deployment = yaml.safe_load(deploy_path.read_text(encoding="utf-8"))
+    deployment["compute"]["gpu_count"] = 2
+    deployment["autoscaling"] = {
+        "enabled": True,
+        "provider": "keda",
+        "min_replicas": 1,
+        "max_replicas": 2,
+    }
+    deploy_path.write_text(yaml.safe_dump(deployment, sort_keys=False), encoding="utf-8")
+
+    manifest = build_manifest(**arguments)
+
+    assert manifest["compute"]["gpu_count"] == 2
+    assert manifest["workload"]["autoscaling"] == deployment["autoscaling"]
 
 
 def test_publishable_manifest_requires_deploy_manifest(

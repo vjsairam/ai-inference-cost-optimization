@@ -2,15 +2,16 @@
 
 Authoritative progress tracker. Updated with every change set.
 
-## Current milestone: M6-M7 cloud measurement (executed 2026-08-17)
+## Current milestone: M8 autoscaling implemented, measurement pending
 
 | Item | Status |
 |---|---|
-| M6 T0 managed and T1 private baselines | Measured in us-east-1 for classification and extraction, 900 requests x 3 repeats per treatment per workload, on source `cbe2c95` |
+| M6 T0 managed and T1 private baselines | Measured in us-east-1 for classification and extraction, 300 requests x 3 repeats per treatment per workload, on source `cbe2c95` |
 | M6 comparisons | Classification supported (direction private); extraction inconclusive by the Pareto rule; both produced by the fail-closed compare stage |
 | M7 T3 hybrid | Measured: 602/298 private/managed split, 88.9% correct, per-cell SLO evaluation |
 | M7 T4 Pod delete | Measured: vLLM Pod deleted 16:49:02Z, available again 16:51:47Z, 160 timeouts, restricted traffic failed closed |
 | M7 T4 provider faults | Measured 2026-08-19 with a mandatory in-path counter gate: 150/150 faulted premium requests failed over, zero client-visible errors, timeout faults cost about 30s each before failover |
+| M8 T5 KEDA autoscaling | Implemented pending measurement. The opt-in treatment scales vLLM from one to two replicas on two static g6.xlarge nodes using Prometheus queue depth. It measures pod-plus-model cold start, not node provisioning. Karpenter and Spot are not exercised. |
 | Lifecycle | Create, deploy, smoke, benchmark, destroy completed; verify-destroy passed with zero tagged survivors |
 | Publication | Seven runs published under results/published; the 2026-08-19 provider-fault rerun fixed the disclosed manifest metadata gaps and DCGM telemetry |
 | M9 release tag | v0.1.0 tagged; post-tag review withdrew the provider-fault run and corrected the affected claims on main |
@@ -215,23 +216,19 @@ filesystem is read-only in this environment.
 | Unit and provider contract tests | Done |
 | Example provider, routing, data-classification, and environment configuration | Done |
 
-## Blockers
+## Blockers recorded before the first cycle (2026-08-15, all since resolved)
 
-- The first AWS cycle is intentionally pending valid operator credentials, selected region,
-  approved `RUN_BUDGET_USD`, `EXPIRES_AT`, and confirmed regional G-instance quota above zero.
-- T0, T3, and the managed-provider phase of T4 require `ANTHROPIC_API_KEY`; no valid key is
-  available in the current environment.
-- Cloud GPU and serving smoke evidence depends on the M5 workload deployment.
-- ADR-009 intentionally marks the model revision and vLLM registry digest as resolved at first
-  deploy; offline validation cannot truthfully capture either immutable artifact.
-- SC-11 measured USD reproduce cost and wall-clock duration are pending first M6 run. The release
-  tag is withheld until publishable M6 evidence and the remaining release gates exist.
+These were the open blockers when the pre-cloud sections above were written; the 2026-08-17 and
+2026-08-19 cycles cleared every one of them, as the current-milestone table at the top records.
 
-## Next operator milestone
-
-- Execute M4/M5 create, deploy, and smoke after clearing every cloud safety input. Then follow
-  `docs/runbooks/benchmark-runs.md` for the publishable M6 T0/T1 comparison and measured SC-11
-  cost/duration capture. M7 T3/T4 execution follows accepted M6 evidence.
+- The first AWS cycle was pending valid operator credentials, selected region, approved
+  `RUN_BUDGET_USD`, `EXPIRES_AT`, and confirmed regional G-instance quota above zero.
+- T0, T3, and the managed-provider phase of T4 required `ANTHROPIC_API_KEY`.
+- Cloud GPU and serving smoke evidence depended on the M5 workload deployment.
+- ADR-009 marked the model revision and vLLM registry digest as resolved at first deploy;
+  offline validation could not truthfully capture either immutable artifact.
+- SC-11 measured USD reproduce cost and wall-clock duration awaited the first M6 run, and the
+  release tag was withheld until publishable M6 evidence and the remaining release gates existed.
 
 ## Commands run
 

@@ -411,6 +411,17 @@ def build_manifest(
         }
         manifest["charts"] = deployment.get("charts", {})
         manifest["gateway"] = deployment.get("gateway", {})
+        autoscaling = deployment.get("autoscaling")
+        if isinstance(autoscaling, dict):
+            manifest["workload"]["autoscaling"] = autoscaling
+        if scenario.treatment == "t5-autoscale":
+            gpu_count = manifest["compute"].get("gpu_count", 0)
+            if not isinstance(gpu_count, int) or gpu_count < 2:
+                raise PublishabilityError("T5 requires a deploy manifest with at least two GPUs")
+            if not isinstance(autoscaling, dict) or autoscaling.get("enabled") is not True:
+                raise PublishabilityError("T5 requires a KEDA-enabled deploy manifest")
+            if autoscaling.get("provider") != "keda":
+                raise PublishabilityError("T5 deploy manifest must identify KEDA as the scaler")
     return manifest
 
 

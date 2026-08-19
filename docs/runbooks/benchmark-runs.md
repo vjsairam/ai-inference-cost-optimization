@@ -6,7 +6,8 @@
 > `deploy-20260817T141955Z.yaml`. Published evidence lives under `results/published/`. The
 > procedure below remains the reference for reproducing the run.
 
-This procedure covers the M6 managed/private baselines and the M7 hybrid/failure treatments. A
+This procedure covers the M6 managed/private baselines, M7 hybrid/failure treatments, and the M8
+KEDA autoscaling treatment. A
 publishable runner is the Job defined in `infra/k8s/benchmark-runner.yaml`, selected onto
 `workload=system`, using one immutable harness image/build for the full comparison. It calls
 `http://gateway.gateway-system.svc.cluster.local:8080`; laptop and port-forward timings are smoke
@@ -453,6 +454,220 @@ identify the injected provider fault, the vLLM Pod deletion, the affected repeat
 windows. Provider-fault and Pod-delete evidence remain separate reports if their failure flags or
 timelines differ.
 
+## T5 KEDA autoscaling treatment
+
+Run T5 as a separate, explicitly approved cloud cycle. It uses two static on-demand `g6.xlarge`
+nodes. Each node has 4 vCPUs, so the pair consumes the full 8 vCPU Running On-Demand G and VT
+quota used by this lab. The second node is already Ready before load starts. This treatment
+therefore measures the KEDA trigger, scheduling, and pod-plus-model cold start. It does not measure
+node provisioning latency. Karpenter and Spot are not exercised.
+
+Creating the second GPU node requires both the ordinary create confirmation and the separate
+autoscaling capacity acknowledgement. Review the doubled GPU line item in the printed estimate:
+
+```bash
+export GPU_INSTANCE_TYPES=g6.xlarge
+export GPU_NODE_COUNT=2
+export AUTOSCALE_CAPACITY=acknowledged
+
+export G_FAMILY_QUOTA="$(aws service-quotas get-service-quota \
+  --region "$AWS_REGION" \
+  --service-code ec2 \
+  --quota-code L-DB2E81BA \
+  --query 'Quota.Value' \
+  --output text)"
+awk -v quota="$G_FAMILY_QUOTA" 'BEGIN { exit !(quota >= 8) }'
+
+make tf-plan ENV=aws-lab AWS_REGION="$AWS_REGION" \
+  RUN_BUDGET_USD="$RUN_BUDGET_USD" EXPIRES_AT="$EXPIRES_AT"
+make cloud-up ENV=aws-lab AWS_REGION="$AWS_REGION" \
+  RUN_BUDGET_USD="$RUN_BUDGET_USD" EXPIRES_AT="$EXPIRES_AT" CONFIRM=--yes
+```
+
+Set a new deploy-manifest path for this cycle, then opt into the pinned KEDA installation and
+ScaledObject. `deploy.sh` refuses this mode unless two GPU nodes are Ready.
+
+```bash
+export DEPLOY_AUTOSCALE=true
+export DEPLOY_MANIFEST_PATH="$PWD/benchmark/manifests/deploy-${RUN_ID}-t5.yaml"
+make deploy ENV=aws-lab
+export DEPLOY_MANIFEST="$DEPLOY_MANIFEST_PATH"
+```
+
+Complete the normal runner setup, then perform these T5 pre-run checks. The KEDA controller and
+ScaledObject must be installed and Ready, the generated HPA must exist, and the idle deployment
+must have exactly one available replica. `Active=False` is expected before load because KEDA uses
+that condition for a firing trigger and the queue is still empty.
+
+```bash
+kubectl wait --for=condition=Ready node --selector=workload=gpu --timeout=10m
+test "$(kubectl get nodes --selector=workload=gpu --no-headers | \
+  awk '$2 == "Ready" { count++ } END { print count + 0 }')" = 2
+kubectl get nodes --selector=workload=gpu \
+  -o custom-columns=NAME:.metadata.name,GPU:.status.allocatable.nvidia\.com/gpu
+
+helm status keda --namespace keda-system
+kubectl rollout status deployment/keda-operator --namespace keda-system --timeout=10m
+kubectl wait --namespace model-serving --for=condition=Ready \
+  scaledobject/vllm --timeout=5m
+kubectl get scaledobject vllm --namespace model-serving
+kubectl get hpa keda-hpa-vllm --namespace model-serving
+
+test "$(kubectl get deployment vllm --namespace model-serving \
+  -o jsonpath='{.status.availableReplicas}')" = 1
+test "$(kubectl get pods --namespace model-serving \
+  --selector=app.kubernetes.io/name=vllm \
+  --field-selector=status.phase=Running --no-headers | wc -l)" = 1
+```
+
+Verify that Prometheus has the exact queue series before starting. Keep the port-forward running
+through the evidence capture window.
+
+```bash
+kubectl port-forward --namespace monitoring \
+  service/kube-prometheus-stack-prometheus 19090:9090 \
+  >/tmp/t5-prometheus-port-forward.log 2>&1 &
+export T5_PROMETHEUS_PID=$!
+for attempt in {1..30}; do
+  curl --fail --silent http://127.0.0.1:19090/-/ready >/dev/null 2>&1 && break
+  sleep 1
+done
+curl --fail --silent --show-error --get \
+  --data-urlencode 'query=vllm:num_requests_waiting{namespace="model-serving",service="vllm"}' \
+  http://127.0.0.1:19090/api/v1/query >/tmp/t5-queue-preflight.json
+python3 - /tmp/t5-queue-preflight.json <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as source:
+    payload = json.load(source)
+if payload.get("status") != "success" or not payload.get("data", {}).get("result"):
+    raise SystemExit("vLLM queue series is missing from Prometheus")
+PY
+```
+
+Start event capture before load. The two background checks record the ScaledObject trigger time
+and the new Pod's Kubernetes scheduling and Ready transition times. These timestamps define the
+pod-plus-model cold-start interval. They do not include node startup.
+
+```bash
+export T5_INITIAL_POD="$(kubectl get pods --namespace model-serving \
+  --selector=app.kubernetes.io/name=vllm -o name | head -n 1)"
+kubectl get events --namespace model-serving --watch --output-watch-events -o json \
+  >/tmp/t5-events-watch.jsonl &
+export T5_EVENTS_PID=$!
+
+(
+  until test "$(kubectl get scaledobject vllm --namespace model-serving \
+    -o jsonpath='{.status.conditions[?(@.type=="Active")].status}')" = True; do
+    sleep 2
+  done
+  date -u +%Y-%m-%dT%H:%M:%SZ >/tmp/t5-scaledobject-trigger-time.txt
+  kubectl get scaledobject vllm --namespace model-serving -o json \
+    >/tmp/t5-scaledobject-trigger.json
+) &
+export T5_TRIGGER_PID=$!
+
+(
+  scale_pod=
+  until test -n "$scale_pod"; do
+    scale_pod="$(kubectl get pods --namespace model-serving \
+      --selector=app.kubernetes.io/name=vllm -o name | \
+      awk -v initial="$T5_INITIAL_POD" '$0 != initial { print; exit }')"
+    test -n "$scale_pod" || sleep 2
+  done
+  printf '%s\n' "$scale_pod" >/tmp/t5-scale-pod-name.txt
+  kubectl wait --namespace model-serving --for=condition=PodScheduled \
+    "$scale_pod" --timeout=10m
+  kubectl get --namespace model-serving "$scale_pod" \
+    -o jsonpath='{.status.conditions[?(@.type=="PodScheduled")].lastTransitionTime}{"\n"}' \
+    >/tmp/t5-pod-scheduled-time.txt
+  kubectl wait --namespace model-serving --for=condition=Ready "$scale_pod" --timeout=25m
+  kubectl get --namespace model-serving "$scale_pod" \
+    -o jsonpath='{.status.conditions[?(@.type=="Ready")].lastTransitionTime}{"\n"}' \
+    >/tmp/t5-pod-ready-time.txt
+) &
+export T5_POD_PID=$!
+```
+
+Mount the private-only policy, record the measurement window, and start the frozen high-concurrency
+scenario. All requests are restricted and must remain on the private route.
+
+```bash
+apply_run_policy policy/treatments/t1-private-only.yaml
+export T5_WINDOW_START="$(date -u +%s)"
+kubectl exec --namespace benchmark-jobs "$RUNNER_POD" -- env \
+  BENCHMARK_LOCATION="$BENCHMARK_LOCATION" \
+  BENCHMARK_NODE="$BENCHMARK_NODE" \
+  BENCHMARK_NODE_GROUP="$BENCHMARK_NODE_GROUP" \
+  BENCHMARK_WORKLOAD_KIND="$BENCHMARK_WORKLOAD_KIND" \
+  BENCHMARK_AZ="$BENCHMARK_AZ" \
+  BENCHMARK_NETWORK_PATH="$BENCHMARK_NETWORK_PATH" sh -c '
+  cd /workspace && /opt/venv/bin/python -m inference_gateway.benchmark run \
+    --scenario benchmark/scenarios/cloud/t5-autoscale.yaml \
+    --base-url http://gateway.gateway-system.svc.cluster.local:8080
+'
+export T5_WINDOW_END="$(date -u +%s)"
+
+wait "$T5_TRIGGER_PID" "$T5_POD_PID"
+kill "$T5_EVENTS_PID"
+kubectl get events --namespace model-serving --sort-by=.metadata.creationTimestamp \
+  -o json >/tmp/t5-events-final.json
+kubectl get scaledobject vllm --namespace model-serving -o yaml \
+  >/tmp/t5-scaledobject-final.yaml
+kubectl get hpa keda-hpa-vllm --namespace model-serving -o yaml \
+  >/tmp/t5-hpa-final.yaml
+```
+
+Capture both required Prometheus time series over the same window. The queue query shows the
+trigger and drain. The deployment query shows the requested replica transition from one to two.
+
+```bash
+curl --fail --silent --show-error --get \
+  --data-urlencode 'query=sum(vllm:num_requests_waiting{namespace="model-serving",service="vllm"})' \
+  --data-urlencode "start=$T5_WINDOW_START" \
+  --data-urlencode "end=$T5_WINDOW_END" \
+  --data-urlencode 'step=15s' \
+  http://127.0.0.1:19090/api/v1/query_range >/tmp/t5-queue-range.json
+curl --fail --silent --show-error --get \
+  --data-urlencode 'query=kube_deployment_status_replicas{namespace="model-serving",deployment="vllm"}' \
+  --data-urlencode "start=$T5_WINDOW_START" \
+  --data-urlencode "end=$T5_WINDOW_END" \
+  --data-urlencode 'step=15s' \
+  http://127.0.0.1:19090/api/v1/query_range >/tmp/t5-replicas-range.json
+kill "$T5_PROMETHEUS_PID"
+```
+
+Record the treatment wall time in decimal hours. The report reads `gpu_count: 2` from the deploy
+manifest and converts that wall time to aggregate GPU node-hours, while keeping CPU and shared
+platform costs at one wall-time allocation. Retain the plan estimate and compute the static GPU line
+item as a cross-check:
+
+```bash
+export T5_WALL_HOURS="$(awk -v start="$T5_WINDOW_START" -v end="$T5_WINDOW_END" \
+  'BEGIN { printf "%.8f", (end - start) / 3600 }')"
+export T5_GPU_NODE_HOURS="$(awk -v hours="$T5_WALL_HOURS" \
+  'BEGIN { printf "%.8f", hours * 2 }')"
+export T5_GPU_COST_USD="$(awk -v hours="$T5_GPU_NODE_HOURS" \
+  'BEGIN { printf "%.6f", hours * 0.8048 }')"
+printf 'T5 wall hours=%s GPU node-hours=%s GPU cost USD=%s\n' \
+  "$T5_WALL_HOURS" "$T5_GPU_NODE_HOURS" "$T5_GPU_COST_USD"
+```
+
+With the queue empty, replica 2 should remain Ready for the 600 second HPA scale-down
+stabilization window, then return to the minimum of one. Capture that transition before teardown.
+If it does not happen within 15 minutes, retain the HPA conditions and KEDA operator logs and mark
+the scale-down check failed.
+
+```bash
+kubectl wait --namespace model-serving \
+  --for=jsonpath='{.spec.replicas}'=1 deployment/vllm --timeout=15m
+test "$(kubectl get deployment vllm --namespace model-serving \
+  -o jsonpath='{.status.availableReplicas}')" = 1
+kubectl get events --namespace model-serving --sort-by=.metadata.creationTimestamp \
+  -o json >/tmp/t5-events-after-scale-down.json
+```
+
 ## Reports and evidence locations
 
 Each run command writes `/workspace/results/local/<run-id>/` in the runner and builds its first
@@ -474,6 +689,8 @@ BENCHMARK_PRIVATE_BILLED_HOURS='<extraction decimal provisioned hours>' \
     --run-dir results/raw/<t1-extraction-run-id>
 uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t3-run-id>
 uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t4-run-id>
+BENCHMARK_PRIVATE_BILLED_HOURS="$T5_WALL_HOURS" \
+  uv run python -m inference_gateway.benchmark report --run-dir results/raw/<t5-run-id>
 ```
 
 After the T0 and T1 reports exist, build one paired baseline comparison per workload:

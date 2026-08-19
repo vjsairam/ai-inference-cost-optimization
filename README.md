@@ -78,10 +78,11 @@ repeat metadata before load begins. Publication then follows the
 | Local gateway, auth, policy, streaming, and telemetry smoke | Complete local mock behavior evidence | Nothing; it is not cloud performance evidence |
 | Local 429, 5xx, timeout, malformed-response, and no-replay behavior | Complete local mock behavior evidence | Cloud T4 remains separate |
 | Local hybrid routing and report plumbing | Complete local mock behavior evidence | Cloud T3 remains separate |
-| T0 managed and T1 private baselines | Measured 2026-08-17 in us-east-1, both workloads, 900 requests x 3 repeats each | Reruns on other stacks or dates supersede, never overwrite |
+| T0 managed and T1 private baselines | Measured 2026-08-17 in us-east-1, both workloads, 300 requests x 3 repeats each | Reruns on other stacks or dates supersede, never overwrite |
 | T3 hybrid and T4 Pod failure | Measured 2026-08-17; Pod deleted live and recovered in 2m45s | Same |
 | T4 provider faults | Measured 2026-08-19 with verified in-path injection; 150 of 150 faulted premium requests failed over with zero client-visible errors | Same |
-| Case-study release | Published and tagged; seven reviewed runs after the 2026-08-19 rerun replaced the withdrawn provider-fault attempt | Future measured cycles add evidence under new run IDs |
+| T5 KEDA autoscaling | Implemented with an explicit two-GPU budget gate; measurement pending this cycle | A reviewed T5 run must capture trigger, pod-plus-model cold start, queue, replica, scale-down, and added-cost evidence |
+| Case-study release | Published; v0.2.0 tags the seven-reviewed-run state after the 2026-08-19 rerun replaced the withdrawn provider-fault attempt | Future measured cycles add evidence under new run IDs |
 
 Measured 2026-08-17, View A, cost per correct task on the frozen synthetic datasets:
 

@@ -472,10 +472,15 @@ def build_report(
     }
     span_estimate_hours = sum(repeat_hours.values(), Decimal(0))
     total_hours, billed_hours_source = _private_billed_hours(span_estimate_hours)
+    recorded_gpu_count = manifest.get("compute", {}).get("gpu_count", 1)
+    gpu_node_count = (
+        recorded_gpu_count if isinstance(recorded_gpu_count, int) and recorded_gpu_count > 0 else 1
+    )
+    aggregate_gpu_hours = total_hours * gpu_node_count
     private_inputs = PrivateRunInputs(
-        gpu_node_billed_hours=total_hours,
+        gpu_node_billed_hours=aggregate_gpu_hours,
         cpu_node_billed_hours=total_hours,
-        model_storage_billed_hours=total_hours,
+        model_storage_billed_hours=aggregate_gpu_hours,
         shared_platform_billed_hours=total_hours,
     )
     managed = engine.aggregate_managed(records)
@@ -548,9 +553,9 @@ def build_report(
         index: float(
             hours
             * (
-                cost_config.private.gpu_node_hourly_usd
+                cost_config.private.gpu_node_hourly_usd * gpu_node_count
                 + cost_config.private.cpu_node_hourly_usd
-                + cost_config.private.model_storage_hourly_usd
+                + cost_config.private.model_storage_hourly_usd * gpu_node_count
             )
         )
         for index, hours in repeat_hours.items()
@@ -641,6 +646,7 @@ def build_report(
             "private": private_applicable,
         },
         "private_billed_inputs": private_inputs.model_dump(mode="json"),
+        "gpu_node_count": gpu_node_count,
         "billed_hours_source": billed_hours_source,
         "request_span_estimate_billed_hours": span_estimate_hours,
         "views": views,

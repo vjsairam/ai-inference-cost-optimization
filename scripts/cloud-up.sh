@@ -12,6 +12,7 @@ expires_at=${EXPIRES_AT:-}
 owner=${OWNER:-operator}
 run_id=${RUN_ID:-"$(date -u +%Y%m%dT%H%M%SZ)-cloud-lab"}
 gpu_node_count=${GPU_NODE_COUNT:-1}
+autoscale_capacity=${AUTOSCALE_CAPACITY:-}
 gpu_instance_types_csv=${GPU_INSTANCE_TYPES:-g6.xlarge}
 system_instance_type=${SYSTEM_INSTANCE_TYPE:-t3.medium}
 system_node_count=${SYSTEM_NODE_COUNT:-1}
@@ -27,7 +28,8 @@ Options:
   --run-budget-usd VALUE    Required positive run budget (or RUN_BUDGET_USD)
   --expires-at YYYY-MM-DD   Required expiry date (or EXPIRES_AT)
   --region REGION           AWS region (or AWS_REGION; default us-east-1)
-  --gpu-node-count 0|1      GPU count (or GPU_NODE_COUNT; default 1)
+  --gpu-node-count 0|1|2    GPU count (or GPU_NODE_COUNT; default 1)
+  --autoscale-capacity      Acknowledge the two-GPU autoscaling spend gate
   --gpu-instance-types CSV  Allowlisted types (or GPU_INSTANCE_TYPES)
   --owner OWNER             Owner tag (or OWNER)
   --public-access-cidrs CSV Restricted EKS API CIDRs (or PUBLIC_ACCESS_CIDRS)
@@ -42,6 +44,7 @@ while (($# > 0)); do
     --expires-at) (($# >= 2)) || die "--expires-at requires a value"; expires_at=$2; shift 2 ;;
     --region) (($# >= 2)) || die "--region requires a value"; region=$2; shift 2 ;;
     --gpu-node-count) (($# >= 2)) || die "--gpu-node-count requires a value"; gpu_node_count=$2; shift 2 ;;
+    --autoscale-capacity) autoscale_capacity=acknowledged; shift ;;
     --gpu-instance-types) (($# >= 2)) || die "--gpu-instance-types requires a value"; gpu_instance_types_csv=$2; shift 2 ;;
     --owner) (($# >= 2)) || die "--owner requires a value"; owner=$2; shift 2 ;;
     --public-access-cidrs) (($# >= 2)) || die "--public-access-cidrs requires a value"; public_access_cidrs_csv=$2; shift 2 ;;
@@ -62,7 +65,10 @@ awk -v value="$run_budget_usd" 'BEGIN { exit !(value > 0) }' || die "RUN_BUDGET_
 [[ "$(date -u -d "$expires_at" +%F 2>/dev/null || true)" == "$expires_at" ]] || die "EXPIRES_AT must be a valid date"
 today_utc=$(date -u +%F)
 [[ "$expires_at" < "$today_utc" ]] && die "EXPIRES_AT must be today or later in UTC"
-[[ "$gpu_node_count" == "0" || "$gpu_node_count" == "1" ]] || die "GPU_NODE_COUNT must be 0 or 1"
+[[ "$gpu_node_count" == "0" || "$gpu_node_count" == "1" || "$gpu_node_count" == "2" ]] || die "GPU_NODE_COUNT must be 0, 1, or 2"
+if [[ "$gpu_node_count" == "2" && "$autoscale_capacity" != "acknowledged" ]]; then
+  die "GPU_NODE_COUNT=2 requires AUTOSCALE_CAPACITY=acknowledged or --autoscale-capacity"
+fi
 [[ "$system_node_count" == "1" || "$system_node_count" == "2" ]] || die "SYSTEM_NODE_COUNT must be 1 or 2"
 [[ -n "$owner" ]] || die "OWNER must not be empty"
 
@@ -117,6 +123,9 @@ printf 'Cloud-lab plan summary\n'
 printf '  Region: %s\n' "$region"
 printf '  GPU instance types: %s\n' "$gpu_instance_types_csv"
 printf '  GPU node count: %s\n' "$gpu_node_count"
+if [[ "$gpu_node_count" == "2" ]]; then
+  printf '  Autoscale capacity gate: acknowledged\n'
+fi
 printf '  System instance type/count: %s / %s\n' "$system_instance_type" "$system_node_count"
 printf '  Estimated hourly cost: USD %s (planning estimate)\n' "$estimated_hourly"
 printf '  Run budget: USD %s (about %s hours at the estimate)\n' "$run_budget_usd" "$budget_hours"

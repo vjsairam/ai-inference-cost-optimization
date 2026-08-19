@@ -6,8 +6,11 @@ repo_root=$(cd -- "$script_dir/.." && pwd)
 # shellcheck source=scripts/cloud-common.sh
 source "$script_dir/cloud-common.sh"
 
+deploy_autoscale=${DEPLOY_AUTOSCALE:-false}
+keda_namespace=keda-system
+
 pending() {
-  die "Kubernetes cluster is unreachable; M5 deployment remains PENDING and no resources were changed"
+  die "Kubernetes cluster is unreachable; deployment remains pending and no resources were changed"
 }
 
 require_value() {
@@ -31,6 +34,11 @@ require_command helm
 require_command sha256sum
 require_command python3
 
+case "$deploy_autoscale" in
+  true|false) ;;
+  *) die "DEPLOY_AUTOSCALE must be true or false" ;;
+esac
+
 if ! kubectl version --request-timeout=5s >/dev/null 2>&1; then
   pending
 fi
@@ -49,12 +57,18 @@ require_value PRIVATE_VLLM_API_KEY
 
 kube_stack_version=$(read_version charts kubePrometheusStack)
 dcgm_chart_version=$(read_version charts dcgmExporter)
+keda_chart_version=$(read_version charts keda)
 vllm_chart_version=$(read_version charts vllm)
 gateway_chart_version=$(read_version charts gateway)
 vllm_tag=$(read_version images vllm)
-for resolved_version in "$kube_stack_version" "$dcgm_chart_version" "$vllm_chart_version" "$gateway_chart_version" "$vllm_tag"; do
+for resolved_version in "$kube_stack_version" "$dcgm_chart_version" "$keda_chart_version" "$vllm_chart_version" "$gateway_chart_version" "$vllm_tag"; do
   [[ -n "$resolved_version" ]] || die "infra/helm/versions.yaml is incomplete"
 done
+
+if [[ "$deploy_autoscale" == true ]]; then
+  ready_gpu_nodes=$(kubectl get nodes --selector workload=gpu --no-headers | awk '$2 == "Ready" { count++ } END { print count + 0 }')
+  ((ready_gpu_nodes == 2)) || die "DEPLOY_AUTOSCALE=true requires exactly two Ready GPU nodes"
+fi
 
 model_repository=${MODEL_REPOSITORY:-Qwen/Qwen2.5-7B-Instruct-AWQ}
 gateway_image_repository=$GATEWAY_IMAGE_REPOSITORY
@@ -83,17 +97,23 @@ printf 'MANAGED_PRIMARY_API_KEY=%s\nPRIVATE_VLLM_API_KEY=%s\n' \
 printf 'VLLM_API_KEY=%s\n' "$PRIVATE_VLLM_API_KEY" >"$tmp_dir/vllm.env"
 gateway_key_digest=$(printf '%s' "$GATEWAY_API_KEY" | sha256sum | awk '{print $1}')
 
-printf 'Deploying pinned M5 stack: kube-prometheus-stack=%s dcgm-exporter=%s vLLM=%s\n' \
-  "$kube_stack_version" "$dcgm_chart_version" "$vllm_tag"
+printf 'Deploying pinned stack: kube-prometheus-stack=%s dcgm-exporter=%s KEDA=%s vLLM=%s autoscaling=%s\n' \
+  "$kube_stack_version" "$dcgm_chart_version" "$keda_chart_version" "$vllm_tag" "$deploy_autoscale"
 
 for namespace in monitoring model-serving gateway-system; do
   kubectl create namespace "$namespace" --dry-run=client -o yaml | kubectl apply -f -
 done
+if [[ "$deploy_autoscale" == true ]]; then
+  kubectl create namespace "$keda_namespace" --dry-run=client -o yaml | kubectl apply -f -
+fi
 
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts \
   --force-update
 helm repo add gpu-helm-charts https://nvidia.github.io/dcgm-exporter/helm-charts \
   --force-update
+if [[ "$deploy_autoscale" == true ]]; then
+  helm repo add kedacore https://kedacore.github.io/charts --force-update
+fi
 helm repo update
 
 helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
@@ -103,6 +123,15 @@ helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheu
   --wait --timeout 15m
 kubectl rollout status deployment/kube-prometheus-stack-operator \
   --namespace monitoring --timeout=10m
+
+if [[ "$deploy_autoscale" == true ]]; then
+  helm upgrade --install keda kedacore/keda \
+    --namespace "$keda_namespace" \
+    --version "$keda_chart_version" \
+    --wait --timeout 10m
+  kubectl rollout status deployment/keda-operator \
+    --namespace "$keda_namespace" --timeout=10m
+fi
 
 helm upgrade --install dcgm-exporter gpu-helm-charts/dcgm-exporter \
   --namespace monitoring \
@@ -123,8 +152,17 @@ helm upgrade --install vllm "$repo_root/infra/helm/vllm" \
   --set-string image.digest="$VLLM_IMAGE_DIGEST" \
   --set-string model.repository="$model_repository" \
   --set-string model.revision="$MODEL_REVISION" \
+  --set autoscaling.enabled="$deploy_autoscale" \
   --wait --timeout 25m
 kubectl rollout status deployment/vllm --namespace model-serving --timeout=20m
+
+if [[ "$deploy_autoscale" == true ]]; then
+  kubectl apply -f "$repo_root/infra/k8s/vllm-scaledobject.yaml"
+  kubectl wait --namespace model-serving --for=condition=Ready \
+    scaledobject/vllm --timeout=5m
+elif kubectl get crd scaledobjects.keda.sh >/dev/null 2>&1; then
+  kubectl delete scaledobject vllm --namespace model-serving --ignore-not-found
+fi
 
 kubectl create secret generic gateway-secrets \
   --namespace gateway-system \
@@ -155,17 +193,24 @@ cuda_version=$(kubectl exec --namespace model-serving deployment/vllm -- \
   python3 -c 'import torch; print(torch.version.cuda)')
 server_version=$(kubectl exec --namespace model-serving deployment/vllm -- \
   python3 -c 'import vllm; print(vllm.__version__)')
+ready_gpu_nodes=$(kubectl get nodes --selector workload=gpu --no-headers | awk '$2 == "Ready" { count++ } END { print count + 0 }')
+autoscale_max=1
+autoscale_provider=none
+if [[ "$deploy_autoscale" == true ]]; then
+  autoscale_max=2
+  autoscale_provider=keda
+fi
 
 mkdir -p "$(dirname "$deploy_manifest")"
 {
-  printf 'schema_version: "m5-v1"\n'
+  printf 'schema_version: "m8-v1"\n'
   printf 'deployed_at: "%s"\n' "$deploy_timestamp"
   printf 'environment:\n'
   printf '  cloud: aws\n'
   printf '  region: "%s"\n' "${AWS_REGION:-unknown}"
   printf '  kubernetes_version: "%s"\n' "$kubernetes_version"
   printf 'compute:\n'
-  printf '  gpu_count: 1\n'
+  printf '  gpu_count: %s\n' "$ready_gpu_nodes"
   printf '  gpu_and_driver: "%s"\n' "$gpu_details"
   printf '  cuda: "%s"\n' "$cuda_version"
   printf 'runtime:\n'
@@ -187,13 +232,26 @@ mkdir -p "$(dirname "$deploy_manifest")"
   printf 'charts:\n'
   printf '  kube_prometheus_stack: "%s"\n' "$kube_stack_version"
   printf '  dcgm_exporter: "%s"\n' "$dcgm_chart_version"
+  printf '  keda: "%s"\n' "$keda_chart_version"
   printf '  vllm: "%s"\n' "$vllm_chart_version"
   printf '  gateway: "%s"\n' "$gateway_chart_version"
   printf 'gateway:\n'
   printf '  image_repository: "%s"\n' "$gateway_image_repository"
   printf '  image_digest: "%s"\n' "$GATEWAY_IMAGE_DIGEST"
   printf '  image: "%s@%s"\n' "$gateway_image_repository" "$GATEWAY_IMAGE_DIGEST"
+  printf 'autoscaling:\n'
+  printf '  enabled: %s\n' "$deploy_autoscale"
+  printf '  provider: "%s"\n' "$autoscale_provider"
+  printf '  namespace: "%s"\n' "$keda_namespace"
+  printf '  min_replicas: 1\n'
+  printf '  max_replicas: %s\n' "$autoscale_max"
+  printf '  metric: "vllm:num_requests_waiting"\n'
+  printf '  node_capacity: "static"\n'
+  printf '  measured_cold_start: "pod-plus-model"\n'
+  printf '  node_provisioning_latency: "out-of-scope"\n'
+  printf '  karpenter: "not-exercised"\n'
+  printf '  spot: "not-exercised"\n'
 } >"$deploy_manifest"
 
-printf 'M5 deployment ready. Deploy manifest: %s\n' "$deploy_manifest"
+printf 'Deployment ready. Deploy manifest: %s\n' "$deploy_manifest"
 printf 'Export DEPLOY_MANIFEST=%q before running a benchmark.\n' "$deploy_manifest"

@@ -3,6 +3,9 @@ image:
   tag: v0.27.1
   digest: ""
 
+autoscaling:
+  enabled: false
+
 model:
   repository: Qwen/Qwen2.5-7B-Instruct-AWQ
   revision: resolved-at-first-deploy
@@ -22,4 +25,3 @@ modelCache:
 serviceMonitor:
   enabled: true
   interval: 15s
-

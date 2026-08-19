@@ -117,13 +117,13 @@ variable "system_node_count" {
 }
 
 variable "gpu_node_count" {
-  description = "P0 GPU node count. The safety ceiling is one node."
+  description = "GPU node count. Two nodes are reserved for the explicitly approved M8 autoscaling treatment."
   type        = number
   default     = 1
 
   validation {
-    condition     = contains([0, 1], var.gpu_node_count)
-    error_message = "gpu_node_count must be 0 or 1; P0 never creates more than one GPU node."
+    condition     = contains([0, 1, 2], var.gpu_node_count)
+    error_message = "gpu_node_count must be 0, 1, or 2."
   }
 }
 

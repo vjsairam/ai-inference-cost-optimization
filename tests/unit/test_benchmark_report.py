@@ -25,6 +25,7 @@ def _run_dir(
     publishable: bool = False,
     location: str = "local-mock",
     node_group: str | None = None,
+    gpu_count: int | None = None,
 ) -> Path:
     scenario_name = "generation-local.yaml" if correct is None else "classification-local.yaml"
     scenario = load_scenario(ROOT / "benchmark/scenarios" / scenario_name).model_copy(
@@ -46,6 +47,7 @@ def _run_dir(
         "slo": {"target": slo.require_cell(scenario.slo_cell).model_dump(mode="json")},
         "statistics": {"repeat_group_id": "report-test"},
         "harness": {"location": location, "node_group": node_group},
+        "compute": {"gpu_count": gpu_count},
     }
     (run_dir / "manifest.yaml").write_text(
         yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8"
@@ -151,6 +153,23 @@ def test_private_billed_hours_override_and_source_labels(
             "shared_platform_billed_hours",
         )
     } == {"2.5"}
+
+
+def test_private_cost_uses_aggregate_gpu_node_hours(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    run_dir = _run_dir(tmp_path, provider="private-vllm", correct=True, gpu_count=2)
+    monkeypatch.setenv("BENCHMARK_PRIVATE_BILLED_HOURS", "2.5")
+
+    build_report(run_dir, ROOT)
+
+    cost = json.loads((run_dir / "cost.json").read_text(encoding="utf-8"))
+    billed_inputs = cost["private_billed_inputs"]
+    assert cost["gpu_node_count"] == 2
+    assert billed_inputs["gpu_node_billed_hours"] == "5.0"
+    assert billed_inputs["model_storage_billed_hours"] == "5.0"
+    assert billed_inputs["cpu_node_billed_hours"] == "2.5"
+    assert billed_inputs["shared_platform_billed_hours"] == "2.5"
 
 
 def test_observed_cost_payload_labels_only_meaningful_token_definitions(tmp_path: Path) -> None:

@@ -160,3 +160,9 @@ def test_vllm_chart_is_private_and_requests_one_tolerated_gpu() -> None:
     assert container["startupProbe"]["failureThreshold"] >= 60
     assert "--model" in container["args"]
     assert "--revision" in container["args"]
+
+
+def test_vllm_chart_leaves_replicas_to_keda_when_autoscaling_is_enabled() -> None:
+    deployment = _one(_render("vllm", "--set", "autoscaling.enabled=true"), "Deployment")
+
+    assert "replicas" not in deployment["spec"]

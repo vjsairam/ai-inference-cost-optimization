@@ -1,0 +1,36 @@
+id: t5-autoscale-classification-v1
+treatment: t5-autoscale
+workload: classification
+provider_mode: private
+stream: true
+concurrency: 64
+requests: 300
+temperature: 0
+max_tokens: 64
+data_class: restricted
+quality_tier: premium
+structured_output_mode: baseline-portable
+warmup_requests: 10
+repeats: 3
+dataset: benchmark/datasets/synthetic/classification-v1
+slo_config: config/slo.example.yaml
+slo_cell: WL-01/premium
+pricing_config: config/providers.example.yaml
+timeout_config: policy/treatments/t1-private-only.yaml
+cost_config: config/cost.example.yaml
+model: lab-private
+publishable: true
+economic_views: [view_a, view_b]
+pricing_version: "2026-08-15"
+bootstrap_iterations: 2000
+seed: 20260815
+request_rate_schedule: closed-loop
+sampling_parameters:
+  token_profile: short
+notes: >-
+  T5 private-only KEDA treatment. Restricted traffic must remain on vLLM with fallback disabled.
+  Concurrency 64 is twice the pinned max sequence count, which is intended to sustain queue depth
+  on one L4 replica and request scale-out to replica 2. Measure the queue trigger, scheduling and
+  pod-plus-model cold start on the second warm static GPU node, queue behavior, and the added cost
+  of two provisioned g6.xlarge nodes. Node provisioning latency is out of scope. Karpenter and
+  Spot are not exercised.
