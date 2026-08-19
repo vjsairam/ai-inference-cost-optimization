@@ -1,0 +1,35 @@
+schema_version: "m5-v1"
+deployed_at: "20260819T034359Z"
+environment:
+  cloud: aws
+  region: "us-east-1"
+  kubernetes_version: "v1.34.9-eks-bca9cf6"
+compute:
+  gpu_count: 1
+  gpu_and_driver: "NVIDIA L4, 580.159.03"
+  cuda: "13.0"
+runtime:
+  server_version: "0.27.1"
+  image: "vllm/vllm-openai@sha256:0a51ea5b4ae2dc5d81890e5173f54203d2a3ae0cfffe51b8fd2afd4391bfd967"
+  image_digest: "sha256:0a51ea5b4ae2dc5d81890e5173f54203d2a3ae0cfffe51b8fd2afd4391bfd967"
+model:
+  id: "Qwen/Qwen2.5-7B-Instruct-AWQ"
+  revision: "b25037543e9394b818fdfca67ab2a00ecc7dd641"
+  license_note: "Apache-2.0; Qwen2.5-7B-Instruct AWQ artifact"
+  dtype: half
+  quantization: awq
+  max_model_len: 8192
+  gpu_memory_utilization: "0.90"
+  tensor_parallel: 1
+  prefix_caching: true
+  max_sequences: 32
+  generation_config: vllm
+charts:
+  kube_prometheus_stack: "87.21.0"
+  dcgm_exporter: "4.8.3"
+  vllm: "0.1.0"
+  gateway: "0.1.0"
+gateway:
+  image_repository: "ghcr.io/vjsairam/inference-gateway"
+  image_digest: "sha256:83bb5895b11472c2a7c4c85652dc9805b1317bf2bbc82a5783443cc0836c7bda"
+  image: "ghcr.io/vjsairam/inference-gateway@sha256:83bb5895b11472c2a7c4c85652dc9805b1317bf2bbc82a5783443cc0836c7bda"

@@ -1,0 +1,183 @@
+{
+  "applicable": true,
+  "by_difficulty": {
+    "easy": {
+      "attempts": 315,
+      "correct": 198,
+      "rate": 0.6285714285714286
+    },
+    "hard": {
+      "attempts": 291,
+      "correct": 182,
+      "rate": 0.6254295532646048
+    },
+    "medium": {
+      "attempts": 294,
+      "correct": 189,
+      "rate": 0.6428571428571429
+    }
+  },
+  "quality_rate": 0.6322222222222222,
+  "task_correct": 569,
+  "task_metrics": {
+    "accuracy": 0.6322222222222222,
+    "confusion": {
+      "access": {
+        "access": 51,
+        "billing": 16,
+        "delivery": 0,
+        "fault mock": 44,
+        "hardware": 0,
+        "network": 0,
+        "security": 0,
+        "software": 0,
+        "storage": 0
+      },
+      "billing": {
+        "access": 0,
+        "billing": 72,
+        "delivery": 0,
+        "fault mock": 36,
+        "hardware": 0,
+        "network": 0,
+        "security": 0,
+        "software": 0,
+        "storage": 0
+      },
+      "delivery": {
+        "access": 0,
+        "billing": 0,
+        "delivery": 78,
+        "fault mock": 30,
+        "hardware": 0,
+        "network": 0,
+        "security": 0,
+        "software": 0,
+        "storage": 0
+      },
+      "fault mock": {
+        "access": 0,
+        "billing": 0,
+        "delivery": 0,
+        "fault mock": 0,
+        "hardware": 0,
+        "network": 0,
+        "security": 0,
+        "software": 0,
+        "storage": 0
+      },
+      "hardware": {
+        "access": 0,
+        "billing": 0,
+        "delivery": 0,
+        "fault mock": 32,
+        "hardware": 85,
+        "network": 0,
+        "security": 0,
+        "software": 0,
+        "storage": 0
+      },
+      "network": {
+        "access": 0,
+        "billing": 0,
+        "delivery": 0,
+        "fault mock": 42,
+        "hardware": 0,
+        "network": 72,
+        "security": 0,
+        "software": 0,
+        "storage": 0
+      },
+      "security": {
+        "access": 15,
+        "billing": 0,
+        "delivery": 0,
+        "fault mock": 40,
+        "hardware": 0,
+        "network": 0,
+        "security": 59,
+        "software": 0,
+        "storage": 0
+      },
+      "software": {
+        "access": 0,
+        "billing": 0,
+        "delivery": 0,
+        "fault mock": 42,
+        "hardware": 0,
+        "network": 0,
+        "security": 0,
+        "software": 75,
+        "storage": 0
+      },
+      "storage": {
+        "access": 0,
+        "billing": 0,
+        "delivery": 0,
+        "fault mock": 34,
+        "hardware": 0,
+        "network": 0,
+        "security": 0,
+        "software": 0,
+        "storage": 77
+      }
+    },
+    "per_class": {
+      "access": {
+        "f1": 0.576271186440678,
+        "precision": 0.7727272727272727,
+        "recall": 0.4594594594594595,
+        "support": 111
+      },
+      "billing": {
+        "f1": 0.7346938775510203,
+        "precision": 0.8181818181818182,
+        "recall": 0.6666666666666666,
+        "support": 108
+      },
+      "delivery": {
+        "f1": 0.8387096774193548,
+        "precision": 1.0,
+        "recall": 0.7222222222222222,
+        "support": 108
+      },
+      "fault mock": {
+        "f1": 0.0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "support": 0
+      },
+      "hardware": {
+        "f1": 0.8415841584158416,
+        "precision": 1.0,
+        "recall": 0.7264957264957265,
+        "support": 117
+      },
+      "network": {
+        "f1": 0.7741935483870968,
+        "precision": 1.0,
+        "recall": 0.631578947368421,
+        "support": 114
+      },
+      "security": {
+        "f1": 0.6820809248554913,
+        "precision": 1.0,
+        "recall": 0.5175438596491229,
+        "support": 114
+      },
+      "software": {
+        "f1": 0.7812500000000001,
+        "precision": 1.0,
+        "recall": 0.6410256410256411,
+        "support": 117
+      },
+      "storage": {
+        "f1": 0.8191489361702128,
+        "precision": 1.0,
+        "recall": 0.6936936936936937,
+        "support": 111
+      }
+    },
+    "unknown_predictions": {}
+  }
+}

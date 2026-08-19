@@ -101,8 +101,10 @@ deployment.
 ## 3:40-4:00 - boundary and next run
 
 Close on the evidence table in the README. The 2026-08-17 cycle measured the T0/T1 baselines,
-the T3 hybrid, and the T4 Pod-delete treatment, published six reviewed runs, and destroyed the
-lab with independent verification. Point at the headline: private wins classification on both
-axes, managed premium wins extraction quality, and the router prices the blend in between. The
-excluded provider-fault attempt and the disclosed metadata gaps show the fail-closed review
-working on real evidence.
+the T3 hybrid, and the T4 Pod-delete treatment; the 2026-08-19 rerun added the provider-fault
+treatment with verified injection, for seven reviewed runs, each cycle destroyed with
+independent verification. Point at the headline: private wins classification on both axes,
+managed premium wins extraction quality, the router prices the blend in between, and under
+injected provider faults every faulted premium request failed over with zero client-visible
+errors. The withdrawn first provider-fault attempt and the disclosed metadata gaps show the
+fail-closed review working on real evidence.

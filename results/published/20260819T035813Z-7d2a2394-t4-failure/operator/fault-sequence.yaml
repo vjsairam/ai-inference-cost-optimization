@@ -1,0 +1,4 @@
+sequence: [rate_limited_429, ok, ok, server_500, ok, ok, timeout, ok, ok]
+retry_after_seconds: 1
+timeout_seconds: 35
+delayed_ms: 100

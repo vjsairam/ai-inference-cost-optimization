@@ -2,16 +2,32 @@
 
 This directory holds reviewed benchmark evidence. The 2026-08-17 cycle published six runs:
 managed and private baselines for classification and structured extraction, the policy-routed
-hybrid, and the Pod-delete failure treatment. Each run directory carries its immutable manifest,
-aggregate reports, charts, a raw-records reference with checksum, and an operator
-interpretation. Three additional runs from the same cycle were excluded during review. Two were
-excluded because a managed-provider credit outage produced only provider errors. The third, the
-provider-fault treatment, was excluded because its own records contradict the intended
-treatment: zero provider errors, zero fallbacks, and a premium-cell latency profile matching the
-real managed provider rather than the 100 ms fault service, which shows the fault-service
-reconfiguration never took effect for that run. Raw records for all excluded runs remain in the
-operator archive. Local mock reports belong under `results/local/` and must not be copied here
-as performance evidence.
+hybrid, and the Pod-delete failure treatment. A targeted 2026-08-19 cycle added a seventh run,
+the provider-fault treatment, redone with verified in-path injection after the original attempt
+was withdrawn. Each run directory carries its immutable manifest, aggregate reports, charts, a
+raw-records reference with checksum, and an operator interpretation. Three runs from the
+2026-08-17 cycle were excluded during review. Two were excluded because a managed-provider
+credit outage produced only provider errors. The third, the original provider-fault treatment,
+was excluded because its own records contradict the intended treatment: zero provider errors,
+zero fallbacks, and a premium-cell latency profile matching the real managed provider rather
+than the 100 ms fault service, which shows the fault-service reconfiguration never took effect
+for that run. Raw records for all excluded runs remain in the operator archive. Local mock
+reports belong under `results/local/` and must not be copied here as performance evidence.
+
+## 2026-08-19 targeted rerun
+
+The 2026-08-19 cycle existed to redo the provider-fault treatment correctly. The root cause of
+the silent 2026-08-17 failure was that the deployed provider configuration never declared a
+base-URL override for the managed provider, so redeploying the fault service did not redirect
+traffic. The gateway chart now exposes `config.managedPrimaryBaseUrl`, the runbook makes the
+nonzero fault-service counter check a mandatory pre-run gate, and this run's published
+interpretation includes the counter evidence. The manifest gaps disclosed below are also fixed
+in this run: placement and hardware fields are populated, `gateway_access` records the ClusterIP
+path, `failure_injection` is true, and DCGM GPU telemetry was scraping during the window. The
+run directory adds an `operator/` folder holding the checksummed effective fault sequence and
+the rendered runner and fault-mock manifests with the applied image digest, plus `media/`
+dashboard captures, and its README discloses one stale scenario-notes string embedded in the
+immutable manifest.
 
 ## 2026-08-17 cycle disclosures
 

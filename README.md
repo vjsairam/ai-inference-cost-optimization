@@ -80,8 +80,8 @@ repeat metadata before load begins. Publication then follows the
 | Local hybrid routing and report plumbing | Complete local mock behavior evidence | Cloud T3 remains separate |
 | T0 managed and T1 private baselines | Measured 2026-08-17 in us-east-1, both workloads, 900 requests x 3 repeats each | Reruns on other stacks or dates supersede, never overwrite |
 | T3 hybrid and T4 Pod failure | Measured 2026-08-17; Pod deleted live and recovered in 2m45s | Same |
-| T4 provider faults | Attempted 2026-08-17 and excluded on review; the fault reconfiguration never took effect | A rerun with verified injection |
-| Case-study release | Published and tagged; six reviewed runs after post-tag review withdrew the provider-fault attempt | Future measured cycles add evidence under new run IDs |
+| T4 provider faults | Measured 2026-08-19 with verified in-path injection; 150 of 150 faulted premium requests failed over with zero client-visible errors | Same |
+| Case-study release | Published and tagged; seven reviewed runs after the 2026-08-19 rerun replaced the withdrawn provider-fault attempt | Future measured cycles add evidence under new run IDs |
 
 Measured 2026-08-17, View A, cost per correct task on the frozen synthetic datasets:
 
@@ -95,14 +95,21 @@ at 88.9% correct for $0.00071 per correct task; its balanced and economy traffic
 their SLO targets while the premium cell failed its TTFT and quality targets, mirroring the
 managed premium baseline. T4 measured 71.0% correct with 160 timeout errors while the vLLM Pod
 was deleted and recovered (2m45s to available); restricted traffic failed closed rather than
-leaking to the managed provider. The provider-fault treatment was attempted in the same cycle
-but excluded during review because its records show the fault service was never actually in the
-path. Restricted-class traffic never left the private path in any treatment.
+leaking to the managed provider. The provider-fault treatment was redone on 2026-08-19 after the
+original attempt was excluded because its records show the fault service was never actually in
+the path. In the rerun, with one of every three managed premium requests hitting an injected
+429, 500, or 35 second timeout (fault-service counters: 52 of each class across 466 requests),
+all 150 faulted requests failed over to the private path, no request surfaced an error to the
+client, and the timeout faults cost about 30 seconds each before failover, which correctly fails
+the premium SLO cell while the restricted cell passed every check with zero fallbacks.
+Restricted-class traffic never left the private path in any treatment.
 
 SC-11 reproduce cost: the full first cycle, including every defect it uncovered, took 5.3 wall
 hours and about 19 USD (8 USD infrastructure, 11 USD managed API). A clean rerun following the
 runbooks is estimated at 2.5 to 3 hours and 10 to 14 USD; that estimate becomes a measured band
-on the next cycle.
+on the next cycle. The targeted single-treatment rerun on 2026-08-19 took 53 minutes of wall
+clock from create to verified destroy, an estimated 0.9 USD of infrastructure at the planning
+rate, and near-zero managed API spend, because the faulted arm talks to the local mock.
 
 ## Reproduce locally
 
@@ -167,12 +174,14 @@ response.
   combined aggregate as informational.
 - The provider-fault treatment produced no valid evidence in the 2026-08-17 cycle: post-publication
   record review showed the gateway was still talking to the real managed provider during the
-  intended fault window, so the run was withdrawn from `results/published/`. Provider-fault
-  behavior in the cloud remains proven only at the local mock level until a rerun with verified
-  injection.
+  intended fault window, so the run was withdrawn from `results/published/`. The 2026-08-19 rerun
+  closed this gap with a mandatory pre-run fault-service counter gate; its mock-served responses
+  score zero on quality by construction, so that run measures failover mechanics, not premium
+  answer quality, and its managed-arm costs use mock pricing.
 - GPU utilization telemetry was not captured during the 2026-08-17 run because the DCGM exporter
   was never scraped after a node replacement; the affected reports disclose this. The vLLM
-  server's own latency metrics were captured instead.
+  server's own latency metrics were captured instead. The scrape-interval defect was fixed and
+  DCGM telemetry was verified live during the 2026-08-19 run.
 - The managed premium model frequently exhausted the declared 64-token classification budget on
   preamble, producing empty answers that score as failures. That is a finding about token budgets
   for reasoning-style models under this scenario contract, not a general capability statement; a
