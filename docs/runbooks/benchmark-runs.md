@@ -176,38 +176,26 @@ state, and `DEPLOY_MANIFEST=/evidence/deploy-manifest.yaml`. Before T0 and T1, a
 run-scoped routing policy that selects only the named provider and has no fallback. Restore and
 hash the normal policy before T3 and T4.
 
-Define this helper in the operator shell. It creates a run-scoped ConfigMap, mounts its
-`routing.yaml` into the gateway Deployment, points `GATEWAY_ROUTING_CONFIG` at that mounted file,
-restarts the gateway, and verifies the mounted hash. Retain each printed hash with the run notes.
-The T0 and T1 scenarios reference the same treatment files, so `manifest.yaml` records the hash in
-both `policy.config_sha256` and `timeouts.config_sha256`.
+Define this helper in the operator shell. It creates a run-scoped ConfigMap, selects it through the
+gateway chart, waits for the resulting rollout, and verifies the mounted hash. The checksum suffix
+makes each policy change update the pod template. Retain each printed hash with the run notes. The
+T0 and T1 scenarios reference the same treatment files, so `manifest.yaml` records the hash in both
+`policy.config_sha256` and `timeouts.config_sha256`.
 
 ```bash
 apply_run_policy() {
   local policy_path="$1"
   local expected_sha
   local mounted_sha
+  local routing_config_map
   expected_sha="$(sha256sum "$policy_path" | awk '{print $1}')"
-  kubectl create configmap gateway-routing-run --namespace gateway-system \
+  routing_config_map="gateway-routing-run-${expected_sha:0:12}"
+  kubectl create configmap "$routing_config_map" --namespace gateway-system \
     --from-file=routing.yaml="$policy_path" --dry-run=client -o yaml | kubectl apply -f -
-  kubectl patch deployment gateway --namespace gateway-system --type=strategic --patch '
-spec:
-  template:
-    spec:
-      containers:
-        - name: gateway
-          volumeMounts:
-            - name: run-routing
-              mountPath: /etc/gateway-treatment
-              readOnly: true
-      volumes:
-        - name: run-routing
-          configMap:
-            name: gateway-routing-run
-'
-  kubectl set env deployment/gateway --namespace gateway-system \
-    GATEWAY_ROUTING_CONFIG=/etc/gateway-treatment/routing.yaml
-  kubectl rollout restart deployment/gateway --namespace gateway-system
+  helm upgrade gateway infra/helm/gateway \
+    --namespace gateway-system \
+    --reuse-values \
+    --set-string config.routingOverrideConfigMap="$routing_config_map"
   kubectl rollout status deployment/gateway --namespace gateway-system --timeout=10m
   mounted_sha="$(kubectl exec --namespace gateway-system deployment/gateway \
     --container gateway -- sha256sum /etc/gateway-treatment/routing.yaml | awk '{print $1}')"
@@ -400,7 +388,8 @@ curl --fail --silent --show-error \
 helm upgrade gateway infra/helm/gateway \
   --namespace gateway-system \
   --reuse-values \
-  --set config.managedPrimaryBaseUrl=
+  --set config.managedPrimaryBaseUrl= \
+  --set config.routingOverrideConfigMap=
 kubectl rollout status deployment/gateway --namespace gateway-system --timeout=10m
 
 curl --fail --silent --show-error --max-time 120 \
@@ -496,22 +485,22 @@ uv run python -m inference_gateway.benchmark compare \
   results/raw/<t0-extraction-run-id> results/raw/<t1-extraction-run-id>
 ```
 
-This writes `comparison.json` and `comparison.md` in `results/raw/`, the parent evidence
-directory of the first run, then refreshes both summaries so they include the comparison. Each
-command replaces the pair-level files in `results/raw/`, so preserve the reviewed classification
-files before running the extraction comparison. After T3 is complete, run the required T3 versus
-T1 classification comparison as a separate evidence review:
+This writes pair-specific files named
+`comparison-<t0-run-id>-vs-<t1-run-id>.json` and
+`comparison-<t0-run-id>-vs-<t1-run-id>.md` in `results/raw/`, the parent evidence directory of the
+first run, then refreshes both summaries so they include the comparison. After T3 is complete, run
+the required T3 versus T1 classification comparison as a separate evidence review:
 
 ```bash
 uv run python -m inference_gateway.benchmark compare \
   results/raw/<t1-classification-run-id> results/raw/<t3-run-id>
 ```
 
-This command also replaces the pair-level files in `results/raw/`. Preserve both reviewed T0
-versus T1 workload comparisons with the M6 evidence bundle before running the T3 comparison. T3
-and T1 currently declare different aggregate SLO cells, so their claimability result must remain
-inconclusive unless a later frozen treatment aligns the compared cells. The per-cell T3 SLO
-results are still required and cannot be replaced by its informational aggregate.
+This command writes another pair-specific JSON and Markdown file without replacing either T0
+versus T1 comparison. Preserve all three reviewed comparisons with the M6 evidence bundle. T3 and
+T1 currently declare different aggregate SLO cells, so their claimability result must remain
+inconclusive unless a later frozen treatment aligns the compared cells. The per-cell T3 SLO results
+are still required and cannot be replaced by its informational aggregate.
 
 Before publishing any comparison, the operator must inspect all of the following:
 

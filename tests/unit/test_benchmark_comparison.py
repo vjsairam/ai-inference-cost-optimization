@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from inference_gateway.benchmark.comparison import build_comparison
+from inference_gateway.benchmark.comparison import build_comparison, comparison_output_paths
 from inference_gateway.benchmark.models import BenchmarkRecord, TokenUsageRecord
 from inference_gateway.models import ErrorClass
 
@@ -146,7 +146,11 @@ def test_comparison_pairs_items_and_supports_pareto_direction(tmp_path: Path) ->
     assert comparison["cost_per_correct_task_delta"]["view_a"]["delta_b_minus_a"] == -1
     assert comparison["claimability"]["status"] == "supported"
     assert comparison["claimability"]["direction"] == "treatment_b"
-    assert (tmp_path / "comparison.json").is_file()
+    json_path, markdown_path = comparison_output_paths(tmp_path, comparison)
+    assert json_path == tmp_path / "comparison-run-a-vs-run-b.json"
+    assert markdown_path == tmp_path / "comparison-run-a-vs-run-b.md"
+    assert json_path.is_file()
+    assert not (tmp_path / "comparison.json").exists()
 
 
 def test_comparison_refuses_different_dataset_item_sets(tmp_path: Path) -> None:

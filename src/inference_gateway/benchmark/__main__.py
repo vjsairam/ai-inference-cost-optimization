@@ -11,7 +11,11 @@ from pathlib import Path
 import httpx
 
 from inference_gateway.api import create_app
-from inference_gateway.benchmark.comparison import build_comparison, write_comparison_markdown
+from inference_gateway.benchmark.comparison import (
+    build_comparison,
+    comparison_output_paths,
+    write_comparison_markdown,
+)
 from inference_gateway.benchmark.datasets import load_dataset
 from inference_gateway.benchmark.harness import BenchmarkHarness
 from inference_gateway.benchmark.local import local_adapters
@@ -103,16 +107,17 @@ def _compare(args: argparse.Namespace) -> None:
     run_dir_b = Path(args.run_dir_b).resolve()
     comparison = build_comparison(run_dir_a, run_dir_b, root)
     output_dir = run_dir_a.parent
-    write_comparison_markdown(output_dir / "comparison.md", comparison)
-    build_report(run_dir_a, root)
+    comparison_json, comparison_markdown = comparison_output_paths(output_dir, comparison)
+    write_comparison_markdown(comparison_markdown, comparison)
+    build_report(run_dir_a, root, comparison_path=comparison_json)
     if run_dir_b.parent == output_dir:
-        build_report(run_dir_b, root)
+        build_report(run_dir_b, root, comparison_path=comparison_json)
     print(
         json.dumps(
             {
                 "claimability": comparison["claimability"]["status"],
-                "comparison_json": str(output_dir / "comparison.json"),
-                "comparison_markdown": str(output_dir / "comparison.md"),
+                "comparison_json": str(comparison_json),
+                "comparison_markdown": str(comparison_markdown),
             },
             sort_keys=True,
         )

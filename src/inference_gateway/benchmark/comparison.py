@@ -360,12 +360,27 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
     )
 
 
+def comparison_output_paths(output_dir: Path, comparison: dict[str, Any]) -> tuple[Path, Path]:
+    """Return the pair-specific JSON and Markdown output paths."""
+    treatments = comparison.get("treatments")
+    if not isinstance(treatments, list) or len(treatments) != 2:
+        raise ValueError("comparison must contain exactly two treatments")
+    run_ids = [
+        str(treatment.get("run_id", "")) if isinstance(treatment, dict) else ""
+        for treatment in treatments
+    ]
+    if any(not run_id or Path(run_id).name != run_id for run_id in run_ids):
+        raise ValueError("comparison run IDs must be valid file name components")
+    stem = f"comparison-{run_ids[0]}-vs-{run_ids[1]}"
+    return output_dir / f"{stem}.json", output_dir / f"{stem}.md"
+
+
 def build_comparison(
     run_dir_a: str | Path,
     run_dir_b: str | Path,
     repository_root: str | Path,
 ) -> dict[str, Any]:
-    """Compare two completed runs and write comparison.json beside the first run."""
+    """Compare two completed runs and write pair-specific JSON beside the first run."""
     root = Path(repository_root).resolve()
     path_a = Path(run_dir_a).resolve()
     path_b = Path(run_dir_b).resolve()
@@ -411,7 +426,8 @@ def build_comparison(
         costs,
         delta_ci,
     )
-    _write_json(path_a.parent / "comparison.json", comparison)
+    json_path, _ = comparison_output_paths(path_a.parent, comparison)
+    _write_json(json_path, comparison)
     return comparison
 
 

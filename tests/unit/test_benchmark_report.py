@@ -241,19 +241,38 @@ def test_cloud_report_names_placement_and_missing_gpu_telemetry(tmp_path: Path) 
     assert all("plumbing evidence only" not in item for item in summary["limitations"])
 
 
-def test_paired_comparison_clears_no_comparison_limitation(tmp_path: Path) -> None:
+@pytest.mark.parametrize("stored_with_run", [False, True])
+def test_paired_comparison_clears_no_comparison_limitation(
+    tmp_path: Path, stored_with_run: bool
+) -> None:
     run_dir = _run_dir(tmp_path, provider="private-vllm", correct=True)
     comparison = {
         "treatments": [{"run_id": "report-test"}, {"run_id": "other-run"}],
         "claimability": {"status": "inconclusive", "reason": "local placement"},
     }
-    (tmp_path / "comparison.json").write_text(json.dumps(comparison), encoding="utf-8")
+    comparison_dir = run_dir if stored_with_run else tmp_path
+    (comparison_dir / "comparison.json").write_text(json.dumps(comparison), encoding="utf-8")
 
     summary = build_report(run_dir, ROOT)
 
     assert summary["comparison"] == comparison
     assert summary["statistics"]["claimability"] == comparison["claimability"]
     assert all("No treatment comparison" not in item for item in summary["limitations"])
+
+
+def test_report_discovers_pair_specific_comparison(tmp_path: Path) -> None:
+    run_dir = _run_dir(tmp_path, provider="private-vllm", correct=True)
+    comparison = {
+        "treatments": [{"run_id": "other-run"}, {"run_id": "report-test"}],
+        "claimability": {"status": "inconclusive", "reason": "local placement"},
+    }
+    comparison_path = tmp_path / "comparison-other-run-vs-report-test.json"
+    comparison_path.write_text(json.dumps(comparison), encoding="utf-8")
+
+    summary = build_report(run_dir, ROOT)
+
+    assert summary["comparison"] == comparison
+    assert summary["statistics"]["claimability"] == comparison["claimability"]
 
 
 def _mixed_tier_run(tmp_path: Path, *, publishable: bool, samples_per_cell: int) -> Path:

@@ -74,7 +74,10 @@ spec:
           volumeMounts:
             - name: config
               mountPath: {{ .Values.config.mountPath }}
-              readOnly: true
+              readOnly: true{{ if .Values.config.routingOverrideConfigMap }}
+            - name: routing-override
+              mountPath: /etc/gateway-treatment
+              readOnly: true{{ end }}
           readinessProbe:
             httpGet:
               path: /health/ready
@@ -97,7 +100,10 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: gateway-config
+            name: gateway-config{{ if .Values.config.routingOverrideConfigMap }}
+        - name: routing-override
+          configMap:
+            name: {{ .Values.config.routingOverrideConfigMap }}{{ end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -10,6 +10,7 @@ from collections import Counter
 from dataclasses import asdict, is_dataclass
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
+from glob import escape as glob_escape
 from pathlib import Path
 from typing import Any, cast
 
@@ -240,8 +241,29 @@ def _evaluate_slo_cell(
     }
 
 
-def _comparison_for_run(run_dir: Path, run_id: str) -> dict[str, Any] | None:
-    for path in (run_dir / "comparison.json", run_dir.parent / "comparison.json"):
+def _comparison_for_run(
+    run_dir: Path, run_id: str, preferred_path: Path | None = None
+) -> dict[str, Any] | None:
+    paths = []
+    if preferred_path is not None:
+        paths.append(preferred_path)
+    paths.append(run_dir / "comparison.json")
+    escaped_run_id = glob_escape(run_id)
+    pair_paths = sorted(
+        {
+            *run_dir.parent.glob(f"comparison-{escaped_run_id}-vs-*.json"),
+            *run_dir.parent.glob(f"comparison-*-vs-{escaped_run_id}.json"),
+        },
+        key=lambda path: (path.stat().st_mtime_ns, path.name),
+        reverse=True,
+    )
+    paths.extend(pair_paths)
+    paths.append(run_dir.parent / "comparison.json")
+    seen: set[Path] = set()
+    for path in paths:
+        if path in seen:
+            continue
+        seen.add(path)
         if not path.is_file():
             continue
         try:
@@ -379,7 +401,12 @@ def _report_limitations(summary: dict[str, Any], scenario: BenchmarkScenario) ->
     return limitations
 
 
-def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
+def build_report(
+    run_dir: Path,
+    repository_root: Path,
+    *,
+    comparison_path: Path | None = None,
+) -> dict[str, Any]:
     manifest = yaml.safe_load((run_dir / "manifest.yaml").read_text(encoding="utf-8"))
     scenario = BenchmarkScenario.model_validate(manifest["scenario"])
     records = [
@@ -707,7 +734,9 @@ def build_report(run_dir: Path, repository_root: Path) -> dict[str, Any]:
         "harness": manifest["harness"],
         "sample_size": len(records),
     }
-    comparison = _comparison_for_run(run_dir, str(manifest["run_id"]))
+    comparison = _comparison_for_run(
+        run_dir, str(manifest["run_id"]), preferred_path=comparison_path
+    )
     if comparison is None and "comparison" in manifest:
         comparison = cast(dict[str, Any], manifest["comparison"])
     if comparison is not None:

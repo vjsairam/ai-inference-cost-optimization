@@ -99,6 +99,48 @@ def test_gateway_chart_wires_configured_managed_primary_base_url() -> None:
     assert environment["MANAGED_PRIMARY_BASE_URL"]["value"] == base_url
 
 
+def test_gateway_chart_omits_empty_routing_override() -> None:
+    documents = _render("gateway", "--set-string", "config.routingOverrideConfigMap=")
+    config = _one(documents, "ConfigMap")["data"]
+    pod_spec = _one(documents, "Deployment")["spec"]["template"]["spec"]
+    container = pod_spec["containers"][0]
+    environment = {entry["name"]: entry for entry in container["env"]}
+
+    assert config["GATEWAY_ROUTING_CONFIG"] == "/etc/gateway/routing.yaml"
+    assert environment["GATEWAY_ROUTING_CONFIG"]["valueFrom"]["configMapKeyRef"] == {
+        "name": "gateway-config",
+        "key": "GATEWAY_ROUTING_CONFIG",
+    }
+    assert {entry["name"] for entry in container["volumeMounts"]} == {"config"}
+    assert {entry["name"] for entry in pod_spec["volumes"]} == {"config"}
+
+
+def test_gateway_chart_mounts_routing_override_config_map() -> None:
+    override_name = "gateway-routing-run-0123456789ab"
+    documents = _render(
+        "gateway", "--set-string", f"config.routingOverrideConfigMap={override_name}"
+    )
+    config = _one(documents, "ConfigMap")["data"]
+    pod_spec = _one(documents, "Deployment")["spec"]["template"]["spec"]
+    container = pod_spec["containers"][0]
+    environment = {entry["name"]: entry for entry in container["env"]}
+    volume_mounts = {entry["name"]: entry for entry in container["volumeMounts"]}
+    volumes = {entry["name"]: entry for entry in pod_spec["volumes"]}
+
+    assert config["GATEWAY_ROUTING_CONFIG"] == "/etc/gateway-treatment/routing.yaml"
+    assert "value" not in environment["GATEWAY_ROUTING_CONFIG"]
+    assert environment["GATEWAY_ROUTING_CONFIG"]["valueFrom"]["configMapKeyRef"] == {
+        "name": "gateway-config",
+        "key": "GATEWAY_ROUTING_CONFIG",
+    }
+    assert volume_mounts["routing-override"] == {
+        "name": "routing-override",
+        "mountPath": "/etc/gateway-treatment",
+        "readOnly": True,
+    }
+    assert volumes["routing-override"]["configMap"]["name"] == override_name
+
+
 def test_vllm_chart_is_private_and_requests_one_tolerated_gpu() -> None:
     documents = _render("vllm")
     assert {document["kind"] for document in documents} >= {

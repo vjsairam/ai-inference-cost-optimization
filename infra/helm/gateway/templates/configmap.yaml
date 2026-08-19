@@ -7,7 +7,7 @@ metadata:
     {{- include "gateway.labels" . | nindent 4 }}
 data:
   GATEWAY_PROVIDERS_CONFIG: {{ printf "%s/providers.yaml" .Values.config.mountPath | quote }}
-  GATEWAY_ROUTING_CONFIG: {{ printf "%s/routing.yaml" .Values.config.mountPath | quote }}
+  GATEWAY_ROUTING_CONFIG: {{ if .Values.config.routingOverrideConfigMap }}"/etc/gateway-treatment/routing.yaml"{{ else }}{{ printf "%s/routing.yaml" .Values.config.mountPath | quote }}{{ end }}
   GATEWAY_AUTH_CONFIG: {{ printf "%s/auth.yaml" .Values.config.mountPath | quote }}
   GATEWAY_SLO_CONFIG: {{ printf "%s/slo.yaml" .Values.config.mountPath | quote }}
   PRIVATE_VLLM_BASE_URL: {{ .Values.config.privateVllmBaseUrl | quote }}
