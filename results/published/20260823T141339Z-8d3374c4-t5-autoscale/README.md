@@ -35,9 +35,8 @@ The scale-out lifecycle was fully observed inside the benchmark window
   about 38 seconds after the Ready condition, so the benchmark itself
   overlapped the two-replica state only briefly.
 - After the load ended and the queue drained, the event export records the
-  desired scale-down and the scale Pod's deletion at 14:31:38Z, the
-  pipeline's guarded read observed one available replica (logged 14:31:39Z),
-  and the cluster-wide Pod listing captured at 14:31:43Z shows exactly one
+  desired scale-down and the scale Pod's deletion at 14:31:38Z, and the
+  cluster-wide Pod listing captured immediately afterward shows exactly one
   Running vLLM Pod. This is within KEDA's 600 second stabilization window
   plus margin.
 
@@ -82,8 +81,10 @@ transition time as read by the pipeline's bounded wait and recorded to
 `pod-ready-time.txt`; the Pod object itself was not retained, and the event
 stream carries no Ready event, so that file is the sole carrier of the exact
 Ready time. The scale-down claim rests on the event export (desired
-scale-down and Pod deletion at 14:31:38Z) plus the 14:31:43Z Pod listing;
-no deployment object snapshot was retained after scale-down.
+scale-down and Pod deletion at 14:31:38Z) plus the Pod listing captured
+immediately after the scale-down check; the listing itself carries no
+capture timestamp, and no deployment object snapshot was retained after
+scale-down.
 
 Scale evidence was validated fail-closed before this run was accepted: all
 four timestamps must be byte-exact UTC stamps from the cluster clock, ordered
@@ -130,8 +131,8 @@ and failure, GPU efficiency, and executive economics.
   series. The treatment claims do not depend on GPU utilization statistics.
 - Scale-down to one replica completed after the benchmark window, so the
   extended Prometheus captures end before it; the scale-down evidence is the
-  post-scale-down event export and the 14:31:43Z Pod listing, not a
-  deployment object snapshot.
+  post-scale-down event export and the untimestamped Pod listing captured
+  immediately after the scale-down check, not a deployment object snapshot.
 - Mixed-cell economics do not apply: this is a single-cell private-only run,
   and its premium cell is SLO-ineligible on quality, so no recommendation is
   made from this run.

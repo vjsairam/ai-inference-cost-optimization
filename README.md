@@ -81,7 +81,7 @@ repeat metadata before load begins. Publication then follows the
 | T0 managed and T1 private baselines | Measured 2026-08-17 in us-east-1, both workloads, 300 requests x 3 repeats each | Reruns on other stacks or dates supersede, never overwrite |
 | T3 hybrid and T4 Pod failure | Measured 2026-08-17; Pod deleted live and recovered in 2m45s | Same |
 | T4 provider faults | Measured 2026-08-19 with verified in-path injection; 150 of 150 faulted premium requests failed over with zero client-visible errors | Same |
-| T5 KEDA autoscaling | Measured 2026-08-23 on two static GPU nodes; scale decision in 17s, usable capacity after a 7m40s pod-plus-model cold start, scale-down observed | Karpenter, Spot, and node provisioning remain unmeasured |
+| T5 KEDA autoscaling | Measured 2026-08-23 on two static GPU nodes; scale decision about 10s after the first measured request, second replica Ready after a 7m40s pod-plus-model cold start, scale-down observed | Karpenter, Spot, and node provisioning remain unmeasured |
 | Case-study release | Published; v0.2.0 tags the seven-reviewed-run state after the 2026-08-19 rerun replaced the withdrawn provider-fault attempt | Future measured cycles add evidence under new run IDs |
 
 Measured 2026-08-17, View A, cost per correct task on the frozen synthetic datasets:
@@ -107,8 +107,9 @@ Restricted-class traffic never left the private path in any treatment.
 
 The T5 autoscaling treatment, measured 2026-08-23, held 45,000 private classification requests
 at concurrency 64 against one vLLM replica while KEDA watched the queue. The scaling decision
-came 17 seconds after load start, but the second replica needed 7 minutes 40 seconds of
-pod-plus-model cold start on an already-provisioned GPU node before it served traffic, and the
+came about 10 seconds after the first measured request, but the second replica needed 7 minutes
+40 seconds of pod-plus-model cold start on an already-provisioned GPU node before its Ready
+condition was observed, near the end of the benchmark window, and the
 deployment scaled back to one replica within KEDA's stabilization window after the queue
 drained. The operator conclusion: on this stack, queue-triggered replica scale-out suits
 sustained load shifts. During this run's cold-start interval the single existing replica served
