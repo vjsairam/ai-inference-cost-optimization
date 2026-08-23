@@ -82,7 +82,7 @@ repeat metadata before load begins. Publication then follows the
 | T3 hybrid and T4 Pod failure | Measured 2026-08-17; Pod deleted live and recovered in 2m45s | Same |
 | T4 provider faults | Measured 2026-08-19 with verified in-path injection; 150 of 150 faulted premium requests failed over with zero client-visible errors | Same |
 | T5 KEDA autoscaling | Measured 2026-08-23 on two static GPU nodes; scale decision about 10s after the first measured request, second replica Ready after a 7m40s pod-plus-model cold start, scale-down observed | Karpenter, Spot, and node provisioning remain unmeasured |
-| Case-study release | Published; v0.2.0 tags the seven-reviewed-run state after the 2026-08-19 rerun replaced the withdrawn provider-fault attempt | Future measured cycles add evidence under new run IDs |
+| Case-study release | Published; v0.3.0 tags the eight-reviewed-run state with the measured T5 autoscaling treatment | Future measured cycles add evidence under new run IDs |
 
 Measured 2026-08-17, View A, cost per correct task on the frozen synthetic datasets:
 

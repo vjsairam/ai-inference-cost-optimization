@@ -14,7 +14,7 @@ Authoritative progress tracker. Updated with every change set.
 | M8 T5 KEDA autoscaling | Measured 2026-08-23 on two static g6.xlarge nodes: scale decision about 10s after the first measured request, second replica Ready after a 7m40s pod-plus-model cold start, strict one-to-two replica transition validated in-window, scale-down observed. A same-day first attempt failed closed on load duration and is disclosed, not published. Karpenter, Spot, and node provisioning are not exercised. |
 | Lifecycle | Create, deploy, smoke, benchmark, destroy completed; verify-destroy passed with zero tagged survivors |
 | Publication | Eight runs published under results/published; the 2026-08-19 provider-fault rerun fixed the disclosed manifest metadata gaps and DCGM telemetry, and the 2026-08-23 T5 run added the autoscaling evidence bundle |
-| M9 release tag | v0.1.0 tagged; post-tag review withdrew the provider-fault run and corrected the affected claims on main |
+| M9 release tag | v0.2.0 tagged the seven-run state (v0.1.0 and v0.1.1 preceded it; the post-v0.1.0 review withdrew the invalid provider-fault run); v0.3.0 tags the eight-run state with the measured T5 treatment |
 
 Findings folded back into the tree during the run: GPU node root volume 100 GiB, vLLM
 `enableServiceLinks` off, numeric runtime user for `runAsNonRoot`, replace-style gateway rollout,

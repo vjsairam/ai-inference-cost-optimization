@@ -26,7 +26,7 @@ make report RUN_ID="$RUN_ID"
 
 Open the repository README. State the question: when does a managed API, private one-GPU vLLM
 service, or hybrid policy minimize `cost_per_correct_task` while meeting a declared SLO? Point out
-that only local mock evidence exists and cloud conclusions are pending.
+that the evidence table now carries measured cloud runs alongside the local mock evidence.
 
 ## 0:30-1:10 - local stack and architecture
 
@@ -102,8 +102,8 @@ deployment.
 
 Close on the evidence table in the README. The 2026-08-17 cycle measured the T0/T1 baselines,
 the T3 hybrid, and the T4 Pod-delete treatment; the 2026-08-19 rerun added the provider-fault
-treatment with verified injection, for seven reviewed runs, each cycle destroyed with
-independent verification. Point at the headline: private wins classification on both axes,
+treatment with verified injection; and the 2026-08-23 cycle added the T5 KEDA autoscaling
+treatment, for eight reviewed runs, each cycle destroyed with independent verification. Point at the headline: private wins classification on both axes,
 managed premium wins extraction quality, the router prices the blend in between, and under
 injected provider faults every faulted premium request failed over with zero client-visible
 errors. The withdrawn first provider-fault attempt and the disclosed metadata gaps show the

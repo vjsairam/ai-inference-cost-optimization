@@ -3,7 +3,7 @@
 
 **Technical Implementation Specification**
 
-Agent handoff for Claude / Codex | Version 1.2 | 15 August 2026
+Implementation handbook | Version 1.2 | 15 August 2026
 
 > **North-star engineering question** - What is the lowest-cost production AI inference architecture that still meets defined quality, latency, reliability, security and availability requirements? The repository must answer this with reproducible evidence, not with a list of technologies.
 
@@ -17,13 +17,13 @@ Agent handoff for Claude / Codex | Version 1.2 | 15 August 2026
 | Version            | 1.2                                                                                    |
 | Date               | 15 August 2026                                                                         |
 | Primary repository | ai-inference-cost-optimization                                                         |
-| Primary audience   | Claude/Codex implementation agents, repository reviewers, prospective technical buyers |
+| Primary audience   | Implementation engineers, repository reviewers, prospective technical buyers |
 | Business owner     | Founder-led technical authority                                 |
 | Strategic source   | Private founder playbook v2.0                                 |
 | Status             | Approved for implementation; v1 scope frozen unless an ADR changes it                  |
 | Canonical source   | TECHNICAL_SPEC.md (GitHub-Flavored Markdown); the DOCX is a generated presentation artifact. |
 
-## How agents must use this document
+## How implementers must use this document
 
 - Treat P0 requirements and milestone acceptance criteria as mandatory. P1 items are implemented only after the P0 baseline is working and measured. P2 items are explicitly out of v1 unless the owner promotes them.
 
@@ -83,7 +83,7 @@ Agent handoff for Claude / Codex | Version 1.2 | 15 August 2026
 
 22. Phase-2 architecture: KServe / llm-d / advanced inference
 
-23. Agent execution contract
+23. Execution contract
 
 Appendix A - Configuration examples
 
@@ -188,7 +188,7 @@ The v1 implementation compares three delivery patterns under a common workload a
 | P1 - only after baseline | KEDA scale-out using queue metrics, Karpenter GPU provisioning/consolidation experiment, Spot experiment, persistent cost ledger or hard budget policy, richer traces, NetworkPolicy hardening, actual AWS Cost Explorer reconciliation, energy/request estimate. |
 | P2 - future extension    | KServe LLMInferenceService, Gateway API Inference Extension/llm-d, prefix-cache-aware routing, disaggregated prefill/decode, multi-GPU/multi-node, RAG authorization, agents/tools, multi-cloud, private/on-prem reference deployment.                            |
 
-> **Scope freeze** - Claude/Codex must not start P1 or P2 work to “complete the architecture” while any P0 acceptance criterion is failing. P1/P2 issues remain labeled and unassigned until the baseline report exists.
+> **Scope freeze** - Implementation must not start P1 or P2 work to “complete the architecture” while any P0 acceptance criterion is failing. P1/P2 issues remain labeled and unassigned until the baseline report exists.
 
 # 4. System architecture
 
@@ -850,7 +850,7 @@ At 80% committed or actual envelope consumption, cloud-up and benchmark stop by 
 
 ## 12.3 Baseline vLLM configuration fields to record
 
-The exact CLI flags depend on the pinned vLLM release. Claude/Codex must use that release’s official documentation rather than copy stale flags from an old example. At M5 implementation time, select a stable official vLLM release after compatibility testing; pin the exact release and image digest in ADR-009 and the run manifest. As of the specification review on 2026-08-15, the current stable release verified from the upstream release repository is v0.27.1.
+The exact CLI flags depend on the pinned vLLM release. Implementers must use that release’s official documentation rather than copy stale flags from an old example. At M5 implementation time, select a stable official vLLM release after compatibility testing; pin the exact release and image digest in ADR-009 and the run manifest. As of the specification review on 2026-08-15, the current stable release verified from the upstream release repository is v0.27.1.
 
 - model/revision
 
@@ -1090,13 +1090,13 @@ Figure 3. Delivery sequence. Do not parallelize cloud complexity ahead of local 
 | M8            | P1 autoscale/Karpenter | Optional after baseline; KEDA and/or Karpenter treatment.                                                                    | Separate treatment report; no change to baseline history.      |
 | M9            | Case-study release     | Polish README, diagrams, 4-minute demo script, release tag.                                                                  | A reviewer can audit methodology and reproduce lab.            |
 
-## 18.1 Agent task sequencing rules
+## 18.1 Task sequencing rules
 
-- Claude/Codex should work milestone-by-milestone, not create all directories and half-implement every subsystem.
+- Work milestone-by-milestone; do not create all directories and half-implement every subsystem.
 
 - Each milestone closes with tests and docs/status update before the next starts.
 
-- When an agent discovers a material design conflict, create/update an ADR and record the reason; do not silently diverge.
+- When an implementer discovers a material design conflict, create/update an ADR and record the reason; do not silently diverge.
 
 - Benchmark data from an earlier accepted run is immutable. New code creates a new run ID rather than overwriting evidence.
 
@@ -1265,11 +1265,11 @@ The benchmark harness, cost engine, quality evaluators and public gateway contra
 
 The v1 public Chat Completions surface is an interoperability adapter, not the internal domain model. A later version may add a Responses-style endpoint, tool calls or richer output parts without changing manifest, evaluation, usage or cost evidence contracts; public wire-contract changes use an explicit API version and compatibility tests.
 
-# 23. Agent execution contract
+# 23. Execution contract
 
-> **Instruction to Claude/Codex** - Build the smallest complete system that satisfies the current milestone. Do not optimize for lines of code, number of tools or visual complexity. Optimize for reproducible evidence and a clean public case study.
+> **Implementation instruction** - Build the smallest complete system that satisfies the current milestone. Do not optimize for lines of code, number of tools or visual complexity. Optimize for reproducible evidence and a clean public case study.
 
-## 23.1 Required behavior for every agent change
+## 23.1 Required behavior for every change
 
 - Read README, this spec (or repo TECHNICAL_SPEC.md derived from it), relevant ADRs and docs/implementation-status.md before changing code.
 
@@ -1546,7 +1546,7 @@ notes: []
 
 # Appendix D - Primary technical source notes
 
-These sources are included so implementation agents use current primary documentation rather than stale blog posts or remembered flags. Re-check exact versions/flags when coding because these ecosystems move quickly. All Appendix D entries were verified live on 2026-08-15.
+These sources are included so implementers use current primary documentation rather than stale blog posts or remembered flags. Re-check exact versions/flags when coding because these ecosystems move quickly. All Appendix D entries were verified live on 2026-08-15.
 
 **vLLM - OpenAI-Compatible Server:** [https://docs.vllm.ai/en/latest/serving/online_serving/openai_compatible_server/](https://docs.vllm.ai/en/latest/serving/online_serving/openai_compatible_server/) - vLLM exposes OpenAI-compatible completions/chat and newer interfaces; use pinned release docs.
 
