@@ -2,7 +2,7 @@
 
 Authoritative progress tracker. Updated with every change set.
 
-## Current milestone: M8 autoscaling implemented, measurement pending
+## Current milestone: M8 autoscaling measured
 
 | Item | Status |
 |---|---|
@@ -11,9 +11,9 @@ Authoritative progress tracker. Updated with every change set.
 | M7 T3 hybrid | Measured: 602/298 private/managed split, 88.9% correct, per-cell SLO evaluation |
 | M7 T4 Pod delete | Measured: vLLM Pod deleted 16:49:02Z, available again 16:51:47Z, 160 timeouts, restricted traffic failed closed |
 | M7 T4 provider faults | Measured 2026-08-19 with a mandatory in-path counter gate: 150/150 faulted premium requests failed over, zero client-visible errors, timeout faults cost about 30s each before failover |
-| M8 T5 KEDA autoscaling | Implemented pending measurement. The opt-in treatment scales vLLM from one to two replicas on two static g6.xlarge nodes using Prometheus queue depth. It measures pod-plus-model cold start, not node provisioning. Karpenter and Spot are not exercised. |
+| M8 T5 KEDA autoscaling | Measured 2026-08-23 on two static g6.xlarge nodes: scale decision 17s after load start, second replica Ready after a 7m40s pod-plus-model cold start, strict one-to-two replica transition validated in-window, scale-down observed. A same-day first attempt failed closed on load duration and is disclosed, not published. Karpenter, Spot, and node provisioning are not exercised. |
 | Lifecycle | Create, deploy, smoke, benchmark, destroy completed; verify-destroy passed with zero tagged survivors |
-| Publication | Seven runs published under results/published; the 2026-08-19 provider-fault rerun fixed the disclosed manifest metadata gaps and DCGM telemetry |
+| Publication | Eight runs published under results/published; the 2026-08-19 provider-fault rerun fixed the disclosed manifest metadata gaps and DCGM telemetry, and the 2026-08-23 T5 run added the autoscaling evidence bundle |
 | M9 release tag | v0.1.0 tagged; post-tag review withdrew the provider-fault run and corrected the affected claims on main |
 
 Findings folded back into the tree during the run: GPU node root volume 100 GiB, vLLM

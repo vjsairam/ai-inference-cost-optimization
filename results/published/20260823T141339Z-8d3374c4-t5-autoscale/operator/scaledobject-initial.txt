@@ -1,0 +1,4 @@
+NAME   SCALETARGETKIND      SCALETARGETNAME   MIN   MAX   READY   ACTIVE   FALLBACK   PAUSED   TRIGGERS     AUTHENTICATIONS   AGE
+vllm   apps/v1.Deployment   vllm              1     2     True    False    False      False    prometheus                     2m51s
+NAME            REFERENCE         TARGETS     MINPODS   MAXPODS   REPLICAS   AGE
+keda-hpa-vllm   Deployment/vllm   0/1 (avg)   1         2         1          2m51s

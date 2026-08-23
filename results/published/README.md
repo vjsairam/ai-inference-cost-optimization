@@ -4,7 +4,8 @@ This directory holds reviewed benchmark evidence. The 2026-08-17 cycle published
 managed and private baselines for classification and structured extraction, the policy-routed
 hybrid, and the Pod-delete failure treatment. A targeted 2026-08-19 cycle added a seventh run,
 the provider-fault treatment, redone with verified in-path injection after the original attempt
-was withdrawn. Each run directory carries its immutable manifest, aggregate reports, charts, a
+was withdrawn. A 2026-08-23 cycle added the eighth run, the T5 KEDA autoscaling treatment on two
+static GPU nodes. Each run directory carries its immutable manifest, aggregate reports, charts, a
 raw-records reference with checksum, and an operator interpretation. Three runs from the
 2026-08-17 cycle were excluded during review. Two were excluded because a managed-provider
 credit outage produced only provider errors. The third, the original provider-fault treatment,
@@ -28,6 +29,19 @@ run directory adds an `operator/` folder holding the checksummed effective fault
 the rendered runner and fault-mock manifests with the applied image digest, plus `media/`
 dashboard captures, and its README discloses one stale scenario-notes string embedded in the
 immutable manifest.
+
+## 2026-08-23 autoscaling cycle
+
+The T5 cycle measured queue-triggered scale-out of the private vLLM service from one to two
+replicas on pre-provisioned capacity. A first attempt the same day failed closed and is not
+published: its load finished in 20 seconds, before the second replica's cold start completed, so
+the mandatory in-window replica transition evidence did not exist. The scenario was re-sized for
+load duration and the cycle rerun. The published run's evidence contract is fail-closed: four
+byte-exact cluster-clock timestamps in trigger, created, scheduled, Ready order inside the
+benchmark window, plus a strictly chronological one-to-two transition in the Prometheus replica
+series, validated before acceptance. The run directory's `operator/` folder holds the applied
+ScaledObject, the rendered runner manifest with the applied image digest, and the raw scale
+evidence with checksums.
 
 ## 2026-08-17 cycle disclosures
 

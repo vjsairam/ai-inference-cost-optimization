@@ -1,0 +1,2078 @@
+{
+  "completions": 45000,
+  "cost": {
+    "hybrid_combined_view_a": {
+      "cost_per_1m_tokens_usd": "0.05744632901819828007277269764",
+      "cost_per_correct_task_usd": "0.000006361269511142520612485276796",
+      "cost_per_request_usd": "0.000006000797572177777777777777778",
+      "token_count": 4700664,
+      "token_definition": "normalized private input + visible output tokens",
+      "total_usd": "0.270035890748"
+    },
+    "hybrid_combined_view_b": {
+      "label": "View B - full-platform TCO",
+      "operations_sensitivity": {
+        "high": {
+          "combined": {
+            "cost_per_1m_tokens_usd": "0.2008355523696226745838460269",
+            "cost_per_correct_task_usd": "0.00002223935102341578327444051826",
+            "cost_per_request_usd": "0.00002097912113208888888888888889",
+            "token_count": 4700664,
+            "token_definition": "normalized private input + visible output tokens",
+            "total_usd": "0.944060450944"
+          },
+          "operations_monthly_allocation_usd": "2880.0",
+          "platform_components_usd": {
+            "control_plane_usd": "0.0161388890",
+            "gateway_runtime_usd": "0.001000611118",
+            "network_nat_usd": "0.00726250005",
+            "observability_usd": "0.003356888912",
+            "operations_engineering_allocation_usd": "0.645555560",
+            "shared_storage_usd": "0.000710111116"
+          }
+        },
+        "low": {
+          "combined": {
+            "cost_per_1m_tokens_usd": "0.06541010810141810698327820163",
+            "cost_per_correct_task_usd": "0.000007243131693485145923308467477",
+            "cost_per_request_usd": "0.00000683268756418765432098765432",
+            "token_count": 4700664,
+            "token_definition": "normalized private input + visible output tokens",
+            "total_usd": "0.3074709403884444444444444444"
+          },
+          "operations_monthly_allocation_usd": "40.00",
+          "platform_components_usd": {
+            "control_plane_usd": "0.0161388890",
+            "gateway_runtime_usd": "0.001000611118",
+            "network_nat_usd": "0.00726250005",
+            "observability_usd": "0.003356888912",
+            "operations_engineering_allocation_usd": "0.008966049444444444444444444444",
+            "shared_storage_usd": "0.000710111116"
+          }
+        },
+        "typical": {
+          "combined": {
+            "cost_per_1m_tokens_usd": "0.08066931308938481882559570308",
+            "cost_per_correct_task_usd": "0.000008932846547561837455830388693",
+            "cost_per_request_usd": "0.000008426651909866666666666666667",
+            "token_count": 4700664,
+            "token_definition": "normalized private input + visible output tokens",
+            "total_usd": "0.379199335944"
+          },
+          "operations_monthly_allocation_usd": "360.0",
+          "platform_components_usd": {
+            "control_plane_usd": "0.0161388890",
+            "gateway_runtime_usd": "0.001000611118",
+            "network_nat_usd": "0.00726250005",
+            "observability_usd": "0.003356888912",
+            "operations_engineering_allocation_usd": "0.080694445",
+            "shared_storage_usd": "0.000710111116"
+          }
+        }
+      }
+    },
+    "observed_path_applicability": {
+      "managed": false,
+      "private": true
+    },
+    "provider_breakdown": {
+      "private-vllm": {
+        "correct_tasks": 42450,
+        "cost_basis": "local billed private service time allocated to the private route",
+        "quality_rate": 0.9433333333333334,
+        "requests": 45000,
+        "view_a_cost_per_correct_task_usd": "0.000006361269511142520612485276796",
+        "view_a_cost_per_request_usd": "0.000006000797572177777777777777778",
+        "view_a_cost_usd": "0.270035890748"
+      }
+    },
+    "views": {
+      "view_a": {
+        "label": "View A - inference service economics (marginal)",
+        "managed": {
+          "cost_per_1m_tokens_usd": null,
+          "cost_per_correct_task_usd": "0",
+          "cost_per_request_usd": "0",
+          "token_count": null,
+          "token_definition": null,
+          "total_usd": "0"
+        },
+        "private": {
+          "cost_per_1m_tokens_usd": "0.05744632901819828007277269764",
+          "cost_per_correct_task_usd": "0.000006361269511142520612485276796",
+          "cost_per_request_usd": "0.000006000797572177777777777777778",
+          "token_count": 4700664,
+          "token_definition": "normalized input + visible output tokens",
+          "total_usd": "0.270035890748"
+        }
+      },
+      "view_b": {
+        "label": "View B - full-platform TCO",
+        "operations_sensitivity": {
+          "high": {
+            "managed": {
+              "cost_per_1m_tokens_usd": null,
+              "cost_per_correct_task_usd": "0.00001587808151227326266195524146",
+              "cost_per_request_usd": "0.00001497832355991111111111111111",
+              "token_count": null,
+              "token_definition": null,
+              "total_usd": "0.674024560196"
+            },
+            "operations_monthly_allocation_usd": "2880.0",
+            "platform_components_usd": {
+              "control_plane_usd": "0.0161388890",
+              "gateway_runtime_usd": "0.001000611118",
+              "network_nat_usd": "0.00726250005",
+              "observability_usd": "0.003356888912",
+              "operations_engineering_allocation_usd": "0.645555560",
+              "shared_storage_usd": "0.000710111116"
+            },
+            "private": {
+              "cost_per_1m_tokens_usd": "0.2008355523696226745838460269",
+              "cost_per_correct_task_usd": "0.00002223935102341578327444051826",
+              "cost_per_request_usd": "0.00002097912113208888888888888889",
+              "token_count": 4700664,
+              "token_definition": "normalized input + visible output tokens",
+              "total_usd": "0.944060450944"
+            }
+          },
+          "low": {
+            "managed": {
+              "cost_per_1m_tokens_usd": null,
+              "cost_per_correct_task_usd": "8.818621823426253108231906817E-7",
+              "cost_per_request_usd": "8.318899920098765432098765431E-7",
+              "token_count": null,
+              "token_definition": null,
+              "total_usd": "0.03743504964044444444444444444"
+            },
+            "operations_monthly_allocation_usd": "40.00",
+            "platform_components_usd": {
+              "control_plane_usd": "0.0161388890",
+              "gateway_runtime_usd": "0.001000611118",
+              "network_nat_usd": "0.00726250005",
+              "observability_usd": "0.003356888912",
+              "operations_engineering_allocation_usd": "0.008966049444444444444444444444",
+              "shared_storage_usd": "0.000710111116"
+            },
+            "private": {
+              "cost_per_1m_tokens_usd": "0.06541010810141810698327820163",
+              "cost_per_correct_task_usd": "0.000007243131693485145923308467477",
+              "cost_per_request_usd": "0.00000683268756418765432098765432",
+              "token_count": 4700664,
+              "token_definition": "normalized input + visible output tokens",
+              "total_usd": "0.3074709403884444444444444444"
+            }
+          },
+          "typical": {
+            "managed": {
+              "cost_per_1m_tokens_usd": null,
+              "cost_per_correct_task_usd": "0.000002571577036419316843345111896",
+              "cost_per_request_usd": "0.000002425854337688888888888888889",
+              "token_count": null,
+              "token_definition": null,
+              "total_usd": "0.109163445196"
+            },
+            "operations_monthly_allocation_usd": "360.0",
+            "platform_components_usd": {
+              "control_plane_usd": "0.0161388890",
+              "gateway_runtime_usd": "0.001000611118",
+              "network_nat_usd": "0.00726250005",
+              "observability_usd": "0.003356888912",
+              "operations_engineering_allocation_usd": "0.080694445",
+              "shared_storage_usd": "0.000710111116"
+            },
+            "private": {
+              "cost_per_1m_tokens_usd": "0.08066931308938481882559570308",
+              "cost_per_correct_task_usd": "0.000008932846547561837455830388693",
+              "cost_per_request_usd": "0.000008426651909866666666666666667",
+              "token_count": 4700664,
+              "token_definition": "normalized input + visible output tokens",
+              "total_usd": "0.379199335944"
+            }
+          }
+        }
+      }
+    }
+  },
+  "errors": {
+    "by_class": {},
+    "total": 0
+  },
+  "fallback_count": 0,
+  "gpu": {
+    "memory_average": null,
+    "memory_p95": null,
+    "utilization_average": null,
+    "utilization_p95": null
+  },
+  "harness": {
+    "availability_zone": "us-east-1a",
+    "build": "8d3374c46e564c6f31665d4350732d71ad7f54e7",
+    "gateway_access": "cluster-ip-service",
+    "image": null,
+    "location": "aws-eks",
+    "namespace": null,
+    "network_path": "runner Pod -> gateway ClusterIP -> selected provider",
+    "node": "ip-10-42-10-89.ec2.internal",
+    "node_group": "system",
+    "pod": null,
+    "tls_mode": "none",
+    "workload_kind": "kubernetes-job"
+  },
+  "latency_ms": {
+    "p50": 538.1792755000561,
+    "p95": 832.0397694499202,
+    "p99": 1452.8860178499508
+  },
+  "limitations": [
+    "Benchmark placement was location aws-eks, node group system.",
+    "No treatment comparison was run, so no directional claim is available.",
+    "GPU telemetry was not captured for this run."
+  ],
+  "policy_input_mix": {
+    "data_class": {
+      "restricted": 45000
+    },
+    "quality_tier": {
+      "premium": 45000
+    }
+  },
+  "provider_mode_mismatches": 0,
+  "quality": {
+    "quality_rate": 0.9433333333333334,
+    "task_correct": 42450
+  },
+  "repeats": {
+    "count": 150,
+    "e2e_p95_ms_dispersion": {
+      "max": 2517.1190513500846,
+      "median": 762.9360309000505,
+      "min": 653.492081199886
+    },
+    "group_id": "20260823T141339Z-8d3374c4-t5-autoscale",
+    "quality_rate_dispersion": {
+      "max": 0.9433333333333334,
+      "median": 0.9433333333333334,
+      "min": 0.9433333333333334
+    },
+    "throughput_requests_per_second_dispersion": {
+      "max": 120.97476627675157,
+      "median": 112.13704113854237,
+      "min": 44.957701546499976
+    },
+    "ttft_p95_ms_dispersion": {
+      "max": 2369.2563949501055,
+      "median": 695.0723615999268,
+      "min": 600.4143126999793
+    },
+    "values": [
+      {
+        "e2e_p95_ms": 1811.8385008499104,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 1,
+        "requests": 300,
+        "throughput_requests_per_second": 44.957701546499976,
+        "ttft_p95_ms": 1405.3020300998924,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 759.0574950999553,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 2,
+        "requests": 300,
+        "throughput_requests_per_second": 119.39129541943356,
+        "ttft_p95_ms": 683.4059493499922,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 790.3840501499872,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 3,
+        "requests": 300,
+        "throughput_requests_per_second": 112.74342715214988,
+        "ttft_p95_ms": 742.0415035000133,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 698.1259366501263,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 4,
+        "requests": 300,
+        "throughput_requests_per_second": 112.0040739615169,
+        "ttft_p95_ms": 600.4143126999793,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 841.0088367000074,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 5,
+        "requests": 300,
+        "throughput_requests_per_second": 108.16462656162679,
+        "ttft_p95_ms": 765.477409150094,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 1596.5190426499703,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 6,
+        "requests": 300,
+        "throughput_requests_per_second": 73.77881308580378,
+        "ttft_p95_ms": 1400.6221753501452,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 709.7439390499062,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 7,
+        "requests": 300,
+        "throughput_requests_per_second": 118.00533226761407,
+        "ttft_p95_ms": 658.0205562498463,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 708.2149601999276,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 8,
+        "requests": 300,
+        "throughput_requests_per_second": 114.04303071634989,
+        "ttft_p95_ms": 626.3917787501446,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 721.8138863999685,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 9,
+        "requests": 300,
+        "throughput_requests_per_second": 117.08048112272377,
+        "ttft_p95_ms": 667.724671449821,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 700.8349696501003,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 10,
+        "requests": 300,
+        "throughput_requests_per_second": 116.54893928810354,
+        "ttft_p95_ms": 648.033748549972,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 830.4664337000874,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 11,
+        "requests": 300,
+        "throughput_requests_per_second": 115.39824125387113,
+        "ttft_p95_ms": 774.0362161001145,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 743.7688820498921,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 12,
+        "requests": 300,
+        "throughput_requests_per_second": 114.41761054838835,
+        "ttft_p95_ms": 684.2062032501077,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 731.0158701499636,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 13,
+        "requests": 300,
+        "throughput_requests_per_second": 111.81913329735241,
+        "ttft_p95_ms": 637.5324197000967,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 779.644049650085,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 14,
+        "requests": 300,
+        "throughput_requests_per_second": 112.9371798230952,
+        "ttft_p95_ms": 704.5052699000737,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 910.1058940498888,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 15,
+        "requests": 300,
+        "throughput_requests_per_second": 110.32044042861698,
+        "ttft_p95_ms": 830.1087700499238,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 895.7786112498866,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 16,
+        "requests": 300,
+        "throughput_requests_per_second": 109.46140609743816,
+        "ttft_p95_ms": 731.4375511000208,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 720.9563343000241,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 17,
+        "requests": 300,
+        "throughput_requests_per_second": 116.78491138944848,
+        "ttft_p95_ms": 677.3228535500152,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 664.8508053000344,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 18,
+        "requests": 300,
+        "throughput_requests_per_second": 119.6855620912738,
+        "ttft_p95_ms": 626.7020500000854,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 788.373437799828,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 19,
+        "requests": 300,
+        "throughput_requests_per_second": 110.50073777659256,
+        "ttft_p95_ms": 717.8748876499185,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 683.3570924999436,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 20,
+        "requests": 300,
+        "throughput_requests_per_second": 117.39688835634182,
+        "ttft_p95_ms": 627.1110850000923,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 716.6193847000841,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 21,
+        "requests": 300,
+        "throughput_requests_per_second": 111.40861337126178,
+        "ttft_p95_ms": 646.4200446499377,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 716.3477291499022,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 22,
+        "requests": 300,
+        "throughput_requests_per_second": 115.77969131590567,
+        "ttft_p95_ms": 625.6153539999559,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 721.6966739000329,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 23,
+        "requests": 300,
+        "throughput_requests_per_second": 107.57125968455087,
+        "ttft_p95_ms": 653.2117081498313,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 2321.3620714499257,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 24,
+        "requests": 300,
+        "throughput_requests_per_second": 60.76969682605951,
+        "ttft_p95_ms": 2044.573198900048,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 856.5165430000093,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 25,
+        "requests": 300,
+        "throughput_requests_per_second": 110.82358547546089,
+        "ttft_p95_ms": 784.3533196499608,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 686.844529000075,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 26,
+        "requests": 300,
+        "throughput_requests_per_second": 115.12200438154349,
+        "ttft_p95_ms": 638.2288314501579,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 727.0139557501011,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 27,
+        "requests": 300,
+        "throughput_requests_per_second": 116.67368005121197,
+        "ttft_p95_ms": 674.1361391499481,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 703.8332508501072,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 28,
+        "requests": 300,
+        "throughput_requests_per_second": 113.82706709005276,
+        "ttft_p95_ms": 605.3181708498869,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 693.9009632500416,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 29,
+        "requests": 300,
+        "throughput_requests_per_second": 113.54458176610271,
+        "ttft_p95_ms": 658.0203245000462,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 746.1330152001096,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 30,
+        "requests": 300,
+        "throughput_requests_per_second": 119.83505902475832,
+        "ttft_p95_ms": 704.1238091499167,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 893.1466681500184,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 31,
+        "requests": 300,
+        "throughput_requests_per_second": 109.91422660136784,
+        "ttft_p95_ms": 830.6890013000611,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 782.1249751999405,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 32,
+        "requests": 300,
+        "throughput_requests_per_second": 107.63957534034738,
+        "ttft_p95_ms": 716.9264213499787,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 721.8539376999958,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 33,
+        "requests": 300,
+        "throughput_requests_per_second": 116.99984322021008,
+        "ttft_p95_ms": 670.0066470499792,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 792.0508583500127,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 34,
+        "requests": 300,
+        "throughput_requests_per_second": 109.06909527185472,
+        "ttft_p95_ms": 744.6570861500054,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 796.7891850500678,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 35,
+        "requests": 300,
+        "throughput_requests_per_second": 111.8601598854552,
+        "ttft_p95_ms": 767.9726564500925,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 819.4460587501112,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 36,
+        "requests": 300,
+        "throughput_requests_per_second": 109.54610302518866,
+        "ttft_p95_ms": 747.487571349916,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 786.9375770500488,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 37,
+        "requests": 300,
+        "throughput_requests_per_second": 111.8310962765091,
+        "ttft_p95_ms": 761.4993418500148,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 725.748845300086,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 38,
+        "requests": 300,
+        "throughput_requests_per_second": 116.69278640202299,
+        "ttft_p95_ms": 661.8571280500647,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 817.4753329000056,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 39,
+        "requests": 300,
+        "throughput_requests_per_second": 111.84331199362941,
+        "ttft_p95_ms": 749.2305006001288,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 779.1444726499891,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 40,
+        "requests": 300,
+        "throughput_requests_per_second": 106.63379502212118,
+        "ttft_p95_ms": 696.05250629985,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 757.0225452999126,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 41,
+        "requests": 300,
+        "throughput_requests_per_second": 107.55224708909843,
+        "ttft_p95_ms": 653.6751067999717,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 1899.8790974500253,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 42,
+        "requests": 300,
+        "throughput_requests_per_second": 75.4769007976902,
+        "ttft_p95_ms": 1834.6858676001261,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 796.3330553998503,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 43,
+        "requests": 300,
+        "throughput_requests_per_second": 113.91640813970709,
+        "ttft_p95_ms": 724.1380297998263,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 800.138505300049,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 44,
+        "requests": 300,
+        "throughput_requests_per_second": 106.00309670379838,
+        "ttft_p95_ms": 703.4029852000004,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 684.2086593499403,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 45,
+        "requests": 300,
+        "throughput_requests_per_second": 116.96544840654072,
+        "ttft_p95_ms": 637.2277663000773,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 734.357024750068,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 46,
+        "requests": 300,
+        "throughput_requests_per_second": 114.15056002264747,
+        "ttft_p95_ms": 652.4588177499709,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 749.0593822499591,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 47,
+        "requests": 300,
+        "throughput_requests_per_second": 109.63533824694557,
+        "ttft_p95_ms": 676.8010368498722,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 770.5174312999475,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 48,
+        "requests": 300,
+        "throughput_requests_per_second": 115.4821978417917,
+        "ttft_p95_ms": 702.5551457999541,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 730.0268631498398,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 49,
+        "requests": 300,
+        "throughput_requests_per_second": 108.3951697667083,
+        "ttft_p95_ms": 656.0247954000488,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 731.3143789998437,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 50,
+        "requests": 300,
+        "throughput_requests_per_second": 112.14592727112326,
+        "ttft_p95_ms": 666.2788482500673,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 668.7396009999816,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 51,
+        "requests": 300,
+        "throughput_requests_per_second": 119.81581912284437,
+        "ttft_p95_ms": 612.3240767000652,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 754.0934222499689,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 52,
+        "requests": 300,
+        "throughput_requests_per_second": 113.33302607490708,
+        "ttft_p95_ms": 705.7964198001746,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 735.2177143998802,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 53,
+        "requests": 300,
+        "throughput_requests_per_second": 111.8210922162456,
+        "ttft_p95_ms": 681.4455891999273,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 799.4455494498881,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 54,
+        "requests": 300,
+        "throughput_requests_per_second": 114.19431533085329,
+        "ttft_p95_ms": 731.180187949974,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 977.1059252498503,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 55,
+        "requests": 300,
+        "throughput_requests_per_second": 108.26170318033189,
+        "ttft_p95_ms": 889.0072745500336,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 783.0064636999168,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 56,
+        "requests": 300,
+        "throughput_requests_per_second": 115.3017754936069,
+        "ttft_p95_ms": 716.0620627499384,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 816.9770464499607,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 57,
+        "requests": 300,
+        "throughput_requests_per_second": 112.9928181764767,
+        "ttft_p95_ms": 759.0361143499878,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 827.8514452000763,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 58,
+        "requests": 300,
+        "throughput_requests_per_second": 108.81609897912364,
+        "ttft_p95_ms": 722.2552356000962,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 746.0359518000022,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 59,
+        "requests": 300,
+        "throughput_requests_per_second": 112.08601032087984,
+        "ttft_p95_ms": 701.5433662499959,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 1663.8468560001572,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 60,
+        "requests": 300,
+        "throughput_requests_per_second": 79.31555959771148,
+        "ttft_p95_ms": 1575.0789067000824,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 737.7329343000157,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 61,
+        "requests": 300,
+        "throughput_requests_per_second": 113.04642402131002,
+        "ttft_p95_ms": 667.7075853001043,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 708.3340670500093,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 62,
+        "requests": 300,
+        "throughput_requests_per_second": 109.48817199277961,
+        "ttft_p95_ms": 675.9616530498647,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 740.3974720001884,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 63,
+        "requests": 300,
+        "throughput_requests_per_second": 114.33214402496404,
+        "ttft_p95_ms": 703.8853014000439,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 732.3415329498972,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 64,
+        "requests": 300,
+        "throughput_requests_per_second": 110.70331290734207,
+        "ttft_p95_ms": 655.5108333500584,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 787.5669671000651,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 65,
+        "requests": 300,
+        "throughput_requests_per_second": 104.00087915409846,
+        "ttft_p95_ms": 709.944309349919,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 787.8885532500931,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 66,
+        "requests": 300,
+        "throughput_requests_per_second": 110.97744494408957,
+        "ttft_p95_ms": 725.3663851999931,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 774.9019374498972,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 67,
+        "requests": 300,
+        "throughput_requests_per_second": 109.81416514879086,
+        "ttft_p95_ms": 703.7786904000883,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 747.367566550065,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 68,
+        "requests": 300,
+        "throughput_requests_per_second": 112.12815500596147,
+        "ttft_p95_ms": 661.6660532500648,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 695.1925988000995,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 69,
+        "requests": 300,
+        "throughput_requests_per_second": 116.64256053748893,
+        "ttft_p95_ms": 625.5630751499893,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 757.6514759998986,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 70,
+        "requests": 300,
+        "throughput_requests_per_second": 115.4058766980532,
+        "ttft_p95_ms": 683.228410300035,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 707.6416755500645,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 71,
+        "requests": 300,
+        "throughput_requests_per_second": 114.21396615992468,
+        "ttft_p95_ms": 635.9712789999321,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 791.1711578999531,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 72,
+        "requests": 300,
+        "throughput_requests_per_second": 111.72277260170311,
+        "ttft_p95_ms": 735.773079199885,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 691.0058216498671,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 73,
+        "requests": 300,
+        "throughput_requests_per_second": 114.75562216481892,
+        "ttft_p95_ms": 645.7963678000624,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 670.0737565000509,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 74,
+        "requests": 300,
+        "throughput_requests_per_second": 118.6494371863947,
+        "ttft_p95_ms": 619.8774433498556,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 933.0619657999594,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 75,
+        "requests": 300,
+        "throughput_requests_per_second": 107.74809357706431,
+        "ttft_p95_ms": 779.2077046500367,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 701.6165632501385,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 76,
+        "requests": 300,
+        "throughput_requests_per_second": 114.31903011734848,
+        "ttft_p95_ms": 618.9600124501112,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 749.9694360501053,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 77,
+        "requests": 300,
+        "throughput_requests_per_second": 111.6522939149872,
+        "ttft_p95_ms": 700.4974577999974,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 1917.7177272998733,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 78,
+        "requests": 300,
+        "throughput_requests_per_second": 73.82291212194363,
+        "ttft_p95_ms": 1855.3665622501853,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 773.0592124000964,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 79,
+        "requests": 300,
+        "throughput_requests_per_second": 111.47489083821314,
+        "ttft_p95_ms": 712.0640573001651,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 778.9146326000946,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 80,
+        "requests": 300,
+        "throughput_requests_per_second": 109.92719521860671,
+        "ttft_p95_ms": 691.5794604499412,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 699.87886874992,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 81,
+        "requests": 300,
+        "throughput_requests_per_second": 116.80246250738288,
+        "ttft_p95_ms": 640.0154436000093,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 714.5455320998055,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 82,
+        "requests": 300,
+        "throughput_requests_per_second": 115.69704189659846,
+        "ttft_p95_ms": 681.1081886000466,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 764.3518508001537,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 83,
+        "requests": 300,
+        "throughput_requests_per_second": 110.68521898517149,
+        "ttft_p95_ms": 700.3516151499641,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 752.8447909998591,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 84,
+        "requests": 300,
+        "throughput_requests_per_second": 113.4773663718903,
+        "ttft_p95_ms": 721.3841961499952,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 862.7581519998671,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 85,
+        "requests": 300,
+        "throughput_requests_per_second": 104.74739641617258,
+        "ttft_p95_ms": 760.4826963999358,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 782.1492787999774,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 86,
+        "requests": 300,
+        "throughput_requests_per_second": 106.32412341962481,
+        "ttft_p95_ms": 688.9634243001296,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 677.469119699913,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 87,
+        "requests": 300,
+        "throughput_requests_per_second": 118.87247083959231,
+        "ttft_p95_ms": 616.0265313500076,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 779.363502599995,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 88,
+        "requests": 300,
+        "throughput_requests_per_second": 112.6921824306126,
+        "ttft_p95_ms": 645.1592123499951,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 756.3263076500677,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 89,
+        "requests": 300,
+        "throughput_requests_per_second": 113.98345188245571,
+        "ttft_p95_ms": 696.5940256501768,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 687.0290189498634,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 90,
+        "requests": 300,
+        "throughput_requests_per_second": 120.97476627675157,
+        "ttft_p95_ms": 642.316301800031,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 813.283920349909,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 91,
+        "requests": 300,
+        "throughput_requests_per_second": 110.9515873843607,
+        "ttft_p95_ms": 775.048880949828,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 712.8712116999739,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 92,
+        "requests": 300,
+        "throughput_requests_per_second": 119.32168011289421,
+        "ttft_p95_ms": 671.5246161000669,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 794.9446600500779,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 93,
+        "requests": 300,
+        "throughput_requests_per_second": 114.26843254563025,
+        "ttft_p95_ms": 713.6964918498735,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 767.8457293501083,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 94,
+        "requests": 300,
+        "throughput_requests_per_second": 115.70971518053608,
+        "ttft_p95_ms": 636.3824109999086,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 867.4011030001793,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 95,
+        "requests": 300,
+        "throughput_requests_per_second": 107.94857761556706,
+        "ttft_p95_ms": 776.9116677498914,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 2017.2731527500332,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 96,
+        "requests": 300,
+        "throughput_requests_per_second": 70.58805259562858,
+        "ttft_p95_ms": 1915.2602753500219,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 667.6343727000249,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 97,
+        "requests": 300,
+        "throughput_requests_per_second": 111.25512468918099,
+        "ttft_p95_ms": 636.5821409000893,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 740.8823642000812,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 98,
+        "requests": 300,
+        "throughput_requests_per_second": 111.29466486765024,
+        "ttft_p95_ms": 668.6292607000496,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 653.492081199886,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 99,
+        "requests": 300,
+        "throughput_requests_per_second": 117.47117453162284,
+        "ttft_p95_ms": 620.6895023999665,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 722.5032533498165,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 100,
+        "requests": 300,
+        "throughput_requests_per_second": 118.56076713558767,
+        "ttft_p95_ms": 655.3025948499,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 734.9908720499458,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 101,
+        "requests": 300,
+        "throughput_requests_per_second": 112.12212042364222,
+        "ttft_p95_ms": 655.0514216498983,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 701.2354099000731,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 102,
+        "requests": 300,
+        "throughput_requests_per_second": 118.62518159538217,
+        "ttft_p95_ms": 651.0588274499243,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 736.2450129500075,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 103,
+        "requests": 300,
+        "throughput_requests_per_second": 113.23933964856549,
+        "ttft_p95_ms": 647.4489379497982,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 688.0798453998295,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 104,
+        "requests": 300,
+        "throughput_requests_per_second": 112.8064669691384,
+        "ttft_p95_ms": 625.6270615001085,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 809.3767868000782,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 105,
+        "requests": 300,
+        "throughput_requests_per_second": 106.90213643919674,
+        "ttft_p95_ms": 735.180625500152,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 830.7192851501213,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 106,
+        "requests": 300,
+        "throughput_requests_per_second": 108.25115567129609,
+        "ttft_p95_ms": 752.2433431998709,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 737.9245416501476,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 107,
+        "requests": 300,
+        "throughput_requests_per_second": 113.7457146302013,
+        "ttft_p95_ms": 660.8470903001148,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 811.0924425000007,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 108,
+        "requests": 300,
+        "throughput_requests_per_second": 111.04218270436573,
+        "ttft_p95_ms": 754.2479209501039,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 729.9604056499334,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 109,
+        "requests": 300,
+        "throughput_requests_per_second": 112.4686493639898,
+        "ttft_p95_ms": 674.0438351499962,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 795.6759890498347,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 110,
+        "requests": 300,
+        "throughput_requests_per_second": 113.02568244907063,
+        "ttft_p95_ms": 703.1350015500493,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 778.4680207000974,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 111,
+        "requests": 300,
+        "throughput_requests_per_second": 113.95452986349386,
+        "ttft_p95_ms": 696.0406465500569,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 742.1687074000488,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 112,
+        "requests": 300,
+        "throughput_requests_per_second": 110.30453980394472,
+        "ttft_p95_ms": 691.9247523500189,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 787.1134279499757,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 113,
+        "requests": 300,
+        "throughput_requests_per_second": 111.51069108750801,
+        "ttft_p95_ms": 695.2430436499072,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 2517.1190513500846,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 114,
+        "requests": 300,
+        "throughput_requests_per_second": 62.45100198469284,
+        "ttft_p95_ms": 2369.2563949501055,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 875.6713070499814,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 115,
+        "requests": 300,
+        "throughput_requests_per_second": 104.22239669823448,
+        "ttft_p95_ms": 786.6158907501017,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 974.6185165498333,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 116,
+        "requests": 300,
+        "throughput_requests_per_second": 104.96821562430897,
+        "ttft_p95_ms": 918.1359680001606,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 754.8813549501803,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 117,
+        "requests": 300,
+        "throughput_requests_per_second": 111.34675383385431,
+        "ttft_p95_ms": 725.2622190999887,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 781.7369834000602,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 118,
+        "requests": 300,
+        "throughput_requests_per_second": 107.18565484361257,
+        "ttft_p95_ms": 694.9016795499463,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 776.3776530499968,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 119,
+        "requests": 300,
+        "throughput_requests_per_second": 108.29855746321459,
+        "ttft_p95_ms": 677.5151604499001,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 711.8471474998615,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 120,
+        "requests": 300,
+        "throughput_requests_per_second": 116.11605722508942,
+        "ttft_p95_ms": 629.4632051498411,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 720.6359284499172,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 121,
+        "requests": 300,
+        "throughput_requests_per_second": 112.27364230291204,
+        "ttft_p95_ms": 679.7887449999394,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 761.5202109999473,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 122,
+        "requests": 300,
+        "throughput_requests_per_second": 109.88330759011622,
+        "ttft_p95_ms": 696.1337852000497,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 745.4797106001365,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 123,
+        "requests": 300,
+        "throughput_requests_per_second": 111.2359838025576,
+        "ttft_p95_ms": 674.2352910498881,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 721.3534876498557,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 124,
+        "requests": 300,
+        "throughput_requests_per_second": 116.28952681016277,
+        "ttft_p95_ms": 647.1651029000213,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 938.8682934998884,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 125,
+        "requests": 300,
+        "throughput_requests_per_second": 102.46104601798807,
+        "ttft_p95_ms": 838.9691652000806,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 713.5487477999166,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 126,
+        "requests": 300,
+        "throughput_requests_per_second": 112.64804769668538,
+        "ttft_p95_ms": 652.2327894500679,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 890.9014238498798,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 127,
+        "requests": 300,
+        "throughput_requests_per_second": 107.43773535578902,
+        "ttft_p95_ms": 810.4090125999847,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 781.269140249913,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 128,
+        "requests": 300,
+        "throughput_requests_per_second": 113.22805640266917,
+        "ttft_p95_ms": 707.4980393500482,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 691.078987149979,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 129,
+        "requests": 300,
+        "throughput_requests_per_second": 115.90673062657633,
+        "ttft_p95_ms": 629.468446500141,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 793.0819875500903,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 130,
+        "requests": 300,
+        "throughput_requests_per_second": 107.06546410737381,
+        "ttft_p95_ms": 746.8738382999845,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 1785.1332692001167,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 131,
+        "requests": 300,
+        "throughput_requests_per_second": 69.18345307067297,
+        "ttft_p95_ms": 1570.1343486500036,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 782.6950672999376,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 132,
+        "requests": 300,
+        "throughput_requests_per_second": 110.21546756524113,
+        "ttft_p95_ms": 715.3733773999193,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 728.6234707998346,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 133,
+        "requests": 300,
+        "throughput_requests_per_second": 112.56241585959414,
+        "ttft_p95_ms": 663.5085880499561,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 718.4203444501577,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 134,
+        "requests": 300,
+        "throughput_requests_per_second": 120.2408183109131,
+        "ttft_p95_ms": 638.3527687000537,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 848.2382192001182,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 135,
+        "requests": 300,
+        "throughput_requests_per_second": 114.26878074068262,
+        "ttft_p95_ms": 789.3933249501174,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 1146.8687268499482,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 136,
+        "requests": 300,
+        "throughput_requests_per_second": 101.90556614996015,
+        "ttft_p95_ms": 1010.5420929000388,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 803.812461400071,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 137,
+        "requests": 300,
+        "throughput_requests_per_second": 115.16774566047934,
+        "ttft_p95_ms": 707.9707253501058,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 747.6204144500571,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 138,
+        "requests": 300,
+        "throughput_requests_per_second": 112.954869258504,
+        "ttft_p95_ms": 686.3545395000415,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 739.9725347001208,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 139,
+        "requests": 300,
+        "throughput_requests_per_second": 114.67495384333108,
+        "ttft_p95_ms": 645.2324865498781,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 1172.7088535000348,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 140,
+        "requests": 300,
+        "throughput_requests_per_second": 86.43993663376378,
+        "ttft_p95_ms": 948.0460732001235,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 818.3658874499542,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 141,
+        "requests": 300,
+        "throughput_requests_per_second": 114.3060498763018,
+        "ttft_p95_ms": 681.7802589999474,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 773.2687336498773,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 142,
+        "requests": 300,
+        "throughput_requests_per_second": 115.25229688223328,
+        "ttft_p95_ms": 690.2409535000629,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 917.4937600000703,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 143,
+        "requests": 300,
+        "throughput_requests_per_second": 109.65224885797183,
+        "ttft_p95_ms": 877.1864055500487,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 774.4638942000848,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 144,
+        "requests": 300,
+        "throughput_requests_per_second": 116.14536754201559,
+        "ttft_p95_ms": 706.3224901500463,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 749.6536993999712,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 145,
+        "requests": 300,
+        "throughput_requests_per_second": 115.42323777571725,
+        "ttft_p95_ms": 677.4580584500882,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 1089.6292662501426,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 146,
+        "requests": 300,
+        "throughput_requests_per_second": 104.16084378616334,
+        "ttft_p95_ms": 880.0741672000415,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 770.4602940501445,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 147,
+        "requests": 300,
+        "throughput_requests_per_second": 112.82280013403349,
+        "ttft_p95_ms": 711.0895771499374,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 809.0377642500471,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 148,
+        "requests": 300,
+        "throughput_requests_per_second": 104.72527418822204,
+        "ttft_p95_ms": 690.1109110000108,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 2174.422280349859,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 149,
+        "requests": 300,
+        "throughput_requests_per_second": 68.23634522495703,
+        "ttft_p95_ms": 2151.124294300064,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      },
+      {
+        "e2e_p95_ms": 716.2264339499872,
+        "errors": 0,
+        "quality_rate": 0.9433333333333334,
+        "repeat_index": 150,
+        "requests": 300,
+        "throughput_requests_per_second": 114.61304915409839,
+        "ttft_p95_ms": 684.5494334999219,
+        "view_a_managed_cost_per_correct_task_usd": null,
+        "view_a_private_cost_per_correct_task_usd": 9.85394581861013e-05
+      }
+    ],
+    "view_a_managed_cost_per_correct_task_usd_dispersion": null,
+    "view_a_private_cost_per_correct_task_usd_dispersion": {
+      "max": 9.85394581861013e-05,
+      "median": 9.85394581861013e-05,
+      "min": 9.85394581861013e-05
+    }
+  },
+  "requests": 45000,
+  "routing_mix": {
+    "private-vllm": 45000
+  },
+  "run_id": "20260823T141339Z-8d3374c4-t5-autoscale",
+  "sample_size": 45000,
+  "slo": {
+    "aggregate": {
+      "error_rate": 0.0,
+      "label": "informational aggregate; eligibility is derived from traffic cells",
+      "latency_ms": {
+        "p50": 538.1792755000561,
+        "p95": 832.0397694499202,
+        "p99": 1452.8860178499508
+      },
+      "quality_rate": 0.9433333333333334,
+      "sample_size": 45000,
+      "ttft_ms": {
+        "p50": 478.090924000071,
+        "p95": 757.4160102000633,
+        "p99": 1329.1256879800274
+      }
+    },
+    "cell": "WL-01/premium",
+    "checks": {
+      "error_rate": {
+        "actual": 0.0,
+        "applicable": true,
+        "pass": true,
+        "target": 0.01
+      },
+      "p95_e2e_ms": {
+        "actual": 832.0397694499202,
+        "applicable": true,
+        "pass": true,
+        "target": 6000
+      },
+      "p95_ttft_ms": {
+        "actual": 757.4160102000633,
+        "applicable": true,
+        "pass": true,
+        "target": 2000
+      },
+      "quality_rate": {
+        "actual": 0.9433333333333334,
+        "applicable": true,
+        "pass": false,
+        "target": 0.95
+      }
+    },
+    "failed_targets": [
+      "quality_rate"
+    ],
+    "per_cell": [
+      {
+        "cell": "WL-01/premium",
+        "checks": {
+          "error_rate": {
+            "actual": 0.0,
+            "applicable": true,
+            "pass": true,
+            "target": 0.01
+          },
+          "p95_e2e_ms": {
+            "actual": 832.0397694499202,
+            "applicable": true,
+            "pass": true,
+            "target": 6000
+          },
+          "p95_ttft_ms": {
+            "actual": 757.4160102000633,
+            "applicable": true,
+            "pass": true,
+            "target": 2000
+          },
+          "quality_rate": {
+            "actual": 0.9433333333333334,
+            "applicable": true,
+            "pass": false,
+            "target": 0.95
+          }
+        },
+        "eligible": false,
+        "failed_targets": [
+          "quality_rate"
+        ],
+        "sample_size": 45000,
+        "sample_status": "sufficient",
+        "slo_eligible": false,
+        "targets": {
+          "max_error_rate": "0.01",
+          "min_quality_rate": "0.95",
+          "p95_e2e_ms": 6000,
+          "p95_ttft_ms": 2000
+        },
+        "warning": null
+      }
+    ],
+    "slo_eligible": false,
+    "targets": {
+      "max_error_rate": "0.01",
+      "min_quality_rate": "0.95",
+      "p95_e2e_ms": 6000,
+      "p95_ttft_ms": 2000
+    }
+  },
+  "statistics": {
+    "cluster_unit": "repeat_index",
+    "iterations": 2000,
+    "method": "cluster percentile bootstrap",
+    "p95_e2e_ms_95_ci": {
+      "confidence": 0.95,
+      "high": 917.4862252863124,
+      "iterations": 2000,
+      "low": 793.2733132451082,
+      "method": "cluster percentile bootstrap",
+      "resampling_unit": "repeat_index",
+      "seed": 20260815
+    },
+    "p95_ttft_ms_95_ci": {
+      "confidence": 0.95,
+      "high": 830.4829417001542,
+      "iterations": 2000,
+      "low": 720.3609080126209,
+      "method": "cluster percentile bootstrap",
+      "resampling_unit": "repeat_index",
+      "seed": 20260816
+    },
+    "private_view_a_cost_per_correct_task_95_ci": {
+      "confidence": 0.95,
+      "high": 9.853945818610131e-05,
+      "iterations": 2000,
+      "low": 9.85394581861013e-05,
+      "method": "cluster ratio percentile bootstrap",
+      "resampling_unit": "repeat_index",
+      "seed": 20260817
+    },
+    "quality_pairing_unit": "dataset_item_id",
+    "seed": 20260815
+  },
+  "throughput": {
+    "output_tokens_per_second": 180.47254849969636,
+    "requests_per_second": 88.501642065367
+  },
+  "treatment": "t5-autoscale",
+  "ttft_ms": {
+    "p50": 478.090924000071,
+    "p95": 757.4160102000633,
+    "p99": 1329.1256879800274
+  },
+  "workload": "classification"
+}

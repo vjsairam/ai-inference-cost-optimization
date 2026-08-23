@@ -1,0 +1,1 @@
+{"status":"success","data":{"resultType":"vector","result":[{"metric":{"__name__":"vllm:num_requests_waiting","container":"vllm","endpoint":"http","engine":"0","instance":"10.42.10.59:8000","job":"vllm","model_name":"lab-private","namespace":"model-serving","pod":"vllm-5f577ccf85-llq95","service":"vllm"},"value":[1787494369.880,"0"]}]}}

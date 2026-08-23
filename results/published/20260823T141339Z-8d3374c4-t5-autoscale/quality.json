@@ -1,0 +1,158 @@
+{
+  "applicable": true,
+  "by_difficulty": {
+    "easy": {
+      "attempts": 15750,
+      "correct": 15300,
+      "rate": 0.9714285714285714
+    },
+    "hard": {
+      "attempts": 14550,
+      "correct": 13500,
+      "rate": 0.9278350515463918
+    },
+    "medium": {
+      "attempts": 14700,
+      "correct": 13650,
+      "rate": 0.9285714285714286
+    }
+  },
+  "quality_rate": 0.9433333333333334,
+  "task_correct": 42450,
+  "task_metrics": {
+    "accuracy": 0.9433333333333334,
+    "confusion": {
+      "access": {
+        "access": 4050,
+        "billing": 1500,
+        "delivery": 0,
+        "hardware": 0,
+        "network": 0,
+        "security": 0,
+        "software": 0,
+        "storage": 0
+      },
+      "billing": {
+        "access": 0,
+        "billing": 5400,
+        "delivery": 0,
+        "hardware": 0,
+        "network": 0,
+        "security": 0,
+        "software": 0,
+        "storage": 0
+      },
+      "delivery": {
+        "access": 0,
+        "billing": 0,
+        "delivery": 5400,
+        "hardware": 0,
+        "network": 0,
+        "security": 0,
+        "software": 0,
+        "storage": 0
+      },
+      "hardware": {
+        "access": 0,
+        "billing": 0,
+        "delivery": 0,
+        "hardware": 5850,
+        "network": 0,
+        "security": 0,
+        "software": 0,
+        "storage": 0
+      },
+      "network": {
+        "access": 0,
+        "billing": 0,
+        "delivery": 0,
+        "hardware": 0,
+        "network": 5700,
+        "security": 0,
+        "software": 0,
+        "storage": 0
+      },
+      "security": {
+        "access": 1050,
+        "billing": 0,
+        "delivery": 0,
+        "hardware": 0,
+        "network": 0,
+        "security": 4650,
+        "software": 0,
+        "storage": 0
+      },
+      "software": {
+        "access": 0,
+        "billing": 0,
+        "delivery": 0,
+        "hardware": 0,
+        "network": 0,
+        "security": 0,
+        "software": 5850,
+        "storage": 0
+      },
+      "storage": {
+        "access": 0,
+        "billing": 0,
+        "delivery": 0,
+        "hardware": 0,
+        "network": 0,
+        "security": 0,
+        "software": 0,
+        "storage": 5550
+      }
+    },
+    "per_class": {
+      "access": {
+        "f1": 0.7605633802816901,
+        "precision": 0.7941176470588235,
+        "recall": 0.7297297297297297,
+        "support": 5550
+      },
+      "billing": {
+        "f1": 0.878048780487805,
+        "precision": 0.782608695652174,
+        "recall": 1.0,
+        "support": 5400
+      },
+      "delivery": {
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "support": 5400
+      },
+      "hardware": {
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "support": 5850
+      },
+      "network": {
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "support": 5700
+      },
+      "security": {
+        "f1": 0.898550724637681,
+        "precision": 1.0,
+        "recall": 0.8157894736842105,
+        "support": 5700
+      },
+      "software": {
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "support": 5850
+      },
+      "storage": {
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "support": 5550
+      }
+    },
+    "unknown_predictions": {}
+  }
+}

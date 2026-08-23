@@ -1,0 +1,766 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300" role="img">
+  <title>View A cost per correct task</title>
+  <rect width="600" height="300" fill="#ffffff"/>
+  <g font-family="sans-serif" fill="#17212b">
+    <text x="300" y="24" text-anchor="middle" font-size="17" font-weight="600">View A cost per correct task</text>
+    <text x="300" y="41" text-anchor="middle" font-size="10">USD per repeat; labels are truncated without rounding</text>
+    <line x1="58" y1="48" x2="58" y2="222" stroke="#52606d"/>
+    <line x1="58" y1="222" x2="580" y2="222" stroke="#52606d"/>
+    <line x1="54" y1="222.00" x2="58" y2="222.00" stroke="#52606d"/>
+    <text x="50" y="225.00" text-anchor="end" font-size="9">$0.000000000000...</text>
+    <line x1="54" y1="135.00" x2="58" y2="135.00" stroke="#52606d"/>
+    <text x="50" y="138.00" text-anchor="end" font-size="9">$0.000049269729...</text>
+    <line x1="54" y1="48.00" x2="58" y2="48.00" stroke="#52606d"/>
+    <text x="50" y="51.00" text-anchor="end" font-size="9">$0.000098539458...</text>
+    <text x="59.74" y="242" text-anchor="middle" font-size="10">Repeat 1</text>
+    <rect x="58.78" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="59.74" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="63.22" y="242" text-anchor="middle" font-size="10">Repeat 2</text>
+    <rect x="62.26" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="63.22" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="66.70" y="242" text-anchor="middle" font-size="10">Repeat 3</text>
+    <rect x="65.74" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="66.70" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="70.18" y="242" text-anchor="middle" font-size="10">Repeat 4</text>
+    <rect x="69.22" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="70.18" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="73.66" y="242" text-anchor="middle" font-size="10">Repeat 5</text>
+    <rect x="72.70" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="73.66" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="77.14" y="242" text-anchor="middle" font-size="10">Repeat 6</text>
+    <rect x="76.18" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="77.14" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="80.62" y="242" text-anchor="middle" font-size="10">Repeat 7</text>
+    <rect x="79.66" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="80.62" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="84.10" y="242" text-anchor="middle" font-size="10">Repeat 8</text>
+    <rect x="83.14" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="84.10" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="87.58" y="242" text-anchor="middle" font-size="10">Repeat 9</text>
+    <rect x="86.62" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="87.58" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="91.06" y="242" text-anchor="middle" font-size="10">Repeat 10</text>
+    <rect x="90.10" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="91.06" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="94.54" y="242" text-anchor="middle" font-size="10">Repeat 11</text>
+    <rect x="93.58" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="94.54" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="98.02" y="242" text-anchor="middle" font-size="10">Repeat 12</text>
+    <rect x="97.06" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="98.02" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="101.50" y="242" text-anchor="middle" font-size="10">Repeat 13</text>
+    <rect x="100.54" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="101.50" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="104.98" y="242" text-anchor="middle" font-size="10">Repeat 14</text>
+    <rect x="104.02" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="104.98" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="108.46" y="242" text-anchor="middle" font-size="10">Repeat 15</text>
+    <rect x="107.50" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="108.46" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="111.94" y="242" text-anchor="middle" font-size="10">Repeat 16</text>
+    <rect x="110.98" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="111.94" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="115.42" y="242" text-anchor="middle" font-size="10">Repeat 17</text>
+    <rect x="114.46" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="115.42" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="118.90" y="242" text-anchor="middle" font-size="10">Repeat 18</text>
+    <rect x="117.94" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="118.90" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="122.38" y="242" text-anchor="middle" font-size="10">Repeat 19</text>
+    <rect x="121.42" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="122.38" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="125.86" y="242" text-anchor="middle" font-size="10">Repeat 20</text>
+    <rect x="124.90" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="125.86" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="129.34" y="242" text-anchor="middle" font-size="10">Repeat 21</text>
+    <rect x="128.38" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="129.34" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="132.82" y="242" text-anchor="middle" font-size="10">Repeat 22</text>
+    <rect x="131.86" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="132.82" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="136.30" y="242" text-anchor="middle" font-size="10">Repeat 23</text>
+    <rect x="135.34" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="136.30" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="139.78" y="242" text-anchor="middle" font-size="10">Repeat 24</text>
+    <rect x="138.82" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="139.78" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="143.26" y="242" text-anchor="middle" font-size="10">Repeat 25</text>
+    <rect x="142.30" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="143.26" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="146.74" y="242" text-anchor="middle" font-size="10">Repeat 26</text>
+    <rect x="145.78" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="146.74" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="150.22" y="242" text-anchor="middle" font-size="10">Repeat 27</text>
+    <rect x="149.26" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="150.22" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="153.70" y="242" text-anchor="middle" font-size="10">Repeat 28</text>
+    <rect x="152.74" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="153.70" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="157.18" y="242" text-anchor="middle" font-size="10">Repeat 29</text>
+    <rect x="156.22" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="157.18" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="160.66" y="242" text-anchor="middle" font-size="10">Repeat 30</text>
+    <rect x="159.70" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="160.66" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="164.14" y="242" text-anchor="middle" font-size="10">Repeat 31</text>
+    <rect x="163.18" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="164.14" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="167.62" y="242" text-anchor="middle" font-size="10">Repeat 32</text>
+    <rect x="166.66" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="167.62" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="171.10" y="242" text-anchor="middle" font-size="10">Repeat 33</text>
+    <rect x="170.14" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="171.10" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="174.58" y="242" text-anchor="middle" font-size="10">Repeat 34</text>
+    <rect x="173.62" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="174.58" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="178.06" y="242" text-anchor="middle" font-size="10">Repeat 35</text>
+    <rect x="177.10" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="178.06" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="181.54" y="242" text-anchor="middle" font-size="10">Repeat 36</text>
+    <rect x="180.58" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="181.54" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="185.02" y="242" text-anchor="middle" font-size="10">Repeat 37</text>
+    <rect x="184.06" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="185.02" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="188.50" y="242" text-anchor="middle" font-size="10">Repeat 38</text>
+    <rect x="187.54" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="188.50" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="191.98" y="242" text-anchor="middle" font-size="10">Repeat 39</text>
+    <rect x="191.02" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="191.98" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="195.46" y="242" text-anchor="middle" font-size="10">Repeat 40</text>
+    <rect x="194.50" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="195.46" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="198.94" y="242" text-anchor="middle" font-size="10">Repeat 41</text>
+    <rect x="197.98" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="198.94" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="202.42" y="242" text-anchor="middle" font-size="10">Repeat 42</text>
+    <rect x="201.46" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="202.42" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="205.90" y="242" text-anchor="middle" font-size="10">Repeat 43</text>
+    <rect x="204.94" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="205.90" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="209.38" y="242" text-anchor="middle" font-size="10">Repeat 44</text>
+    <rect x="208.42" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="209.38" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="212.86" y="242" text-anchor="middle" font-size="10">Repeat 45</text>
+    <rect x="211.90" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="212.86" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="216.34" y="242" text-anchor="middle" font-size="10">Repeat 46</text>
+    <rect x="215.38" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="216.34" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="219.82" y="242" text-anchor="middle" font-size="10">Repeat 47</text>
+    <rect x="218.86" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="219.82" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="223.30" y="242" text-anchor="middle" font-size="10">Repeat 48</text>
+    <rect x="222.34" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="223.30" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="226.78" y="242" text-anchor="middle" font-size="10">Repeat 49</text>
+    <rect x="225.82" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="226.78" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="230.26" y="242" text-anchor="middle" font-size="10">Repeat 50</text>
+    <rect x="229.30" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="230.26" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="233.74" y="242" text-anchor="middle" font-size="10">Repeat 51</text>
+    <rect x="232.78" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="233.74" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="237.22" y="242" text-anchor="middle" font-size="10">Repeat 52</text>
+    <rect x="236.26" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="237.22" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="240.70" y="242" text-anchor="middle" font-size="10">Repeat 53</text>
+    <rect x="239.74" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="240.70" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="244.18" y="242" text-anchor="middle" font-size="10">Repeat 54</text>
+    <rect x="243.22" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="244.18" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="247.66" y="242" text-anchor="middle" font-size="10">Repeat 55</text>
+    <rect x="246.70" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="247.66" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="251.14" y="242" text-anchor="middle" font-size="10">Repeat 56</text>
+    <rect x="250.18" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="251.14" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="254.62" y="242" text-anchor="middle" font-size="10">Repeat 57</text>
+    <rect x="253.66" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="254.62" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="258.10" y="242" text-anchor="middle" font-size="10">Repeat 58</text>
+    <rect x="257.14" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="258.10" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="261.58" y="242" text-anchor="middle" font-size="10">Repeat 59</text>
+    <rect x="260.62" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="261.58" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="265.06" y="242" text-anchor="middle" font-size="10">Repeat 60</text>
+    <rect x="264.10" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="265.06" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="268.54" y="242" text-anchor="middle" font-size="10">Repeat 61</text>
+    <rect x="267.58" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="268.54" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="272.02" y="242" text-anchor="middle" font-size="10">Repeat 62</text>
+    <rect x="271.06" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="272.02" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="275.50" y="242" text-anchor="middle" font-size="10">Repeat 63</text>
+    <rect x="274.54" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="275.50" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="278.98" y="242" text-anchor="middle" font-size="10">Repeat 64</text>
+    <rect x="278.02" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="278.98" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="282.46" y="242" text-anchor="middle" font-size="10">Repeat 65</text>
+    <rect x="281.50" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="282.46" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="285.94" y="242" text-anchor="middle" font-size="10">Repeat 66</text>
+    <rect x="284.98" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="285.94" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="289.42" y="242" text-anchor="middle" font-size="10">Repeat 67</text>
+    <rect x="288.46" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="289.42" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="292.90" y="242" text-anchor="middle" font-size="10">Repeat 68</text>
+    <rect x="291.94" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="292.90" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="296.38" y="242" text-anchor="middle" font-size="10">Repeat 69</text>
+    <rect x="295.42" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="296.38" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="299.86" y="242" text-anchor="middle" font-size="10">Repeat 70</text>
+    <rect x="298.90" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="299.86" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="303.34" y="242" text-anchor="middle" font-size="10">Repeat 71</text>
+    <rect x="302.38" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="303.34" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="306.82" y="242" text-anchor="middle" font-size="10">Repeat 72</text>
+    <rect x="305.86" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="306.82" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="310.30" y="242" text-anchor="middle" font-size="10">Repeat 73</text>
+    <rect x="309.34" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="310.30" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="313.78" y="242" text-anchor="middle" font-size="10">Repeat 74</text>
+    <rect x="312.82" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="313.78" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="317.26" y="242" text-anchor="middle" font-size="10">Repeat 75</text>
+    <rect x="316.30" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="317.26" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="320.74" y="242" text-anchor="middle" font-size="10">Repeat 76</text>
+    <rect x="319.78" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="320.74" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="324.22" y="242" text-anchor="middle" font-size="10">Repeat 77</text>
+    <rect x="323.26" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="324.22" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="327.70" y="242" text-anchor="middle" font-size="10">Repeat 78</text>
+    <rect x="326.74" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="327.70" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="331.18" y="242" text-anchor="middle" font-size="10">Repeat 79</text>
+    <rect x="330.22" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="331.18" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="334.66" y="242" text-anchor="middle" font-size="10">Repeat 80</text>
+    <rect x="333.70" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="334.66" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="338.14" y="242" text-anchor="middle" font-size="10">Repeat 81</text>
+    <rect x="337.18" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="338.14" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="341.62" y="242" text-anchor="middle" font-size="10">Repeat 82</text>
+    <rect x="340.66" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="341.62" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="345.10" y="242" text-anchor="middle" font-size="10">Repeat 83</text>
+    <rect x="344.14" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="345.10" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="348.58" y="242" text-anchor="middle" font-size="10">Repeat 84</text>
+    <rect x="347.62" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="348.58" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="352.06" y="242" text-anchor="middle" font-size="10">Repeat 85</text>
+    <rect x="351.10" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="352.06" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="355.54" y="242" text-anchor="middle" font-size="10">Repeat 86</text>
+    <rect x="354.58" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="355.54" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="359.02" y="242" text-anchor="middle" font-size="10">Repeat 87</text>
+    <rect x="358.06" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="359.02" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="362.50" y="242" text-anchor="middle" font-size="10">Repeat 88</text>
+    <rect x="361.54" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="362.50" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="365.98" y="242" text-anchor="middle" font-size="10">Repeat 89</text>
+    <rect x="365.02" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="365.98" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="369.46" y="242" text-anchor="middle" font-size="10">Repeat 90</text>
+    <rect x="368.50" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="369.46" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="372.94" y="242" text-anchor="middle" font-size="10">Repeat 91</text>
+    <rect x="371.98" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="372.94" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="376.42" y="242" text-anchor="middle" font-size="10">Repeat 92</text>
+    <rect x="375.46" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="376.42" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="379.90" y="242" text-anchor="middle" font-size="10">Repeat 93</text>
+    <rect x="378.94" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="379.90" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="383.38" y="242" text-anchor="middle" font-size="10">Repeat 94</text>
+    <rect x="382.42" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="383.38" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="386.86" y="242" text-anchor="middle" font-size="10">Repeat 95</text>
+    <rect x="385.90" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="386.86" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="390.34" y="242" text-anchor="middle" font-size="10">Repeat 96</text>
+    <rect x="389.38" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="390.34" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="393.82" y="242" text-anchor="middle" font-size="10">Repeat 97</text>
+    <rect x="392.86" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="393.82" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="397.30" y="242" text-anchor="middle" font-size="10">Repeat 98</text>
+    <rect x="396.34" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="397.30" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="400.78" y="242" text-anchor="middle" font-size="10">Repeat 99</text>
+    <rect x="399.82" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="400.78" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="404.26" y="242" text-anchor="middle" font-size="10">Repeat 100</text>
+    <rect x="403.30" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="404.26" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="407.74" y="242" text-anchor="middle" font-size="10">Repeat 101</text>
+    <rect x="406.78" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="407.74" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="411.22" y="242" text-anchor="middle" font-size="10">Repeat 102</text>
+    <rect x="410.26" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="411.22" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="414.70" y="242" text-anchor="middle" font-size="10">Repeat 103</text>
+    <rect x="413.74" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="414.70" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="418.18" y="242" text-anchor="middle" font-size="10">Repeat 104</text>
+    <rect x="417.22" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="418.18" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="421.66" y="242" text-anchor="middle" font-size="10">Repeat 105</text>
+    <rect x="420.70" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="421.66" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="425.14" y="242" text-anchor="middle" font-size="10">Repeat 106</text>
+    <rect x="424.18" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="425.14" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="428.62" y="242" text-anchor="middle" font-size="10">Repeat 107</text>
+    <rect x="427.66" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="428.62" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="432.10" y="242" text-anchor="middle" font-size="10">Repeat 108</text>
+    <rect x="431.14" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="432.10" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="435.58" y="242" text-anchor="middle" font-size="10">Repeat 109</text>
+    <rect x="434.62" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="435.58" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="439.06" y="242" text-anchor="middle" font-size="10">Repeat 110</text>
+    <rect x="438.10" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="439.06" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="442.54" y="242" text-anchor="middle" font-size="10">Repeat 111</text>
+    <rect x="441.58" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="442.54" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="446.02" y="242" text-anchor="middle" font-size="10">Repeat 112</text>
+    <rect x="445.06" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="446.02" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="449.50" y="242" text-anchor="middle" font-size="10">Repeat 113</text>
+    <rect x="448.54" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="449.50" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="452.98" y="242" text-anchor="middle" font-size="10">Repeat 114</text>
+    <rect x="452.02" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="452.98" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="456.46" y="242" text-anchor="middle" font-size="10">Repeat 115</text>
+    <rect x="455.50" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="456.46" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="459.94" y="242" text-anchor="middle" font-size="10">Repeat 116</text>
+    <rect x="458.98" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="459.94" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="463.42" y="242" text-anchor="middle" font-size="10">Repeat 117</text>
+    <rect x="462.46" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="463.42" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="466.90" y="242" text-anchor="middle" font-size="10">Repeat 118</text>
+    <rect x="465.94" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="466.90" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="470.38" y="242" text-anchor="middle" font-size="10">Repeat 119</text>
+    <rect x="469.42" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="470.38" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="473.86" y="242" text-anchor="middle" font-size="10">Repeat 120</text>
+    <rect x="472.90" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="473.86" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="477.34" y="242" text-anchor="middle" font-size="10">Repeat 121</text>
+    <rect x="476.38" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="477.34" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="480.82" y="242" text-anchor="middle" font-size="10">Repeat 122</text>
+    <rect x="479.86" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="480.82" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="484.30" y="242" text-anchor="middle" font-size="10">Repeat 123</text>
+    <rect x="483.34" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="484.30" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="487.78" y="242" text-anchor="middle" font-size="10">Repeat 124</text>
+    <rect x="486.82" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="487.78" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="491.26" y="242" text-anchor="middle" font-size="10">Repeat 125</text>
+    <rect x="490.30" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="491.26" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="494.74" y="242" text-anchor="middle" font-size="10">Repeat 126</text>
+    <rect x="493.78" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="494.74" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="498.22" y="242" text-anchor="middle" font-size="10">Repeat 127</text>
+    <rect x="497.26" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="498.22" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="501.70" y="242" text-anchor="middle" font-size="10">Repeat 128</text>
+    <rect x="500.74" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="501.70" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="505.18" y="242" text-anchor="middle" font-size="10">Repeat 129</text>
+    <rect x="504.22" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="505.18" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="508.66" y="242" text-anchor="middle" font-size="10">Repeat 130</text>
+    <rect x="507.70" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="508.66" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="512.14" y="242" text-anchor="middle" font-size="10">Repeat 131</text>
+    <rect x="511.18" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="512.14" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="515.62" y="242" text-anchor="middle" font-size="10">Repeat 132</text>
+    <rect x="514.66" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="515.62" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="519.10" y="242" text-anchor="middle" font-size="10">Repeat 133</text>
+    <rect x="518.14" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="519.10" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="522.58" y="242" text-anchor="middle" font-size="10">Repeat 134</text>
+    <rect x="521.62" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="522.58" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="526.06" y="242" text-anchor="middle" font-size="10">Repeat 135</text>
+    <rect x="525.10" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="526.06" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="529.54" y="242" text-anchor="middle" font-size="10">Repeat 136</text>
+    <rect x="528.58" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="529.54" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="533.02" y="242" text-anchor="middle" font-size="10">Repeat 137</text>
+    <rect x="532.06" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="533.02" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="536.50" y="242" text-anchor="middle" font-size="10">Repeat 138</text>
+    <rect x="535.54" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="536.50" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="539.98" y="242" text-anchor="middle" font-size="10">Repeat 139</text>
+    <rect x="539.02" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="539.98" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="543.46" y="242" text-anchor="middle" font-size="10">Repeat 140</text>
+    <rect x="542.50" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="543.46" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="546.94" y="242" text-anchor="middle" font-size="10">Repeat 141</text>
+    <rect x="545.98" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="546.94" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="550.42" y="242" text-anchor="middle" font-size="10">Repeat 142</text>
+    <rect x="549.46" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="550.42" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="553.90" y="242" text-anchor="middle" font-size="10">Repeat 143</text>
+    <rect x="552.94" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="553.90" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="557.38" y="242" text-anchor="middle" font-size="10">Repeat 144</text>
+    <rect x="556.42" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="557.38" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="560.86" y="242" text-anchor="middle" font-size="10">Repeat 145</text>
+    <rect x="559.90" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="560.86" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="564.34" y="242" text-anchor="middle" font-size="10">Repeat 146</text>
+    <rect x="563.38" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="564.34" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="567.82" y="242" text-anchor="middle" font-size="10">Repeat 147</text>
+    <rect x="566.86" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="567.82" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="571.30" y="242" text-anchor="middle" font-size="10">Repeat 148</text>
+    <rect x="570.34" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="571.30" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="574.78" y="242" text-anchor="middle" font-size="10">Repeat 149</text>
+    <rect x="573.82" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="574.78" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+    <text x="578.26" y="242" text-anchor="middle" font-size="10">Repeat 150</text>
+    <rect x="577.30" y="48.00" width="1.91" height="174.00" fill="#2563a6">
+      <title>0.0000985394581861013</title>
+    </rect>
+    <text x="578.26" y="53.00" text-anchor="middle" font-size="10">$0.000098539458...</text>
+  </g>
+</svg>

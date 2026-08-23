@@ -1,0 +1,49 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: vllm
+  namespace: model-serving
+  labels:
+    app.kubernetes.io/name: vllm
+    app.kubernetes.io/part-of: inference-lab
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: vllm
+  minReplicaCount: 1
+  maxReplicaCount: 2
+  # Match the 15 second ServiceMonitor scrape interval without polling stale samples faster.
+  pollingInterval: 15
+  # This protects a future scale-to-zero change. The HPA stabilization below controls 2 to 1.
+  cooldownPeriod: 600
+  advanced:
+    restoreToOriginalReplicaCount: true
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleUp:
+          stabilizationWindowSeconds: 0
+          policies:
+            - type: Pods
+              value: 1
+              periodSeconds: 60
+        scaleDown:
+          # Model startup took minutes in the baseline cycle, so hold spare capacity for ten
+          # minutes after the queue clears instead of cycling a loaded replica between bursts.
+          stabilizationWindowSeconds: 600
+          policies:
+            - type: Pods
+              value: 1
+              periodSeconds: 60
+  triggers:
+    - type: prometheus
+      metricType: AverageValue
+      metadata:
+        serverAddress: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
+        metricName: vllm_num_requests_waiting
+        query: sum(vllm:num_requests_waiting{namespace="model-serving",service="vllm"})
+        # One queued request is acceptable noise. A sustained queue above one requests replica 2.
+        threshold: "1"
+        activationThreshold: "0"
+        # Missing scrape data is an experiment failure, not an idle signal.
+        ignoreNullValues: "false"

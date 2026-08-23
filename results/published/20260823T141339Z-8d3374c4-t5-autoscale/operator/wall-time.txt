@@ -1,0 +1,1 @@
+T5 window start=1787494414 end=1787494995 wall hours=0.16138889 GPU node-hours=0.32277778 static GPU cost USD=0.259772
