@@ -110,9 +110,10 @@ at concurrency 64 against one vLLM replica while KEDA watched the queue. The sca
 came 17 seconds after load start, but the second replica needed 7 minutes 40 seconds of
 pod-plus-model cold start on an already-provisioned GPU node before it served traffic, and the
 deployment scaled back to one replica within KEDA's stabilization window after the queue
-drained. The operator conclusion: on this stack, queue-triggered replica scale-out handles
-sustained load shifts, while bursts shorter than the cold start are absorbed by queueing on the
-existing replica, which still met the latency targets (p95 end-to-end 832 ms) at zero errors.
+drained. The operator conclusion: on this stack, queue-triggered replica scale-out suits
+sustained load shifts. During this run's cold-start interval the single existing replica served
+all traffic by queueing and still met the latency targets (p95 end-to-end 832 ms) at zero
+errors; burst traffic patterns were not tested.
 
 SC-11 reproduce cost: the full first cycle, including every defect it uncovered, took 5.3 wall
 hours and about 19 USD (8 USD infrastructure, 11 USD managed API). A clean rerun following the

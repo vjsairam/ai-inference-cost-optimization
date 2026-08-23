@@ -1,0 +1,27 @@
+NAMESPACE        NAME                                                       READY   STATUS    RESTARTS      AGE   IP             NODE                           NOMINATED NODE   READINESS GATES
+benchmark-jobs   benchmark-runner-vlhrd                                     1/1     Running   0             19m   10.42.10.158   ip-10-42-10-89.ec2.internal    <none>           <none>
+gateway-system   gateway-78c98f5745-cgrnw                                   1/1     Running   0             18m   10.42.10.95    ip-10-42-10-89.ec2.internal    <none>           <none>
+keda-system      keda-admission-webhooks-6f866cc8ff-s7wd9                   1/1     Running   0             31m   10.42.10.252   ip-10-42-10-89.ec2.internal    <none>           <none>
+keda-system      keda-operator-6799896486-6d42b                             1/1     Running   1 (31m ago)   31m   10.42.10.239   ip-10-42-10-89.ec2.internal    <none>           <none>
+keda-system      keda-operator-metrics-apiserver-674997c6dc-nflkp           1/1     Running   0             31m   10.42.10.202   ip-10-42-10-89.ec2.internal    <none>           <none>
+kube-system      aws-node-4gtw5                                             2/2     Running   0             35m   10.42.10.131   ip-10-42-10-131.ec2.internal   <none>           <none>
+kube-system      aws-node-f2cmn                                             2/2     Running   0             35m   10.42.11.99    ip-10-42-11-99.ec2.internal    <none>           <none>
+kube-system      aws-node-hh4pv                                             2/2     Running   0             35m   10.42.10.89    ip-10-42-10-89.ec2.internal    <none>           <none>
+kube-system      coredns-857cbb5598-d276z                                   1/1     Running   0             38m   10.42.10.236   ip-10-42-10-89.ec2.internal    <none>           <none>
+kube-system      coredns-857cbb5598-zjxh8                                   1/1     Running   0             38m   10.42.10.8     ip-10-42-10-89.ec2.internal    <none>           <none>
+kube-system      kube-proxy-scr48                                           1/1     Running   0             35m   10.42.11.99    ip-10-42-11-99.ec2.internal    <none>           <none>
+kube-system      kube-proxy-x9tl2                                           1/1     Running   0             35m   10.42.10.89    ip-10-42-10-89.ec2.internal    <none>           <none>
+kube-system      kube-proxy-xqdz7                                           1/1     Running   0             35m   10.42.10.131   ip-10-42-10-131.ec2.internal   <none>           <none>
+kube-system      nvidia-device-plugin-daemonset-cgzgv                       1/1     Running   0             34m   10.42.10.148   ip-10-42-10-131.ec2.internal   <none>           <none>
+kube-system      nvidia-device-plugin-daemonset-l9z4n                       1/1     Running   0             34m   10.42.11.42    ip-10-42-11-99.ec2.internal    <none>           <none>
+model-serving    vllm-5f577ccf85-llq95                                      1/1     Running   0             29m   10.42.10.59    ip-10-42-10-131.ec2.internal   <none>           <none>
+monitoring       alertmanager-kube-prometheus-stack-alertmanager-0          2/2     Running   0             32m   10.42.10.107   ip-10-42-10-89.ec2.internal    <none>           <none>
+monitoring       dcgm-exporter-5mrqw                                        1/1     Running   0             30m   10.42.10.235   ip-10-42-10-131.ec2.internal   <none>           <none>
+monitoring       dcgm-exporter-pq89g                                        1/1     Running   0             30m   10.42.11.148   ip-10-42-11-99.ec2.internal    <none>           <none>
+monitoring       kube-prometheus-stack-grafana-788bf6f5b4-xm6w2             3/3     Running   0             32m   10.42.10.153   ip-10-42-10-89.ec2.internal    <none>           <none>
+monitoring       kube-prometheus-stack-kube-state-metrics-fcbf4b6d5-xbxpt   1/1     Running   0             32m   10.42.10.105   ip-10-42-10-89.ec2.internal    <none>           <none>
+monitoring       kube-prometheus-stack-operator-65c585b7c7-5vqqs            1/1     Running   0             32m   10.42.10.185   ip-10-42-10-89.ec2.internal    <none>           <none>
+monitoring       kube-prometheus-stack-prometheus-node-exporter-97jts       1/1     Running   0             32m   10.42.11.99    ip-10-42-11-99.ec2.internal    <none>           <none>
+monitoring       kube-prometheus-stack-prometheus-node-exporter-cr2h2       1/1     Running   0             32m   10.42.10.89    ip-10-42-10-89.ec2.internal    <none>           <none>
+monitoring       kube-prometheus-stack-prometheus-node-exporter-lrr5m       1/1     Running   0             32m   10.42.10.131   ip-10-42-10-131.ec2.internal   <none>           <none>
+monitoring       prometheus-kube-prometheus-stack-prometheus-0              2/2     Running   0             32m   10.42.10.73    ip-10-42-10-89.ec2.internal    <none>           <none>
