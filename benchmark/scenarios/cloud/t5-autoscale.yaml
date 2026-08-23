@@ -11,7 +11,7 @@ data_class: restricted
 quality_tier: premium
 structured_output_mode: baseline-portable
 warmup_requests: 10
-repeats: 3
+repeats: 150
 dataset: benchmark/datasets/synthetic/classification-v1
 slo_config: config/slo.example.yaml
 slo_cell: WL-01/premium
@@ -30,7 +30,11 @@ sampling_parameters:
 notes: >-
   T5 private-only KEDA treatment. Restricted traffic must remain on vLLM with fallback disabled.
   Concurrency 64 is twice the pinned max sequence count, which is intended to sustain queue depth
-  on one L4 replica and request scale-out to replica 2. Measure the queue trigger, scheduling and
-  pod-plus-model cold start on the second warm static GPU node, queue behavior, and the added cost
-  of two provisioned g6.xlarge nodes. Node provisioning latency is out of scope. Karpenter and
-  Spot are not exercised.
+  on one L4 replica and request scale-out to replica 2. The repeat count is sized for load
+  duration, not statistical repetition: a 2026-08-23 attempt with 3 repeats finished its 900
+  requests in 20 seconds, before the second replica finished its measured 7 minute pod-plus-model
+  cold start, so the closed-loop load must persist well past that cold start for the scale event
+  to fall inside the measurement window. Measure the queue trigger, scheduling and pod-plus-model
+  cold start on the second warm static GPU node, queue behavior, and the added cost of two
+  provisioned g6.xlarge nodes. Node provisioning latency is out of scope. Karpenter and Spot are
+  not exercised.
