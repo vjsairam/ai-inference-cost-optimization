@@ -1,5 +1,12 @@
 # Changelog
 
+## Decision brief
+
+- Added a one-page decision brief that summarizes the published runs by workload, with a
+  measured quality and cost chart and a modelled monthly cost chart by request volume.
+- Added a script that renders both charts from `results/published/`, and a unit
+  test that fails when the committed charts no longer match the published runs.
+
 ## Reviewed result publication
 
 - Added a fail-closed run publisher that assembles reviewed evidence, raw-record references,

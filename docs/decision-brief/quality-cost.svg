@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="380" viewBox="0 0 680 380" role="img">
+  <title>Measured quality and cost per correct task</title>
+  <rect width="680" height="380" fill="#ffffff"/>
+  <g font-family="sans-serif" fill="#17212b">
+    <text x="340" y="24" text-anchor="middle" font-size="17" font-weight="600">Measured quality and cost per correct task</text>
+    <text x="340" y="41" text-anchor="middle" font-size="10">View A, 900 requests per arm, 2026-08-17; dashed lines are the baseline quality floors</text>
+    <line x1="80" y1="320.00" x2="480" y2="320.00" stroke="#e5e7eb"/>
+    <text x="74" y="323.00" text-anchor="end" font-size="9">$0.00001</text>
+    <line x1="80" y1="233.33" x2="480" y2="233.33" stroke="#e5e7eb"/>
+    <text x="74" y="236.33" text-anchor="end" font-size="9">$0.0001</text>
+    <line x1="80" y1="146.67" x2="480" y2="146.67" stroke="#e5e7eb"/>
+    <text x="74" y="149.67" text-anchor="end" font-size="9">$0.001</text>
+    <line x1="80" y1="60.00" x2="480" y2="60.00" stroke="#e5e7eb"/>
+    <text x="74" y="63.00" text-anchor="end" font-size="9">$0.01</text>
+    <text x="80.00" y="334" text-anchor="middle" font-size="9">30%</text>
+    <text x="137.14" y="334" text-anchor="middle" font-size="9">40%</text>
+    <text x="194.29" y="334" text-anchor="middle" font-size="9">50%</text>
+    <text x="251.43" y="334" text-anchor="middle" font-size="9">60%</text>
+    <text x="308.57" y="334" text-anchor="middle" font-size="9">70%</text>
+    <text x="365.71" y="334" text-anchor="middle" font-size="9">80%</text>
+    <text x="422.86" y="334" text-anchor="middle" font-size="9">90%</text>
+    <text x="480.00" y="334" text-anchor="middle" font-size="9">100%</text>
+    <line x1="80" y1="60" x2="80" y2="320" stroke="#52606d"/>
+    <line x1="80" y1="320" x2="480" y2="320" stroke="#52606d"/>
+    <text x="280.0" y="352" text-anchor="middle" font-size="10">Share of tasks answered correctly</text>
+    <text x="18" y="190.0" text-anchor="middle" font-size="10" transform="rotate(-90 18 190.0)">Cost per correct task (log scale)</text>
+    <line x1="451.43" y1="60" x2="451.43" y2="320" stroke="#52606d" stroke-dasharray="3 3"/>
+    <text x="447.43" y="314" text-anchor="end" font-size="9" fill="#52606d">classification floor 95%</text>
+    <line x1="394.29" y1="60" x2="394.29" y2="320" stroke="#52606d" stroke-dasharray="3 3"/>
+    <text x="390.29" y="302" text-anchor="end" font-size="9" fill="#52606d">extraction floor 85%</text>
+    <circle cx="353.02" cy="117.97" r="6" fill="#b45309" stroke="#b45309" stroke-width="2">
+      <title>Managed, classification: 77.8% at $0.00214</title>
+    </circle>
+    <text x="363.02" y="114.97" text-anchor="start" font-size="10" fill="#b45309">Managed, classification</text>
+    <text x="363.02" y="126.97" text-anchor="start" font-size="9">77.8% at $0.00214</text>
+    <circle cx="447.62" cy="259.05" r="6" fill="#2563a6" stroke="#2563a6" stroke-width="2">
+      <title>Private vLLM, classification: 94.3% at $0.0000505</title>
+    </circle>
+    <text x="437.62" y="256.05" text-anchor="end" font-size="10" fill="#2563a6">Private vLLM, classification</text>
+    <text x="437.62" y="268.05" text-anchor="end" font-size="9">94.3% at $0.0000505</text>
+    <circle cx="416.51" cy="159.57" r="6" fill="#15803d" stroke="#15803d" stroke-width="2">
+      <title>Hybrid, classification: 88.9% at $0.00071</title>
+    </circle>
+    <text x="426.51" y="156.57" text-anchor="start" font-size="10" fill="#15803d">Hybrid, classification</text>
+    <text x="426.51" y="168.57" text-anchor="start" font-size="9">88.9% at $0.00071</text>
+    <rect x="473.37" y="87.49" width="12" height="12" fill="#b45309" stroke="#b45309" stroke-width="2">
+      <title>Managed, extraction: 99.9% at $0.00411</title>
+    </rect>
+    <text x="469.37" y="90.49" text-anchor="end" font-size="10" fill="#b45309">Managed, extraction</text>
+    <text x="469.37" y="102.49" text-anchor="end" font-size="9">99.9% at $0.00411</text>
+    <rect x="134.95" y="200.28" width="12" height="12" fill="#2563a6" stroke="#2563a6" stroke-width="2">
+      <title>Private vLLM, extraction: 40.7% at $0.000205</title>
+    </rect>
+    <text x="150.95" y="203.28" text-anchor="start" font-size="10" fill="#2563a6">Private vLLM, extraction</text>
+    <text x="150.95" y="215.28" text-anchor="start" font-size="9">40.7% at $0.000205</text>
+    <circle cx="514" cy="66" r="5" fill="#52606d"/>
+    <text x="526" y="69" font-size="10">Classification</text>
+    <rect x="509" y="79" width="10" height="10" fill="#52606d"/>
+    <text x="526" y="88" font-size="10">Extraction</text>
+    <rect x="508" y="104" width="12" height="12" fill="#b45309"/>
+    <text x="526" y="114" font-size="10">Managed</text>
+    <rect x="508" y="122" width="12" height="12" fill="#2563a6"/>
+    <text x="526" y="132" font-size="10">Private vLLM</text>
+    <rect x="508" y="140" width="12" height="12" fill="#15803d"/>
+    <text x="526" y="150" font-size="10">Hybrid</text>
+  </g>
+</svg>

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="380" viewBox="0 0 680 380" role="img">
+  <title>Modelled monthly cost by request volume</title>
+  <rect width="680" height="380" fill="#ffffff"/>
+  <g font-family="sans-serif" fill="#17212b">
+    <text x="340" y="24" text-anchor="middle" font-size="17" font-weight="600">Modelled monthly cost by request volume</text>
+    <text x="340" y="41" text-anchor="middle" font-size="10">View A monthly totals, one NVIDIA L4 per private replica, August 2026 prices</text>
+    <line x1="80" y1="320.00" x2="480" y2="320.00" stroke="#e5e7eb"/>
+    <text x="74" y="323.00" text-anchor="end" font-size="9">$10</text>
+    <line x1="80" y1="241.24" x2="480" y2="241.24" stroke="#e5e7eb"/>
+    <text x="74" y="244.24" text-anchor="end" font-size="9">$100</text>
+    <line x1="80" y1="162.47" x2="480" y2="162.47" stroke="#e5e7eb"/>
+    <text x="74" y="165.47" text-anchor="end" font-size="9">$1,000</text>
+    <line x1="80" y1="83.71" x2="480" y2="83.71" stroke="#e5e7eb"/>
+    <text x="74" y="86.71" text-anchor="end" font-size="9">$10,000</text>
+    <line x1="80.00" y1="60" x2="80.00" y2="320" stroke="#e5e7eb"/>
+    <text x="80.00" y="334" text-anchor="middle" font-size="9">10k</text>
+    <line x1="219.79" y1="60" x2="219.79" y2="320" stroke="#e5e7eb"/>
+    <text x="219.79" y="334" text-anchor="middle" font-size="9">50k</text>
+    <line x1="280.00" y1="60" x2="280.00" y2="320" stroke="#e5e7eb"/>
+    <text x="280.00" y="334" text-anchor="middle" font-size="9">100k</text>
+    <line x1="419.79" y1="60" x2="419.79" y2="320" stroke="#e5e7eb"/>
+    <text x="419.79" y="334" text-anchor="middle" font-size="9">500k</text>
+    <line x1="480.00" y1="60" x2="480.00" y2="320" stroke="#e5e7eb"/>
+    <text x="480.00" y="334" text-anchor="middle" font-size="9">1M</text>
+    <line x1="80" y1="60" x2="80" y2="320" stroke="#52606d"/>
+    <line x1="80" y1="320" x2="480" y2="320" stroke="#52606d"/>
+    <text x="280.0" y="352" text-anchor="middle" font-size="10">Requests per month (log scale)</text>
+    <text x="18" y="190.0" text-anchor="middle" font-size="10" transform="rotate(-90 18 190.0)">USD per month (log scale)</text>
+    <polyline points="80.00,283.82 219.79,228.76 280.00,205.05 419.79,150.00 480.00,126.29" fill="none" stroke="#b45309" stroke-width="2"/>
+    <circle cx="80.00" cy="283.82" r="3" fill="#b45309">
+      <title>Managed, short prompts: 10,000 requests, $29</title>
+    </circle>
+    <circle cx="219.79" cy="228.76" r="3" fill="#b45309">
+      <title>Managed, short prompts: 50,000 requests, $144</title>
+    </circle>
+    <circle cx="280.00" cy="205.05" r="3" fill="#b45309">
+      <title>Managed, short prompts: 100,000 requests, $288</title>
+    </circle>
+    <circle cx="419.79" cy="150.00" r="3" fill="#b45309">
+      <title>Managed, short prompts: 500,000 requests, $1,440</title>
+    </circle>
+    <circle cx="480.00" cy="126.29" r="3" fill="#b45309">
+      <title>Managed, short prompts: 1,000,000 requests, $2,880</title>
+    </circle>
+    <polyline points="80.00,236.40 219.79,181.34 280.00,157.63 419.79,102.58 480.00,78.87" fill="none" stroke="#b45309" stroke-width="2" stroke-dasharray="6 4"/>
+    <circle cx="80.00" cy="236.40" r="3" fill="#b45309">
+      <title>Managed, medium prompts: 10,000 requests, $115</title>
+    </circle>
+    <circle cx="219.79" cy="181.34" r="3" fill="#b45309">
+      <title>Managed, medium prompts: 50,000 requests, $576</title>
+    </circle>
+    <circle cx="280.00" cy="157.63" r="3" fill="#b45309">
+      <title>Managed, medium prompts: 100,000 requests, $1,152</title>
+    </circle>
+    <circle cx="419.79" cy="102.58" r="3" fill="#b45309">
+      <title>Managed, medium prompts: 500,000 requests, $5,760</title>
+    </circle>
+    <circle cx="480.00" cy="78.87" r="3" fill="#b45309">
+      <title>Managed, medium prompts: 1,000,000 requests, $11,520</title>
+    </circle>
+    <polyline points="80.00,181.14 480.00,181.14" fill="none" stroke="#2563a6" stroke-width="2"/>
+    <circle cx="80.00" cy="181.14" r="3" fill="#2563a6">
+      <title>Private, high utilization: 10,000 requests, $579</title>
+    </circle>
+    <circle cx="219.79" cy="181.14" r="3" fill="#2563a6">
+      <title>Private, high utilization: 50,000 requests, $579</title>
+    </circle>
+    <circle cx="280.00" cy="181.14" r="3" fill="#2563a6">
+      <title>Private, high utilization: 100,000 requests, $579</title>
+    </circle>
+    <circle cx="419.79" cy="181.14" r="3" fill="#2563a6">
+      <title>Private, high utilization: 500,000 requests, $579</title>
+    </circle>
+    <circle cx="480.00" cy="181.14" r="3" fill="#2563a6">
+      <title>Private, high utilization: 1,000,000 requests, $579</title>
+    </circle>
+    <polyline points="80.00,181.14 419.79,181.14 419.79,157.43 480.00,157.43" fill="none" stroke="#2563a6" stroke-width="2" stroke-dasharray="6 4"/>
+    <circle cx="80.00" cy="181.14" r="3" fill="#2563a6">
+      <title>Private, typical utilization: 10,000 requests, $579</title>
+    </circle>
+    <circle cx="219.79" cy="181.14" r="3" fill="#2563a6">
+      <title>Private, typical utilization: 50,000 requests, $579</title>
+    </circle>
+    <circle cx="280.00" cy="181.14" r="3" fill="#2563a6">
+      <title>Private, typical utilization: 100,000 requests, $579</title>
+    </circle>
+    <circle cx="419.79" cy="181.14" r="3" fill="#2563a6">
+      <title>Private, typical utilization: 500,000 requests, $579</title>
+    </circle>
+    <circle cx="480.00" cy="157.43" r="3" fill="#2563a6">
+      <title>Private, typical utilization: 1,000,000 requests, $1,159</title>
+    </circle>
+    <polyline points="80.00,181.14 280.00,181.14 280.00,157.43 340.21,157.43 340.21,143.56 375.42,143.56 375.42,133.72 400.41,133.72 400.41,126.09 419.79,126.09 419.79,119.85 435.63,119.85 435.63,114.58 449.02,114.58 449.02,110.01 460.62,110.01 460.62,105.98 470.85,105.98 470.85,102.38 480.00,102.38" fill="none" stroke="#2563a6" stroke-width="2" stroke-dasharray="2 3"/>
+    <circle cx="80.00" cy="181.14" r="3" fill="#2563a6">
+      <title>Private, low utilization: 10,000 requests, $579</title>
+    </circle>
+    <circle cx="219.79" cy="181.14" r="3" fill="#2563a6">
+      <title>Private, low utilization: 50,000 requests, $579</title>
+    </circle>
+    <circle cx="280.00" cy="181.14" r="3" fill="#2563a6">
+      <title>Private, low utilization: 100,000 requests, $579</title>
+    </circle>
+    <circle cx="419.79" cy="126.09" r="3" fill="#2563a6">
+      <title>Private, low utilization: 500,000 requests, $2,897</title>
+    </circle>
+    <circle cx="480.00" cy="102.38" r="3" fill="#2563a6">
+      <title>Private, low utilization: 1,000,000 requests, $5,795</title>
+    </circle>
+    <line x1="500" y1="66" x2="524" y2="66" stroke="#b45309" stroke-width="2"/>
+    <text x="530" y="69" font-size="10">Managed, short prompts</text>
+    <line x1="500" y1="84" x2="524" y2="84" stroke="#b45309" stroke-width="2" stroke-dasharray="6 4"/>
+    <text x="530" y="87" font-size="10">Managed, medium prompts</text>
+    <line x1="500" y1="102" x2="524" y2="102" stroke="#2563a6" stroke-width="2"/>
+    <text x="530" y="105" font-size="10">Private, high utilization</text>
+    <line x1="500" y1="120" x2="524" y2="120" stroke="#2563a6" stroke-width="2" stroke-dasharray="6 4"/>
+    <text x="530" y="123" font-size="10">Private, typical utilization</text>
+    <line x1="500" y1="138" x2="524" y2="138" stroke="#2563a6" stroke-width="2" stroke-dasharray="2 3"/>
+    <text x="530" y="141" font-size="10">Private, low utilization</text>
+  </g>
+</svg>
