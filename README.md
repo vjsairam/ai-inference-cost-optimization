@@ -5,7 +5,8 @@ vLLM service, or a policy-routed hybrid is the lower-cost choice after quality, 
 and reliability constraints are applied. The first full cloud run completed on 2026-08-17, and
 its headline is that there is no single winner: the private 7B model dominated classification on
 both quality and cost, the managed premium model dominated extraction quality, and the policy
-router priced the blend in between. The measured evidence is under `results/published/`.
+router priced the blend in between. The measured evidence is under `results/published/`, and
+the [decision brief](docs/decision-brief.md) summarizes it on one page.
 
 The central question is not which token or GPU rate looks smaller. Managed inference has
 usage-linked charges and external-provider constraints; private inference carries provisioned GPU
